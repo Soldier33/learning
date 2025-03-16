@@ -1,0 +1,2 @@
+1. git bash 
+复制粘贴Shift + Insert

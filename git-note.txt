@@ -1,0 +1,16 @@
+一. Git并连接GitHub
+
+1. 配置git
+git config --global user.name "user_name"
+git config --global user.email "user_email"
+ 
+2.生成SSH密钥，用于与github建立安全通信：
+ssh-keygen -t rsa -b 4096 -C "user_email"
+ 
+3.查看公钥内容，并添加到github上 （github -> setting -> SSH and GPG keys）
+cat ~/.ssh/id_rsa.pub （需要git bash上才能执行）
+
+4.验证SSH连接
+ssh -T git@github.com
+输入yes
+显示类似信息则表示成功：Hi user_name! You've successfully authenticated, but GitHub does not provide shell access.
