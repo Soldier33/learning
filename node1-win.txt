@@ -28,26 +28,32 @@ overflow: hidden;
     F.call(obj);
 
 五、深拷贝（手写）
-var deepClone= (obj,map=new WeakMap()) =>{
-  if(map.get(obj)){
-	  return obj
-  }
 
-  let newObj;
-  if(typeof obj==='object'&& obj!==null){
-	  map.set(obj,true)
-  	newObj=Array.isArray(obj)?[]:{};
-  	for(let item in obj){
-  		if(obj.hasOwnProperty(item)){
-  			newObj[item]=deepClone(obj[item])
-		}
-	}
-  	return newObj;
-  }
-  else {
-  	return obj;
-  }
-};
+const deepClone = (() => {
+  const map = new WeakMap(); // ① 使用闭包共享单例
+
+  return function(obj) {
+    if (map.has(obj)) return map.get(obj); // ②
+
+    if (typeof obj !== 'object' || obj === null) {
+      return obj; // ③ 基础类型直接返回
+    }
+
+    const clone = Array.isArray(obj) ? [] : {}; // ④
+    map.set(obj, clone); // ⑤ 记录原对象→克隆体
+
+    Object.keys(obj).forEach(key => { // ⑥
+      clone[key] = deepClone(obj[key]); // ⑦ 递归克隆
+    });
+
+    return clone;
+  };
+})();
+
+// 测试循环引用
+const circular = { a: 1 };
+circular.self = circular;
+console.log(deepClone(circular)); // { a: 1, self: { a: 1, self: [Circular] } }
 
 六、 js文件中没有DOM操作，可以将JavaScript脚本设置为异步加载，用async或defer标记代码，
     都是用来异步加载脚本，不会阻塞页面渲染。defer顺序可控，（async脚本独立时用）
@@ -59,9 +65,9 @@ var deepClone= (obj,map=new WeakMap()) =>{
 
 十、bfc:display:inline-block、flex
 
-十一、http
-1.x： 文本格式，序列和阻塞机制
-2：   二进制数据帧， 帧属于哪个流有标识，多路复用，避免旧版的队头阻塞，同一个tcp可发多个请求
+十一、http 
+1.x： 文本格式，序列和阻塞机制    1.1 keep-alive支持长连接 三次握手
+2：   二进制数据帧， 帧属于哪个流有标识，多路复用，避免旧版的队头阻塞，同一个tcp可发多个请求, header头部压缩
 3：   udp， 采用quic协议，无队头阻塞的多路复用，丢包不阻塞
 
 十二、前端内存泄漏：未清空的定时器、闭包、引用未被清除
@@ -111,16 +117,6 @@ display: none;
 visibility: hidden;
 opacity: 0;
 
-
-五
-面试题库：https://fe.ecool.fun/topic-list?tagId=26
-（手写promise.all,对象扁平化，eventloop时序考察，还有一道貌似是全排列，记不清了）
-《JavaScript设计模式与开发实践》
-《你不知道的js》上中下本
-《代码整洁之道》
-《重构:改善既有代码的设计》
-《图解HTTP》、《图解TCP/IP》
-
 十八、 //二分查找 （手写）
 function binary(arr, val) {
     if (!arr.length) return -1;
@@ -154,17 +150,45 @@ function inCircle(cx,cy,x,y,r){
 
 
 二十一、nginx的场景，图片防盗链怎么做，反向代理是什么，怎么做
-图片防盗链实现：Referer字段实现。
-反向代理（Reverse Proxy）
-2.1 核心概念
-反向代理充当客户端与后端服务器之间的中介：
+    图片防盗链实现：Referer字段实现。
+    反向代理（Reverse Proxy）
+    2.1 核心概念
+    反向代理充当客户端与后端服务器之间的中介：
 
-功能：
+    功能：
 
-隐藏真实服务器IP，提升安全性。
+    隐藏真实服务器IP，提升安全性。
 
-负载均衡，分散请求压力。
+    负载均衡，分散请求压力。
 
-缓存静态内容，加速访问。
+    缓存静态内容，加速访问。
 
-SSL终止，集中管理HTTPS证书
+    SSL终止，集中管理HTTPS证书
+
+二十二、为了流畅滚动
+虚拟列表的基本原理：
+虚拟列表通过只渲染当前可视区域内的列表项，从而提高长列表加载到页面的性能。
+
+1. 设置子数据项高度：确定子数据项的具体高度。以确定当前区域内需要渲染的列表项。
+2. 计算可视区域高度：确定当前可视区域内可渲染多少条子数据项，计算起始下标、结束下标。避免渲染整个列表。
+3. 渲染可视区域：保持渲染的DOM节点数量始终在一个较小的范围内，通过动态调整渲染内容的位置，保持列表高度完整且滚动条能正常滚动。
+4. 滚动监听：监听容器的滚动事件，实时获取滚动位置，通过滚动位置实时更新可视区域范围，动态渲染对应列表项。
+5. 设置缓冲列表项：在可视区域的上下各增加一定数量的缓冲列表项，提前加载即将进入可视区域的列表项，避免滚动时出现空白以及卡顿的情况。
+
+应用场景不同：
+需要快速打开页面 → 优先懒加载
+需要流畅滚动长列表 → 必须虚拟列表
+
+懒加载，分页
+
+二十三、Gzip是一种数据压缩算法，用于减少文件大小，加快传输速度。它通过将重复的字符串用更短的代码表示来压缩数据。
+
+
+待办：
+ 面试题库：https://fe.ecool.fun/topic-list?tagId=26
+（手写promise.all,对象扁平化)
+《JavaScript设计模式与开发实践》
+《你不知道的js》上中下本
+《代码整洁之道》
+《重构:改善既有代码的设计》
+《图解HTTP》、《图解TCP/IP》
