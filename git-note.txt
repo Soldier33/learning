@@ -14,3 +14,7 @@ cat ~/.ssh/id_rsa.pub （需要git bash上才能执行）
 ssh -T git@github.com
 输入yes
 显示类似信息则表示成功：Hi user_name! You've successfully authenticated, but GitHub does not provide shell access.
+
+二、开了梯子后，git上传失败了
+
+git config --global http.sslVerify "false"
