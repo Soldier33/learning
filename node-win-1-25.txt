@@ -69,6 +69,24 @@ console.log(deepClone(circular)); // { a: 1, self: { a: 1, self: [Circular] } }
 1.x： 文本格式，序列和阻塞机制    1.1 keep-alive支持长连接 三次握手
 2：   二进制数据帧， 帧属于哪个流有标识，多路复用，避免旧版的队头阻塞，同一个tcp可发多个请求, header头部压缩
 3：   udp， 采用quic协议，无队头阻塞的多路复用，丢包不阻塞
+        无队头阻塞的多路复用
+        1-RTT建连 ， 0-RTT连接建立   （Round-Trip Time，RTT）
+        无歧义重传
+
+        多路复用升级版
+    * HTTP/2 的痛点： 虽然支持多请求并发（多路复用），但底层 TCP 一旦丢包，所有请求被阻塞。
+    * HTTP/3 的改进： QUIC 为每个请求分配独立流（Stream），丢包只影响当前流，其他流正常传输。
+    「快递车道」协议（QUIC）
+    加密直接集成到协议中（强制 HTTPS）：再次连接：0-RTT 极速恢复
+    QUIC 用 连接 ID 标识会话，IP 或网络变化时，无需重新握手，直接继续传输
+    QUIC 还支持拥塞控制，它可以根据网络条件调整数据包的发送速率，以避免网络拥塞
+    前向安全性
+
+	缺点：
+	QUIC协议更容易受到分布式拒绝服务（DDoS）
+	兼容性问题
+	较小数据包的传输速率较低
+	故障排除困难
 
 十二、前端内存泄漏：未清空的定时器、闭包、引用未被清除
 
@@ -128,7 +146,7 @@ function binary(arr, val) {
                 return i;
             }
             else if (arr[i] > val) {
-                high = mid - 1；
+                high = mid - 1;
             } else if (arr[i] < val) {
                 low = mid + 1;
             }
@@ -181,12 +199,11 @@ function inCircle(cx,cy,x,y,r){
 
 懒加载，分页
 
-二十三、Gzip是一种数据压缩算法，用于减少文件大小，加快传输速度。它通过将重复的字符串用更短的代码表示来压缩数据。
+二十三、操作Dom ：   offsetWidth; // 获取元素的宽度 
 
 
-待办：
+Tips：
  面试题库：https://fe.ecool.fun/topic-list?tagId=26
-（手写promise.all,对象扁平化)
 《JavaScript设计模式与开发实践》
 《你不知道的js》上中下本
 《代码整洁之道》

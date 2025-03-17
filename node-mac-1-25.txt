@@ -1,0 +1,208 @@
+面试知识点1-25
+
+面试题：https://github.com/pro-collection/interview-question/issues
+
+一、vue3 ：watch和watchEffect的区别
+watch要指定监听的数据，可以知道变化前后的数据
+watchEffect ，不需要指定，自动依赖收集，仅提供新值，简化配置
+https://juejin.cn/post/7474062103994646582
+
+二、vue3的dom树为什么快，渲染机制，带编译时信息的虚拟dom
+1. 缓存静态内容，没有变量的节点就不做对比，直接缓存
+2. 更新类型标记，vnode创建时编码了每个元素需要更新的类型 (补丁patch算法优化)
+3. 树结构打平，被打标记的节点被存在数组里面
+
+静态提升、补丁算法优化、事件处理优化:静态事件提升、事件缓存（将这个事件监听器提取出来 复用）
+
+三、密钥必须安全存储和传输，避免泄露
+
+四、BFC是一块块独立的渲染区域，可以将BFC看成是元素的一种属性，
+	拥有了这种属性的元素就会使他的子元素与世隔绝，不会影响到外部其他元素
+
+	使用BFC解决子元素浮动导致父元素高度塌陷的机制
+	margin重叠机制
+	普通元素和浮动元素相互重叠的机制
+
+五、http缓存
+	A.强缓存：
+		1. expires，废弃，因为本地时间和服务器时间不同步的问题
+		2. cache-control  http1.1添加
+			'Cache-Control':'max-age=10'
+			Cache-control有max-age、s-maxage、no-cache、no-store、private、public这六个属性。
+
+            * no-cache表示是强制进行协商缓存。
+            * no-store是表示禁止任何缓存策略。
+	B. 协商缓存：
+	 1.  last-modified 获取时间， Cache-Control字段值设置为:no-cache
+	     判断依据： last-modified === If-Modified-Since 则采用缓存 （存在漏洞，比如只修改文件名、修改时间极短）
+	2. e-tag 作为补充。 比较文件指纹，资源内容hash 的信息摘要  。
+	   （文件太多就影响性能，所以有强验证和弱验证，弱验证就去文件部份属性进行hash）
+	
+	304 状态码主要与以下 HTTP 响应头有关：
+	一、Last-Modified 和 If-Modified-Since
+	二、ETag 和 If-None-Match
+	ETag的生成  1 、基于资源内容生成（hash）  2. 基于资源属性生成 （时间戳） 3. 动态生成（服务端逻辑 特定业务）
+
+状态码：
+	301 Moved Permanently（永久重定向）
+	302 Found（临时重定向）
+    * 测试环境：使用 302 将流量临时导向测试服务器，完成后移除重定向。
+
+	400 Bad Request（错误请求）
+	401 Unauthorized（未授权）
+	403 Forbidden（禁止访问）
+	405 Method Not Allowed（方法不被允许）
+	408 Request Timeout（请求超时）
+	429 Too Many Requests（请求过多）
+
+
+
+六、Webpack 和 vite 的原理
+
+	热更新就是更新受影响的模块，但是不刷新页面
+	1. Webpack 核心是项目整体打包，将多个文件打包成一个，首次加载时间过长，bundle文件
+	webpack热更新复杂，要对css,js不同类型的模块针对性不同配置
+
+	2. vite核心是基于esm的开发服务器，浏览器请求资源，对应发送资源，启动快，
+开发环境运用esbuild
+生产构建阶段给予Rollup
+生产构建会进行预购建，就是将非esm转为esm
+	esm浏览器原生支持：通过 <script type="module"> 加载。
+
+七、实例上的__proto__ == 构造函数上的prototype
+
+八、Object.keys()只返回了可枚举的属性property1和property2，
+	而Object.getOwnPropertyNames()返回了所有属性，包括不可枚举的nonEnumerableProperty
+
+九、nextTick 作用： 1. 确保 DOM 更新后执行操作 2. 处理异步操作后的 DOM 操作
+	原理： 利用事件循环， 异步队列
+
+十、不可复制
+	css: user-select: none;
+	Js document.addEventListener("copy", function (e) {
+        	e.preventDefault();
+        });
+
+十一、[Vue] reactive() 的局限性
+1. 基础数据不能响应式、 
+2. 不能替换整个对象// 这样做是错误的，不会保持响应性 state = { count: 1 };
+3. 解构操作不友好
+// 直接解构将会失去响应性
+const { count, title } = state;
+
+// 使用 toRefs 解构，保持响应性
+const { count, title } = toRefs(state);
+
+十二、gorm提供了简便且丰富的数据库操作 api，减少sql注入风险
+
+
+十三、TLS（Transport Layer Security，传输层安全协议）和 
+	SSL（Secure Sockets Layer，安全套接字层）
+	ls更安全
+
+十四、
+	一、证书颁发机构（CA）的信任体系
+    1. 根证书的信任：2. 中间证书的验证：
+	二、证书的验证过程
+    1. 证书的完整性检查：2. 证书的有效期检查：3. 域名匹配检查：
+	三、证书吊销检查
+    1. 证书吊销列表（CRL）： 2. 在线证书状态协议（OCSP）：
+
+十五、分片上传文件，如何校验文件完整性
+	一、使用哈希算法 : JavaScript 的crypto-js库计算文件的 MD5 哈希值：
+	二、校验和（字节总和）
+	三、文件大小比较
+	四、上传状态跟踪 （收到表示确认）
+
+十六、try catch : 只能在同步函数或者async 函数中使用 try...catch。异步函数不行
+
+十七、Content-Type为application/octet-stream，代表以下含义：
+    * application/octet-stream表示这是一个通用的二进制流数据
+    * 可以用于传输各种类型的二进制文件，如图片、音频、视频、压缩文件、可执行文件等。
+
+十八、常见性能优化手段
+1. 加载优化
+* 资源压缩：
+    * CSS/JS 压缩：移除空格、注释，缩短文件体积（如使用 uglify-js、cssnano）。
+    * 图片优化：压缩格式（WebP）、懒加载（loading="lazy"）、CDN 加速。
+* 缓存策略：
+    * 强缓存（Cache-Control: max-age=31536000）减少重复下载。
+    * 协商缓存（ETag、Last-Modified）。
+* 按需加载	◦	
+        * 代码分割：通过 Webpack 的 splitChunks 分割代码。
+        * 动态导入：import() 实现按需加载模块。
+1. 渲染优化：减少重绘与重排
+2. 资源优化： Tree Shaking： 图片懒加载： 
+3. 代码优化：避免阻塞渲染：减少第三方脚本：
+4. 网络优化：HTTP/2 或 HTTP/3：DNS 预解析：预连接，合并请求
+
+* 图片懒加载 + CDN 加速 → 页面加载时间减少 40%。
+* 服务端渲染（SSR） + 预取关键资源 → 首屏时间提升 30%。
+
+
+十九、性能优化方案：https://juejin.cn/post/7326268947069534234#heading-3
+第一种，启用前端缓存
+第二种，开启GZIP压缩 
+第三种，使用函数节流和函数防抖
+第四种，异步加载script文件或将script文件放在最后加载
+第五种，减少重排和重绘
+第六种，使用服务端渲染
+第七种，将png/jpg/gif图片替换为webp格式图片
+第八种，合并请求
+第九种，启用事件委托（事件代理）
+第十种，尽量使用CSS完成动画效果
+第十一种，适当使用memo --- React篇
+第十二种，使用懒加载
+第十三种，使用骨架屏
+第十四种，将moment.js换成day.js
+
+Gzip是一种数据压缩算法，用于减少文件大小，加快传输速度。它通过将重复的字符串用更短的代码表示来压缩数据。
+二十、Web 安全问题及防御措施
+	XSS（跨站脚本攻击）
+	CSRF（跨站请求伪造）   后端生成 Token，前端提交时携带。
+	SQL 注入
+	DDoS（分布式拒绝服务）
+	敏感信息泄露
+	
+
+
+二十一、不需要等待所有异步操作完成时，可以使用 forEach
+如果你需要按顺序等待每个异步操作完成，使用 for 循环（或其他支持 await 的循环，如 for...of 或传统的 for 循环）
+
+二十二、
+pinia 简洁和直观的 API , state, action, 灵活和易于使用。可以轻松地将 store 拆分为多个模块,action 能使用异步操作
+Vuex 的语法相对较为复杂，需要定义state mutations、actions 和 getters 
+
+二十三、服务端向客户端推送数据的实现方案
+1. 轮询。   浏览器请求并发是有限制的 ， 6个最多， 消耗性能
+2. websocket。， 双向通讯的协议。 （聊天）
+3. SSE  ie不支持 ， 一个单向通讯的协议也是一个长链接， 只能服务端主动给客户端推送数据
+
+二十四、
+需要在客户端和服务器之间传递少量数据，例如登录状态：Cookie。 httpOnly传递token , 4k
+• 需要在客户端长期存储大量数据，例如用户偏好设置：LocalStorage , 5m
+• 需要在客户端临时存储数据，例如填写表单的中间数据：SessionStorage， 5m
+
+
+* Secure：表示 Cookie 只能通过 HTTPS 协议传输。
+
+
+二十五、[webpack] 如何优化产物大小 https://github.com/pro-collection/interview-question/issues/887
+
+1. 使用 Tree Shaking   清除未引用代码
+2. 启用压缩(Uglification)  如删除未使用的代码、缩短变量名等
+3. 代码分割(Code Splitting)   可以把代码分成多个 bundle，然后按需加载，从而减少初始加载时间
+4. 使用 Externals 减轻体积
+5. 利用缓存(Caching)  [contenthash] 替换 [hash] 或 [chunkhash] 来为输出文件命名，只有当文件内容改变时，文件名称才改变
+6. 移除未使用的 CSS 自动去除未使用的 CSS
+7. 优化图片   image-webpack-loader等图片压缩插件，可以减小图片文件的体积
+
+
+webpack 中有三种生成哈希值规则的方式，可以用来区分文件是否修改。
+* hash 与整个项目有关，项目里有文件修改，所有文件的哈希值都会变化。
+* chunkhash 与入口有关，同一入口的文件被视为一个整体，当其中一个文件修改时，同入口的所有文件哈希值发生改变。
+* contenthash 只与文件内容有关，文件内容发生改变，才会更改该文件的哈希值
+
+
+
+
