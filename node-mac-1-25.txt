@@ -14,6 +14,12 @@ https://juejin.cn/post/7474062103994646582
 
 静态提升、补丁算法优化、事件处理优化:静态事件提升、事件缓存（将这个事件监听器提取出来 复用）
 
+静态节点和属性提升：减少重复创建和比对。
+补丁标志：精准更新动态节点。
+块树优化：缩小比对范围。
+事件侦听器缓存：减少事件处理开销。
+Tree Shaking 支持：减少打包体积。
+
 三、密钥必须安全存储和传输，避免泄露
 
 四、BFC是一块块独立的渲染区域，可以将BFC看成是元素的一种属性，
@@ -64,9 +70,9 @@ https://juejin.cn/post/7474062103994646582
 	webpack热更新复杂，要对css,js不同类型的模块针对性不同配置
 
 	2. vite核心是基于esm的开发服务器，浏览器请求资源，对应发送资源，启动快，
-开发环境运用esbuild
-生产构建阶段给予Rollup
-生产构建会进行预购建，就是将非esm转为esm
+	开发环境运用esbuild
+	生产构建阶段给予Rollup
+	生产构建会进行预购建，就是将非esm转为esm
 	esm浏览器原生支持：通过 <script type="module"> 加载。
 
 七、实例上的__proto__ == 构造函数上的prototype
@@ -157,6 +163,26 @@ const { count, title } = toRefs(state);
 第十四种，将moment.js换成day.js
 
 Gzip是一种数据压缩算法，用于减少文件大小，加快传输速度。它通过将重复的字符串用更短的代码表示来压缩数据。
+Nginx 流量按比例转发:https://juejin.cn/post/7463871170015019023
+可以通过 加权轮询（Weighted Round Robin） 或 split_clients 模块来实现 流量按比例转发。以下是两种常见的实现方式：
+
+http {
+    upstream backend {
+        server backend1.example.com weight=3;  # 权重为 3
+        server backend2.example.com weight=2;  # 权重为 2
+        server backend3.example.com weight=1;  # 权重为 1
+    }
+
+    server {
+        listen 80;
+
+        location / {
+            proxy_pass http://backend;
+        }
+    }
+}
+
+
 二十、Web 安全问题及防御措施
 	XSS（跨站脚本攻击）
 	CSRF（跨站请求伪造）   后端生成 Token，前端提交时携带。
@@ -203,6 +229,19 @@ webpack 中有三种生成哈希值规则的方式，可以用来区分文件是
 * chunkhash 与入口有关，同一入口的文件被视为一个整体，当其中一个文件修改时，同入口的所有文件哈希值发生改变。
 * contenthash 只与文件内容有关，文件内容发生改变，才会更改该文件的哈希值
 
+Loader 和 Plugin 的区别
+					Loader						Plugin
+典型应用	处理 CSS、图片、字体等资源	  代码压缩、资源管理、环境变量注入等
+配置方式	在 module.rules 中配置	     在 plugins 中配置
+作用	    转换模块的源代码			  扩展 Webpack 的功能
+输入/输出	接收源文件，返回转换后的内容   不直接处理文件，而是操作构建过程
+Loader：用于转换模块的源代码。适合处理文件级别的任务（如 CSS、图片、字体等）。通过 module.rules 配置。
+Plugin：用于扩展 Webpack 的功能。适合处理构建过程级别的任务（如代码压缩、资源优化等）。通过 plugins 配置。
 
+Webpack 的热更新基于文件监听和模块依赖图，适合需要兼容性和复杂构建逻辑的项目，但随着项目规模增大，更新速度会变慢。
+Vite 的热更新基于 ESM 和浏览器原生模块系统，更新速度极快，适合现代浏览器环境的大型项目。
 
+生产环境中，Vite 使用 Rollup 进行打包。Rollup 同样支持将 CommonJS 模块转换为 ESM。
 
+开发环境：使用 ESBuild 动态将 CommonJS 模块转换为 ESM。
+生产环境：使用 Rollup 和 @rollup/plugin-commonjs 插件打包 CommonJS 模块。
