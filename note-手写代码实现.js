@@ -167,12 +167,62 @@ function JLInstanceof(target, origin){
 // 数组去重 （手写）
 // 1. new Set(arr)
 // 2. 
- let newArr = arr.filter((item, index) => {
-     return arr.indexOf(item) === index
- })
+//  let newArr = arr.filter((item, index) => {
+//      return arr.indexOf(item) === index
+//  })
+
+// unshift 最前面添加元素
+
+Array.prototype.myUnshift = function () {
+  const len = arguments.length;
+  for (let i = len - 1; i >= 0; i--) {
+      const elment = arguments[i];
+      this.splice(0, 0, element);
+  }
+
+  return this.length;
+}
 
 
-// （手写promise.all)
+
+// 手写promise.all :https://juejin.cn/post/7139579285055995917
+function all(promises) { 
+  // 问题关键: 什么时候要执行resolve, 什么时候要执行reject 
+  return new Promise((resolve, reject) => { 
+      const values = [] 
+      promises.forEach(promise => { 
+          promise.then(res => { 
+              values.push(res) 
+              // 如果所有的Promise都正确执行了 
+              if (values.length === promises.length) { 
+                  resolve(values) 
+              } 
+          }, err => { 
+          // 否则只要有一个执行错误就reject 
+              reject(err) 
+          }) 
+      }) 
+   }) 
+  }
+
+
+  function any(promises) {
+    // resolve必须等到有一个成功的结果
+    // reject所有的都失败才执行reject
+    const reasons = []
+    return new Promise((resolve, reject) => {
+      promises.forEach(promise => {
+        promise.then(resolve, err => {
+          reasons.push(err)
+          if (reasons.length === promises.length) {
+            reject(new AggregateError(reasons))
+          }
+        })
+      })
+    })
+  }
+
+  
 // 对象扁平化
 function JLObjectFlat(obj = ''){
   const res = {};

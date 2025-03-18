@@ -49,7 +49,9 @@ function insertionSort(arr: number[]): number[] {
     }
     return arr;
 }
-// 3. 归并排序（Merge Sort）递归，二分之一开始递归，分成了很多小的两个区间，将两个区间进行每个比较排好序
+// 3. 归并排序,（Merge Sort）
+// 递归，二分之一开始递归，分成了很多小的两个区间，将两个区间进行每个比较排好序
+// 数组做参数，分割数组slice
 function mergeSort(arr: number[]): number[] {
     const n = arr.length;
     if (n <= 1) return arr;
@@ -75,7 +77,9 @@ function merge(left: number[], right: number[]):number[] {
     return result;
 }
 
-// 4. 快递排序，（递归）选中基准，然后分割左右，然后再将元素与基准进行比较，左边元素小于基准，右边元素大于基准
+// 4. 快递排序，
+// （递归）选中基准，然后分割左右，然后再将元素与基准进行比较，左边元素小于基准，右边元素大于基准
+// 参数，arr,low,high
 function quickSort(arr, low = 0, high = arr.length - 1) {
     if (low < high) {
         const pivotIndex = partition(arr, low, high);
@@ -104,12 +108,7 @@ function partition(arr, low, high) {
 
 
 
-
-
-
-
-
-//  5. 二分查找 （手写）
+//  5. 二分查找 （手写） while + for
 function binary(arr, val) {
     if (!arr.length) return -1;
     let low = 0, high = arr.length;
@@ -128,7 +127,8 @@ function binary(arr, val) {
     }
 }
 
-// 6. 二分插入，遍历，从[1]开始，跟前面的元素比较，只是每次从二分之一开始
+// 6. 二分插入，遍历，从[1]开始，跟前面的元素比较，只是每次从二分之一开始。 
+    // for + while 开始找最小的下标low，for 开始腾挪 ， 然受arr[low]设置
 function binaryInsertionSort(arr) {
     for (let i = 1; i < arr.length; i++) {
         const key = arr[i];
@@ -141,7 +141,7 @@ function binaryInsertionSort(arr) {
                 low = mid + 1;
             }
         }
-
+        // 移动
         for (let j = i; j > low; j--) {
             arr[j] = arr[j - 1];
         }

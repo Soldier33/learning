@@ -18,3 +18,9 @@ ssh -T git@github.com
 二、开了梯子后，git上传失败了
 
 git config --global http.sslVerify "false"
+
+
+三、window安装node失败解决办法
+    https://developer.aliyun.com/article/1105802
+    管理员执行命令：
+    msiexec /package node-v22.14.0-x64.msi
