@@ -132,7 +132,6 @@ const deepClone = (() => {
 })();
 
 
-
 function JLInstanceof(target, origin){
     while(target) {
       if(target.__proto__ === origin.prototype){
@@ -186,6 +185,7 @@ Array.prototype.myUnshift = function () {
 
 
 // 手写promise.all :https://juejin.cn/post/7139579285055995917
+// 否则只要有一个执行错误就reject 
 function all(promises) { 
   // 问题关键: 什么时候要执行resolve, 什么时候要执行reject 
   return new Promise((resolve, reject) => { 
@@ -205,6 +205,7 @@ function all(promises) {
    }) 
   }
 
+  
 
   function any(promises) {
     // resolve必须等到有一个成功的结果

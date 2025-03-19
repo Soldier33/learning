@@ -17,7 +17,7 @@
 // 作者：coderwhy
 // 链接：https://juejin.cn/post/7208466455879467045
 
-// 1. 选择排序，遍历平方,每次遍历找到最小的值放在最前面
+// 1. 选择排序，遍历平方,每次遍历找到最小的值放在最前面,参数arr， 找到最小的值的下标，然后交换位置
 function selectionSort(arr: number[]): number[] {
     for (let i = 0; i < arr.length; i++) {
         let minIndex = i;
@@ -34,7 +34,7 @@ function selectionSort(arr: number[]): number[] {
     return arr;
 }
 
-// 2. 插入排序，遍历，从[1]开始，跟前面的元素进行比较，如果比它小，就位置往前挪
+// 2. 插入排序，遍历，从[1]开始，跟前面的元素进行比较，如果比它小，就位置往前挪，参数是arr , for + while
 function insertionSort(arr: number[]): number[] {
     for (let i = 1; i < arr.length; i++) {
         let current = arr[i];
@@ -49,6 +49,7 @@ function insertionSort(arr: number[]): number[] {
     }
     return arr;
 }
+
 // 3. 归并排序,（Merge Sort）
 // 递归，二分之一开始递归，分成了很多小的两个区间，将两个区间进行每个比较排好序
 // 数组做参数，分割数组slice
@@ -108,7 +109,9 @@ function partition(arr, low, high) {
 
 
 
-//  5. 二分查找 （手写） while + for
+//  5. 二分查找 （手写） while + for , 参数arr, val ,
+//   定义low, high, 找到中间值mid, 然后比较mid和val, 如果mid大于val, 那么high = mid - 1, 
+//  如果mid小于val, 那么low = mid + 1, 如果mid等于val, 那么返回mid
 function binary(arr, val) {
     if (!arr.length) return -1;
     let low = 0, high = arr.length;
@@ -125,6 +128,7 @@ function binary(arr, val) {
             }
         }
     }
+    return low
 }
 
 // 6. 二分插入，遍历，从[1]开始，跟前面的元素比较，只是每次从二分之一开始。 

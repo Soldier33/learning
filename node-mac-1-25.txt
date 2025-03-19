@@ -3,7 +3,7 @@
 面试题：https://github.com/pro-collection/interview-question/issues
 
 一、vue3 ：watch和watchEffect的区别
-watch要指定监听的数据，可以知道变化前后的数据
+watch, 要指定监听的数据，可以知道变化前后的数据
 watchEffect ，不需要指定，自动依赖收集，仅提供新值，简化配置
 https://juejin.cn/post/7474062103994646582
 
@@ -72,7 +72,7 @@ Tree Shaking 支持：减少打包体积。
 	2. vite核心是基于esm的开发服务器，浏览器请求资源，对应发送资源，启动快，
 	开发环境运用esbuild
 	生产构建阶段给予Rollup
-	生产构建会进行预购建，就是将非esm转为esm
+	生产构建会进行预构建，就是将非esm转为esm
 	esm浏览器原生支持：通过 <script type="module"> 加载。
 
 七、实例上的__proto__ == 构造函数上的prototype
@@ -91,7 +91,7 @@ Tree Shaking 支持：减少打包体积。
 
 十一、[Vue] reactive() 的局限性
 1. 基础数据不能响应式、 
-2. 不能替换整个对象// 这样做是错误的，不会保持响应性 state = { count: 1 };
+2. 不能替换整个对象  // 这样做是错误的，不会保持响应性 state = { count: 1 };
 3. 解构操作不友好
 // 直接解构将会失去响应性
 const { count, title } = state;
@@ -209,7 +209,9 @@ Vuex 的语法相对较为复杂，需要定义state mutations、actions 和 get
 • 需要在客户端长期存储大量数据，例如用户偏好设置：LocalStorage , 5m
 • 需要在客户端临时存储数据，例如填写表单的中间数据：SessionStorage， 5m
 
-
+cookie的属性
+* HttpOnly：表示 Cookie 只能通过 HTTP 请求访问，不能通过 JavaScript 访问。
+* Expires：表示 Cookie 的过期时间。
 * Secure：表示 Cookie 只能通过 HTTPS 协议传输。
 
 
