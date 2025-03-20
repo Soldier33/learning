@@ -183,7 +183,6 @@ Array.prototype.myUnshift = function () {
 }
 
 
-
 // 手写promise.all :https://juejin.cn/post/7139579285055995917
 // 否则只要有一个执行错误就reject 
 function all(promises) { 

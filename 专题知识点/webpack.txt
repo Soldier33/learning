@@ -1,0 +1,51 @@
+[webpack] 如何优化产物大小 https://github.com/pro-collection/interview-question/issues/887
+
+A、 功能
+1. 使用 Tree Shaking   清除未引用代码
+2. 启用压缩(Uglification)  如删除未使用的代码、缩短变量名等
+3. 代码分割(Code Splitting)   可以把代码分成多个 bundle，然后按需加载，从而减少初始加载时间
+4. 使用 Externals 减轻体积
+5. 利用缓存(Caching)  [contenthash] 替换 [hash] 或 [chunkhash] 来为输出文件命名，只有当文件内容改变时，文件名称才改变
+6. 移除未使用的 CSS 自动去除未使用的 CSS
+7. 优化图片   image-webpack-loader等图片压缩插件，可以减小图片文件的体积
+
+二、webpack 中有三种生成哈希值规则的方式，可以用来区分文件是否修改。
+* hash 与整个项目有关，项目里有文件修改，所有文件的哈希值都会变化。
+* chunkhash 与入口有关，同一入口的文件被视为一个整体，当其中一个文件修改时，同入口的所有文件哈希值发生改变。
+* contenthash 只与文件内容有关，文件内容发生改变，才会更改该文件的哈希值
+
+三、Loader 和 Plugin 的区别
+					Loader						Plugin
+典型应用	处理 CSS、图片、字体等资源	  代码压缩、资源管理、环境变量注入等
+配置方式	在 module.rules 中配置	     在 plugins 中配置
+作用	    转换模块的源代码			  扩展 Webpack 的功能
+输入/输出	接收源文件，返回转换后的内容   不直接处理文件，而是操作构建过程
+Loader：用于转换模块的源代码。适合处理文件级别的任务（如 CSS、图片、字体等）。通过 module.rules 配置。
+Plugin：用于扩展 Webpack 的功能。适合处理构建过程级别的任务（如代码压缩、资源优化等）。通过 plugins 配置。
+
+
+
+四、替换字符串
+    方案	适用场景	配置复杂度	性能影响	插件依赖
+    DefinePlugin	简单宏替换	★★☆	★★	无
+    ReplacePlugin	复杂模式匹配	★★★	★★	✔️
+    (replace-webpack-plugin)
+    (string-replace-webpack-plugin)
+    HtmlWebpackPlugin	HTML 文件占位符替换	★★☆	★★	✔️
+    Environment Variables	环境变量注入	★★☆	★★	✔️（dotenv）
+    Custom Loader	特定文件深度处理	★★★★	★★★	✔️
+
+五、Webpack 和 vite 的原理  (热更新就是更新受影响的模块，但是不刷新页面)
+	1. Webpack 核心是项目整体打包，将多个文件打包成一个，首次加载时间过长，bundle文件
+	webpack热更新复杂，要对css,js不同类型的模块针对性不同配置
+
+	2. vite核心是基于esm的开发服务器，浏览器请求资源，对应发送资源，启动快，
+
+    Webpack 的热更新基于文件监听和模块依赖图，适合需要兼容性和复杂构建逻辑的项目，但随着项目规模增大，更新速度会变慢。
+    Vite 的热更新基于 ESM 和浏览器原生模块系统，更新速度极快，适合现代浏览器环境的大型项目。
+
+    生产环境中，Vite 使用 Rollup 进行打包。Rollup 同样支持将 CommonJS 模块转换为 ESM。
+    开发环境：使用 ESBuild 动态将 CommonJS 模块转换为 ESM。
+    生产环境：使用 Rollup 和 @rollup/plugin-commonjs 插件打包 CommonJS 模块。
+    生产构建会进行预构建，就是将非esm转为esm
+	esm浏览器原生支持：通过 <script type="module"> 加载。

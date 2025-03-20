@@ -1,0 +1,17 @@
+简单知识点：
+1. 
+position:relative 相对定位，相对自身定位
+position:absolute 绝对定位，相对于最近的不为static的父级元素定位
+
+2. 前端内存泄漏：未清空的定时器、闭包、引用未被清除
+
+3.  typeof 引用类型不行，   typeof XXX
+    instanceof 基本数据类型不行  XXX instanceof Object
+
+4. 改变原数组：pop, push, shift, unshift, sort, reverse, splice
+
+5. IE盒子，少了边框和padding的宽度
+6. 基础类型在栈中，引用类型在堆中
+7.  伪类：特定的状态 :hover,:active ；   
+    伪元素：特定部分，双冒号 ::before
+8. 密钥必须安全存储和传输，避免泄露
