@@ -24,7 +24,6 @@ Loader：用于转换模块的源代码。适合处理文件级别的任务（�
 Plugin：用于扩展 Webpack 的功能。适合处理构建过程级别的任务（如代码压缩、资源优化等）。通过 plugins 配置。
 
 
-
 四、替换字符串
     方案	适用场景	配置复杂度	性能影响	插件依赖
     DefinePlugin	简单宏替换	★★☆	★★	无
@@ -49,3 +48,176 @@ Plugin：用于扩展 Webpack 的功能。适合处理构建过程级别的任�
     生产环境：使用 Rollup 和 @rollup/plugin-commonjs 插件打包 CommonJS 模块。
     生产构建会进行预构建，就是将非esm转为esm
 	esm浏览器原生支持：通过 <script type="module"> 加载。
+
+    esbuild 快得惊人，并且已经是一个在构建库方面比较出色的工具，
+    但一些针对构建应用的重要功能仍然还在持续开发中 —— 特别是代码分割和 CSS 处理方面
+
+    所以生产环境用Rollup 在应用打包方面更加成熟和灵活
+
+
+六、Vue 3 的 Treeshaking
+
+启用 Tree Shaking
+
+// vite.config.js
+export default {
+  optimizeDeps: {
+    include: ['vue'], // 确保 Vue 核心库被预优化
+    exclude: ['unused-package'], // 排除未使用的依赖
+  },
+};
+
+若通过 import * as 导入整个模块，Tree Shaking 无法识别具体使用了哪些内容。
+​解决方案：始终按需导入（如 import { func } from 'module'）。
+
+// webpack.config.js (Vue 3 项目)
+module.exports = {
+  configureWebpack: {
+    output: {
+      moduleFilename: 'esm.js', // 强制使用 ES6 Modules 格式
+    },
+    experiments: {
+      outputModule: true, // Webpack 5+ 需要此配置
+    },
+  },
+};
+
+最佳实践：
+使用 ES6 Modules 按需导入。
+配合 TypeScript 获取更精准的静态分析。
+利用动态导入（import()）实现代码分割。
+通过构建工具（如 Vite/Webpack）启用 Tree Shaking。
+
+七、 vue文件怎么解析： 
+    https://www.cnblogs.com/heavenYJJ/p/18058142 ,
+    https://blog.csdn.net/lph159/article/details/142413043
+    https://zhuanlan.zhihu.com/p/535102297
+
+    1. @vitejs/plugin-vue-jsx库中有个叫transform的钩子
+    2. transform-> App.vue（底层调用vue/compiler-sfc） -> 创建descriptor 对象
+    3. 对应的函数转js代码、render函数、import语句
+
+    
+    @vitejs/plugin-vue 就是一个 Rollup 插件
+    Vue 文件的解析依赖于 @vue/compiler-sfc 包, 处理单文件组件（SFC）的编译器
+    Vue 文件（单文件组件，Single File Component，SFC）
+
+    (1)@vitejs/plugin-vue-jsx库中有个叫transform的钩子函数，每当vite加载模块的时候就会触发这个钩子函数。
+    所以当import一个vue文件的时候，就会走到@vitejs/plugin-vue-jsx中的transform钩子函数中，
+    在transform钩子函数中主要调用了transformMain函数。
+
+    (2)genScriptCode函数为底层调用vue/compiler-sfc
+
+    (3)调用genScriptCode函数传入第一步生成的descriptor对象     将<script setup>模块编译为浏览器可执行的js代码。
+    调用genTemplateCode函数传入第一步生成的descriptor对象   将<template>模块编译为render函数。
+    调用genStyleCode函数传入第一步生成的descriptor对象      将<style scoped>模块编译为类似这样的import语句
+
+    (4)当浏览器执行到import "/src/App.vue?vue&type=style&index=0&scoped=7a7a37b1&lang.css";
+    语句时，触发了加载模块操作，再次触发了@vitejs/plugin-vue-jsx中的transform钩子函数
+
+八、babel : ES6/ES7的代码转化成指定浏览器能支持的代码
+
+九、副作用  大致可以理解成：一个函数会、或者可能会对函数外部变量产生影响的行为
+            eg:
+            function go (url) {
+            window.location.href = url
+            }
+
+            "sideEffects": [
+            "./src/some-module.js"
+            ]
+
+            "sideEffects": false , 都没有副作用，可以树摇
+
+    Dead Code ：未使用的导出、未引用的代码、副作用无关的代码
+        // eg: data.js
+        const data = [1, 2, 3];
+
+        export function getData() {
+            return data;
+        }
+
+        const result = data.reduce((acc, val) => acc + val, 0);
+        console.log(result);
+
+        虽然 reduce 函数被调用了，并且计算出了一个结果，但这个结果并没有被导出或者在其他地方使用。
+        因此，这段代码对程序的行为没有任何影响（即没有副作用）
+
+        https://juejin.cn/post/7276696853893546036
+
+
+十、1、CommonJS 模块输出的是一个值的拷贝，ES6 模块输出的是值的引用。
+
+    2、CommonJS 模块是运行时加载，ES6 模块是编译时输出接口。
+
+    3、CommonJs 是单个值导出，ES6 Module可以导出多个
+
+    4、CommonJs 是动态语法可以写在判断里，ES6 Module 静态语法只能写在顶层
+
+    5、CommonJs 的 this 是当前模块，ES6 Module的 this 是 undefined
+
+
+    ES Module ： 
+    1. 编译时加载：esm 是编译时加载，也就是只有所有import的模块都递归加载完成，才会开始执行
+    2. 确定的导入导出
+    3. 无副作用的模块导入
+
+    ESM 下模块之间的依赖关系是高度确定的，与运行状态无关，编译工具只需要对 ESM 模块做静态分析
+
+    ES6 Modules 不支持循环引用（编译时报错）​
+
+十一、
+TerserWebpackPlugin，还有其他一些替代方案可以用来压缩和最小化 JavaScript 代码，
+例如 UglifyJSWebpackPlugin 和 CleanCSSWebpackPlugin
+
+webpack-obfuscator
+
+https://blog.csdn.net/a123456234/article/details/141036779
+
+
+
+十二、babel-runtime 是一个包含 babel 模块化运行时助手的库。
+babel-runtime 的主要作用就是
+    将这些可能被重用的代码抽取成单独的模块，以避免在每个文件中重复出现相同的代码。
+它通过模块导入的方式引入这些功能，从而避免了对全局作用域的修改或污染
+
+使用 babel-runtime 通常需要配合 babel-plugin-transform-runtime 插件一起使用
+
+十三、Vite Server 的请求处理能力，是通过中间件实现的
+https://zhuanlan.zhihu.com/p/532451109
+
+Vite 的热更新相关脚本：/@vite/client
+index.ts 的代码已经被编译成 js 了，并且拼接上了 sourcemap。
+很多请求是 ts、tsx、vue，但无论什么后缀都是没有关系的，它们的 
+Content-Type 都是 application/javascript，因此浏览器能够正确的运行处理。
+
+热更新：
+修改代码，vite server 监听到代码被修改
+vite 计算出热更新的边界（即受到影响，需要进行更新的模块）
+vite server 通过 websocket 告诉 vite client 需要进行热更新
+浏览器拉取修改后的模块
+执行热更新的代码
+
+
+十四、diff算法：https://segmentfault.com/a/1190000023060173#item-3
+flagment出现就是用看起来像一个普通的DOM元素，但它是虚拟的
+
+为什么要得到最长稳定序列
+
+因为我们需要一个序列作为基础的参照序列，其他未在稳定序列的节点，进行移动。
+
+总结
+经过上述我们大致知道了diff算法的流程
+1 从头对比找到有相同的节点 patch ，发现不同，立即跳出。
+
+2如果第一步没有patch完，立即，从后往前开始patch ,如果发现不同立即跳出循环。
+
+3如果新的节点大于老的节点数 ，对于剩下的节点全部以新的vnode处理（ 这种情况说明已经patch完相同的vnode ）。
+
+4 对于老的节点大于新的节点的情况 ， 对于超出的节点全部卸载 （ 这种情况说明已经patch完相同的vnode ）。
+
+5不确定的元素（ 这种情况说明没有patch完相同的vnode ） 与 3 ，4对立关系。
+
+补充：
+有key值和没有key值的状况，头尾对比后，看长度去决定删除或者新增，
+通过key值去判断哪些是可以复用的，根据最长稳定序列去移动或新建节点
