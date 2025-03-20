@@ -130,57 +130,64 @@
 		串行的文件传输。
 		同域并行请求限制带来的阻塞（6~8）个
 
-七、实例上的__proto__ == 构造函数上的prototype
+七、前端缓存
+	需要在客户端和服务器之间传递少量数据，例如登录状态：Cookie。 httpOnly传递token , 4k
+	• 需要在客户端长期存储大量数据，例如用户偏好设置：LocalStorage , 5m
+	• 需要在客户端临时存储数据，例如填写表单的中间数据：SessionStorage， 5m
 
-八、Object.keys()只返回了可枚举的属性property1和property2，
-	而Object.getOwnPropertyNames()返回了所有属性，包括不可枚举的nonEnumerableProperty
+	cookie的属性
+	* HttpOnly：表示 Cookie 只能通过 HTTP 请求访问，不能通过 JavaScript 访问。
+	* Expires：表示 Cookie 的过期时间。
+	* Secure：表示 Cookie 只能通过 HTTPS 协议传输。
 
-九、nextTick 作用： 
-	1. 确保 DOM 更新后执行操作 
-	2. 处理异步操作后的 DOM 操作
-	原理： 利用事件循环， 异步队列
+八、建立TCP连接，三次握手;  确认双方的接收和发送能力
+        客户端：你好，你听得到么。（客户端发送能力）
+        服务器：你好，我听得到，你听得到么？（服务器：接收能力、响应能力）
+        客户端：我也听得到。（客户端接收能力）
 
-十、不可复制
-	css: user-select: none;
-	Js document.addEventListener("copy", function (e) {
-        	e.preventDefault();
-        });
+   关闭TCP连接，四次挥手； 1. A要断开了，2. B同意， 3. B可以断开 4. A断开
 
-十一、居中：https://blog.csdn.net/m0_73560798/article/details/139392124
-    1. 
-    display: flex;
-    //水平居中
-    justify-content: center;
-    //垂直居中
-    align-items: center;
+        客户端：我没什么要说的了，我们分手吧。（客户端没有数据发送了）
+        服务器：好的，我们分手吧。（服务器同意分手）
+        服务器：我也没什么要说的了，我们分手吧。（服务器没有数据推送了）
+        客户端：好的，我们分手吧。（客户端知道服务器没有数据了，果断分手）
 
-    Ps: flex-direction: row;  //方向
+九、输入网址到网页显示，背后发生了什么？
+    1、浏览器解析URL
+    2、DNS域名解析
+    3、浏览器与服务器建立三次握手
+    4、浏览器向服务器发送HTTP请求报文
+    5、服务器给浏览器发送HTTP响应报文以及首页的HTML文件
+    6、浏览器渲染HTML页面
+    7、浏览器和服务器四次挥手，断开连接
 
-    2.
-    子绝父相。子向右下移动父元素的一半，再利用transform.
-    top: 50%;left: 50%;  transform: translate(-50%,-50%);
-
-    3. 绝对定位+margin 
-
-    .container{
-        position: relative;
-        width: 500px;
-        height: 500px;
-        background-color: yellow;
-    }
-    .item{
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        margin: auto;
-        width: 100px;
-        height: 100px;
-    }
+    URL解析：浏览器首先会对输入的URL进行解析，包括协议、域名、端口、路径、查询参数等。
+    DNS解析：浏览器会通过DNS解析将域名解析为IP地址。
+    组装HTTP请求：浏览器会根据解析后的IP地址，组装HTTP请求
+    检查缓存：浏览器在发送请求前会检查是否有缓存，有缓存则直接使用缓存，否则发送请求。（html一般不缓存的，这步略过）
+    建立TCP连接：浏览器会与服务器建立TCP连接，包括三次握手。
+    发送HTTP请求：浏览器会向服务器发送HTTP请求，包括请求行、请求头、请求体等。
+    服务器处理请求响应结果：服务器会根据请求的路径和参数，返回相应的资源
+    断开TCP连接：浏览器与服务器断开TCP连接，包括四次挥手。
+    解析HTML：浏览器会解析HTML，构建DOM树。
+    构建CSSOM树：浏览器会解析CSS，构建CSSOM树。
+    构建渲染树：浏览器会根据DOM树和CSSOM树，构建渲染树。
+    布局渲染树：浏览器会根据渲染树，计算每个节点的位置和大小。
+    绘制渲染树：浏览器会根据渲染树，绘制页面。
+    链接：https://juejin.cn/post/7404777076089208842
 
 
-十二、gorm提供了简便且丰富的数据库操作 api，减少sql注入风险
+十、垃圾回收机制
+    标记清除：可以清除循环引用
+    引用计数：缺点：循环引用无法清除，优点：立即清除
+
+	新生代，老生代，新生代里面有form和to， from是活跃变量，之后会复制到to区域
+
+
+十一、js文件中没有DOM操作，可以将JavaScript脚本设置为异步加载，用async或defer标记代码，
+     异步加载脚本，不会阻塞页面渲染。defer顺序可控，（async脚本独立时用）
+
+十二、实例上的__proto__ == 构造函数上的prototype
 
 
 十三、TLS（Transport Layer Security，传输层安全协议）和 
@@ -201,30 +208,31 @@
 	三、文件大小比较
 	四、上传状态跟踪 （收到表示确认）
 
-十六、try catch : 只能在同步函数或者async 函数中使用 try...catch。异步函数不行
+十六、Object.keys()只返回了可枚举的属性property1和property2，
+	而Object.getOwnPropertyNames()返回了所有属性，包括不可枚举的nonEnumerableProperty
 
 十七、Content-Type为application/octet-stream，代表以下含义：
     * application/octet-stream表示这是一个通用的二进制流数据
     * 可以用于传输各种类型的二进制文件，如图片、音频、视频、压缩文件、可执行文件等。
 
 十八、常见性能优化手段
-1. 加载优化
-* 资源压缩：
-    * CSS/JS 压缩：移除空格、注释，缩短文件体积（如使用 uglify-js、cssnano）。
-    * 图片优化：压缩格式（WebP）、懒加载（loading="lazy"）、CDN 加速。
-* 缓存策略：
-    * 强缓存（Cache-Control: max-age=31536000）减少重复下载。
-    * 协商缓存（ETag、Last-Modified）。
-* 按需加载	◦	
-        * 代码分割：通过 Webpack 的 splitChunks 分割代码。
-        * 动态导入：import() 实现按需加载模块。
-1. 渲染优化：减少重绘与重排
-2. 资源优化： Tree Shaking： 图片懒加载： 
-3. 代码优化：避免阻塞渲染：减少第三方脚本：
-4. 网络优化：HTTP/2 或 HTTP/3：DNS 预解析：预连接，合并请求
+	1. 加载优化
+	* 资源压缩：
+		* CSS/JS 压缩：移除空格、注释，缩短文件体积（如使用 uglify-js、cssnano）。
+		* 图片优化：压缩格式（WebP）、懒加载（loading="lazy"）、CDN 加速。
+	* 缓存策略：
+		* 强缓存（Cache-Control: max-age=31536000）减少重复下载。
+		* 协商缓存（ETag、Last-Modified）。
+	* 按需加载	◦	
+			* 代码分割：通过 Webpack 的 splitChunks 分割代码。
+			* 动态导入：import() 实现按需加载模块。
+	1. 渲染优化：减少重绘与重排
+	2. 资源优化： Tree Shaking： 图片懒加载： 
+	3. 代码优化：避免阻塞渲染：减少第三方脚本：
+	4. 网络优化：HTTP/2 或 HTTP/3：DNS 预解析：预连接，合并请求
 
-* 图片懒加载 + CDN 加速 → 页面加载时间减少 40%。
-* 服务端渲染（SSR） + 预取关键资源 → 首屏时间提升 30%。
+	* 图片懒加载 + CDN 加速 → 页面加载时间减少 40%。
+	* 服务端渲染（SSR） + 预取关键资源 → 首屏时间提升 30%。
 
 
 十九、性能优化方案：https://juejin.cn/post/7326268947069534234#heading-3
@@ -287,31 +295,38 @@
 	SQL 注入
 	DDoS（分布式拒绝服务）
 	敏感信息泄露
+
+
+	CSP 通过限制 Web 应用程序能够加载和执行的内容，来减少恶意攻击的成功率 （Content Security Policy）
+    DOS攻击通常由单个计算机或机器人网络发起，
+    而DDOS攻击则是由多个不同来源的计算机或机器人网络同时攻击，更加难以防御和发现。
+    解决办法：流量过滤、负载均衡、加强认证和授权、升级硬件和软件
+
+    utf8 是对 Unicode 的一种压缩算法
 	
 
 二十一、不需要等待所有异步操作完成时，可以使用 forEach
-	   如果你需要按顺序等待每个异步操作完成，使用 for 循环（或其他支持 await 的循环，如 for...of 或传统的 for 循环）
+	   如果你需要按顺序等待每个异步操作完成，
+	   使用 for 循环（或其他支持 await 的循环，如 for...of 或传统的 for 循环）
 
-二十二、隐藏元素
-	display: none;
-	visibility: hidden;
-	opacity: 0;
+二十二、try catch : 只能在同步函数或者async函数中使用try...catch。异步函数不行
 
 
 二十三、服务端向客户端推送数据的实现方案
-1. 轮询。   浏览器请求并发是有限制的 ， 6个最多， 消耗性能
-2. websocket。， 双向通讯的协议。 （聊天）
-3. SSE  ie不支持 ， 一个单向通讯的协议也是一个长链接， 只能服务端主动给客户端推送数据
+	1. 轮询。   浏览器请求并发是有限制的 ， 6个最多， 消耗性能
+	2. websocket。， 双向通讯的协议。 （聊天）
+	3. SSE  ie不支持 ， 一个单向通讯的协议也是一个长链接， 只能服务端主动给客户端推送数据
 
-二十四、前端缓存
-	需要在客户端和服务器之间传递少量数据，例如登录状态：Cookie。 httpOnly传递token , 4k
-	• 需要在客户端长期存储大量数据，例如用户偏好设置：LocalStorage , 5m
-	• 需要在客户端临时存储数据，例如填写表单的中间数据：SessionStorage， 5m
+二十四、预检请求：
+		预检请求是 CORS 机制的重要组成部分，用于确保跨域请求的安全性。
+			通过合理配置服务器响应头，可以减少预检请求的频率，提升性能。
+		预检请求（Preflight Request） 的响应状态码通常是 200 OK。
 
-	cookie的属性
-	* HttpOnly：表示 Cookie 只能通过 HTTP 请求访问，不能通过 JavaScript 访问。
-	* Expires：表示 Cookie 的过期时间。
-	* Secure：表示 Cookie 只能通过 HTTPS 协议传输。
+		这是因为预检请求的目的是确认服务器是否允许实际的跨域请求，而不是实际处理请求。
+		服务器通过返回 200 OK 状态码和相关的 CORS 头信息，告诉浏览器是否允许后续的实际请求。
+
+
+		预检请求失败	403/405 等	服务器不允许跨域请求，浏览器会阻止实际请求。
 
 
 二十五、虚拟列表的基本原理：（为了流畅滚动）

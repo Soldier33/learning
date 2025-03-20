@@ -1,0 +1,60 @@
+1. 隐藏元素
+	display: none;
+	visibility: hidden;
+	opacity: 0;
+
+2. 居中：https://blog.csdn.net/m0_73560798/article/details/139392124
+    1. 
+    display: flex;
+    //水平居中
+    justify-content: center;
+    //垂直居中
+    align-items: center;
+
+    Ps: flex-direction: row;  //方向
+
+    2.
+    子绝父相。子向右下移动父元素的一半，再利用transform.
+    top: 50%;left: 50%;  transform: translate(-50%,-50%);
+
+    3. 绝对定位+margin 
+
+    .container{
+        position: relative;
+        width: 500px;
+        height: 500px;
+        background-color: yellow;
+    }
+    .item{
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        margin: auto;
+        width: 100px;
+        height: 100px;
+    }
+
+3.不可复制
+	css: user-select: none;
+	Js document.addEventListener("copy", function (e) {
+        e.preventDefault();
+    });
+
+4. 国际化和省略号
+    A、 单行文本自适应省略号
+    white-space: nowrap;  /* 禁止换行 */
+    text-overflow: ellipsis; /* 溢出显示... */
+    overflow: hidden;
+
+
+    B、国际化怎么做，中文一个字，阿拉伯语很长一串，怎么实现样式的一致
+    1. 布局弹性设计
+        a. min-width、max-width
+        b. Flexbox/Grid 自动分配空间
+    2. 文本溢出处理 (省略号)
+    3. 动态字体与间距 
+        :root[lang="ar"] { /* 阿拉伯语 */
+            --font-scale: 0.9; /* 长文本缩小字号 */
+        }
