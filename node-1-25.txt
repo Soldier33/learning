@@ -185,7 +185,7 @@
 
 十三、TLS（Transport Layer Security，传输层安全协议）和 
 	SSL（Secure Sockets Layer，安全套接字层）
-	ls更安全
+	tls更安全
 
 十四、
 	一、证书颁发机构（CA）的信任体系
