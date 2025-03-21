@@ -16,4 +16,14 @@ var fibonacci = function (n) {
 
 fibonacci(2);
 
+console.log(solution([1, 1, 2, 2, 3, 3, 4, 5, 5]) === 4);
+console.log(solution([0, 1, 0, 1, 2]) === 2);
+function solution(cards) {
+    // Edit your code here
+    let result = 0;
+    for (let i = 0; i < cards.length; i++) {
+        result ^= cards[i];  // 使用异或运算
+    }
+    return result;
+}
 
