@@ -1,0 +1,9 @@
+一、
+注重缓存，前端缓存，webpack缓存，浏览器缓存
+
+二、idea
+Vue文件，三个部份，构建
+jq链式原理
+webpack 替换，手写loader, plugin
+Treeshaking
+diff细节：最长子序列

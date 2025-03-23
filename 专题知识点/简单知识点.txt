@@ -38,3 +38,8 @@ js 整数最多位数 15
 书上在介绍数组索引时也能佐证,因为数组的索引是整数,最大的索引就是 2 ** 32 - 1 即4294967295
 
 12、字符串下标去除 str.slice(0, index) + str.slice(index + 1)
+
+13、 bom: window , screen , navigator, location, history
+
+14、
+__dirname 是相对于当前模块的目录，而 process.cwd() 是整个应用程序的当前工作目录

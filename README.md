@@ -13,3 +13,5 @@
 
 
 external_portal_release 作为练习
+
+"webpack": "^4.44.2"

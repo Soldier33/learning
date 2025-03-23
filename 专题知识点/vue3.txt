@@ -38,3 +38,55 @@ Vuex 的语法相对较为复杂，需要定义state mutations、actions 和 get
     缓存机制:
     <keep-alive> 内部维护了一个缓存对象（cache），用于存储被缓存的组件实例。
     缓存对象的键是组件的 name 选项或组件的 tag，值是组件的 VNode（虚拟 DOM 节点）。
+
+六、Vue
+
+vue文件怎么解析： 
+    https://www.cnblogs.com/heavenYJJ/p/18058142 ,
+    https://blog.csdn.net/lph159/article/details/142413043
+    https://zhuanlan.zhihu.com/p/535102297
+
+    1. @vitejs/plugin-vue-jsx库中有个叫transform的钩子
+    2. transform-> App.vue（底层调用vue/compiler-sfc） -> 创建descriptor 对象
+    3. 对应的函数转js代码、render函数、import语句
+
+    
+    @vitejs/plugin-vue 就是一个 Rollup 插件
+    Vue 文件的解析依赖于 @vue/compiler-sfc 包, 处理单文件组件（SFC）的编译器
+    Vue 文件（单文件组件，Single File Component，SFC）
+
+    (1)@vitejs/plugin-vue-jsx库中有个叫transform的钩子函数，每当vite加载模块的时候就会触发这个钩子函数。
+    所以当import一个vue文件的时候，就会走到@vitejs/plugin-vue-jsx中的transform钩子函数中，
+    在transform钩子函数中主要调用了transformMain函数。
+
+    (2)genScriptCode函数为底层调用vue/compiler-sfc
+
+    (3)调用genScriptCode函数传入第一步生成的descriptor对象     将<script setup>模块编译为浏览器可执行的js代码。
+    调用genTemplateCode函数传入第一步生成的descriptor对象   将<template>模块编译为render函数。
+    调用genStyleCode函数传入第一步生成的descriptor对象      将<style scoped>模块编译为类似这样的import语句
+
+    (4)当浏览器执行到import "/src/App.vue?vue&type=style&index=0&scoped=7a7a37b1&lang.css";
+    语句时，触发了加载模块操作，再次触发了@vitejs/plugin-vue-jsx中的transform钩子函数
+
+七、diff算法：https://segmentfault.com/a/1190000023060173#item-3
+    flagment出现就是用看起来像一个普通的DOM元素，但它是虚拟的
+
+    为什么要得到最长稳定序列
+
+    因为我们需要一个序列作为基础的参照序列，其他未在稳定序列的节点，进行移动。
+
+    总结
+    经过上述我们大致知道了diff算法的流程
+    1 从头对比找到有相同的节点 patch ，发现不同，立即跳出。
+
+    2如果第一步没有patch完，立即，从后往前开始patch ,如果发现不同立即跳出循环。
+
+    3如果新的节点大于老的节点数 ，对于剩下的节点全部以新的vnode处理（ 这种情况说明已经patch完相同的vnode ）。
+
+    4 对于老的节点大于新的节点的情况 ， 对于超出的节点全部卸载 （ 这种情况说明已经patch完相同的vnode ）。
+
+    5不确定的元素（ 这种情况说明没有patch完相同的vnode ） 与 3 ，4对立关系。
+
+    补充：
+    有key值和没有key值的状况，头尾对比后，看长度去决定删除或者新增，
+    通过key值去判断哪些是可以复用的，根据最长稳定序列去移动或新建节点
