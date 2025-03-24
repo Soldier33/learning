@@ -4,7 +4,7 @@
   1. 使用 Tree Shaking   清除未引用代码
   2. 启用压缩(Uglification)  如删除未使用的代码、缩短变量名等
   3. 代码分割(Code Splitting)   可以把代码分成多个 bundle，然后按需加载，从而减少初始加载时间
-  4. 使用 Externals 减轻体积
+  4. 使用 Externals 减轻体积     将其中常用的第三库（比如vue、vue-router、vuex等）抽离出来，放置在CDN中，通过<script>来引入，减少打包文件体积
   5. 利用缓存(Caching)  [contenthash] 替换 [hash] 或 [chunkhash] 来为输出文件命名，只有当文件内容改变时，文件名称才改变
   6. 移除未使用的 CSS 自动去除未使用的 CSS
   7. 优化图片   image-webpack-loader等图片压缩插件，可以减小图片文件的体积
@@ -33,6 +33,17 @@
 
     resolve.extensions是解析到文件时自动添加拓展名 ： extensions:[".warm",".mjs",".js",".json"]
   好文：https://www.cnblogs.com/ypSharing/p/vue-webpack.html
+
+  1.1 缩小文件的搜索范围 （resolve 别名，后缀）
+  1.2 使用DllPlugin减少基础模块编译次数
+  1.3 使用HappyPack开启多进程Loader转换
+  1.4 使用ParallelUglifyPlugin开启多进程压缩JS文件
+
+    压缩JS：Webpack内置UglifyJS插件、ParallelUglifyPlugin
+    压缩ES6：第三方UglifyJS插件： uglify-webpack-plugin
+    压缩CSS：css-loader?minimize、PurifyCSSPlugin： 
+      需要配合 extract-text-webpack-plugin 使用，它主要的作用是可以去除没有用到的CSS代码，
+      类似JS的Tree Shaking
 
 二、webpack 中有三种生成哈希值规则的方式，可以用来区分文件是否修改。
   * hash 与整个项目有关，项目里有文件修改，所有文件的哈希值都会变化。
@@ -228,12 +239,15 @@
 
         https://juejin.cn/post/7276696853893546036
 
-七、 
+七、   在开发环境中，我们需要实时重新加载或热模块替换能力的server，相对完整的source map。
+      但是在生产环境中，我们更加关注更小的bundle（压缩输出）, 更轻量的source map, 还有更优化的资源等
+
+      开发环境，基础构建需要重新加载，热更新功能，需要尽可能完整的source map
+      生产环境，基础构建需要压缩文件，文件指纹功能，需要尽可能小的source map
 
 八、babel : ES6/ES7的代码转化成指定浏览器能支持的代码
 
-九、
-
+九、runtime，用于管理被分出来的包
 
 十、1、CommonJS 模块输出的是一个值的拷贝，ES6 模块输出的是值的引用。
 
@@ -256,9 +270,11 @@
     ES6 Modules 不支持循环引用（编译时报错）​
 
 十一、
-
-
-
+    compile 开始编译
+    make 从入口点分析模块及其依赖的模块，创建这些模块对象
+    build-module 构建模块
+    seal 封装构建结果
+    emit 把各个chunk输出到结果文
 
 十二、babel-runtime 是一个包含 babel 模块化运行时助手的库。
     babel-runtime 的主要作用就是
@@ -267,87 +283,7 @@
 
     使用 babel-runtime 通常需要配合 babel-plugin-transform-runtime 插件一起使用
 
-十三、Vite Server 的请求处理能力，是通过中间件实现的
-    https://zhuanlan.zhihu.com/p/532451109
-
-    Vite 的热更新相关脚本：/@vite/client
-    index.ts 的代码已经被编译成 js 了，并且拼接上了 sourcemap。
-    很多请求是 ts、tsx、vue，但无论什么后缀都是没有关系的，它们的 
-    Content-Type 都是 application/javascript，因此浏览器能够正确的运行处理。
-
-    热更新：
-    修改代码，vite server 监听到代码被修改
-    vite 计算出热更新的边界（即受到影响，需要进行更新的模块）
-    vite server 通过 websocket 告诉 vite client 需要进行热更新
-    浏览器拉取修改后的模块
-    执行热更新的代码
-
-
-十四、
-
-十五、
-
-十六、
-
-十七、
-
-十八、vite依赖预构建：
-预构建：  https://blog.csdn.net/xiaolinlife/article/details/138524415
-
-    （1）1. 非esm 转为esm , 2. 合并模块
-    Vite 中正是为了「模块兼容性」以及「性能」这两方面大的原因，所以需要进行依赖预构建
-
-    将非 ESM 规范的代码转换为符合 ESM 规范的代码；
-    将第三方依赖内部的多个文件合并为一个，减少 http 请求数量；
-
-    （2）Vite 将会使用 esbuild 在应用启动时对于依赖部分进行预构建依赖。
-    依赖预构建仅适用于开发模式，并使用 esbuild 将依赖项转换为 ES 模块。
-    在生产构建中，将使用 @rollup/plugin-commonjs
-
-    （3）比如 lodash-es 中存在超过 600 个内置模块，当我们执行 import { debounce } from ‘lodash’ 时，
-    如果不进行预构建浏览器会同时发出 600 多个 HTTP 请求，这无疑会让页面加载变得明显缓慢。
-    正式通过依赖预构建，将 lodash-es 预构建成为单个模块后仅需要一个 HTTP 请求就可以解决上述的问题
-
-    （4）借助预构建的过程将这部分非 esm 模块的依赖模块转化为 esm 模块
-
-     vite 在预编译时会对于项目中使用到的第三方依赖进行依赖预构建，
-     将构建后的产物存放在 node_modules/.vite/deps 目录中，比如 ahooks.js、react.js 等
-     依赖预构建的过程简单来说就是生成 node_modules/deps 文件即可。
-
-     「将构建后的产物存储在 .vite/deps 目录中，同时将映射关系保存在 .vite/deps/_metadata.json 中，
-      其中 optimized 对象中的 react 表示原始依赖的入口文件而 file 则表示经过预构建后生成的产物（两者皆为相对路径）。」
-
-十九、
-依赖扫描：https://juejin.cn/post/7129160452377935903?spm=a2c6h.12873639.article-detail.9.22f9780anx17VW#heading-2
-  只有 bare import（裸依赖）会执行依赖预构建，
-  如：import xxx from "vue/xxx"   ，这个不行： import xxx from "./foo.ts" 
-  用名称去访问的模块是裸模块
-  用路径去访问的模块，不是 bare import
-
-  深度遍历依赖树，并对各种类型的模块进行处理
-
-  最复杂的就是 html 类型模块的处理，需要使用虚拟模块；
-  当遇到 bare import 时，需要判断是否在 node_modules 中，在的才记录依赖，然后  external。
-  其他 JS 无关的模块就直接 external
-  JS 模块由于 esbuild 本身能处理，不需要做任何的特殊操作
-
-  预构建只针对js
-
-二十、
-  vite插件：
-  小图片: 对于较小的图片，@rollup/plugin-image直接将其转换为 Base64 编码
-        并嵌入到 JavaScript 文件中可以减少 HTTP 请求，提升页面加载速度。
-  大图片: 对于较大的图片，建议使用 @rollup/plugin-url 插件，
-        将图片文件输出到指定目录，并在代码中引用其路径。
-
-二十一、计算时间
-  time npm run build
-
-
-  npm run build  55.54s user 4.55s system 269% cpu 22.260 total
-
-
-二十二、  
+十三、
   webpack开箱即用只支持JS和JSON两种文件类型，需要loader将其他类型的文件转为webpack能够处理的文件类型，并添加到依赖图中完成打包。
 
   loader 本身是一个函数
@@ -375,7 +311,7 @@
   chunkFilename：chunkFilename就是未被列在entry中，但有些场景需要被打包出来的文件命名配置。比如按需加载（异步）模块的时候。
 
 。
-二十三、Chunk: https://juejin.cn/post/6844903889393680392
+十四、、Chunk: https://juejin.cn/post/6844903889393680392
   Webpack的打包是从一个入口文件开始，也可以说是入口模块，入口模块引用这其他模块，模块再引用模块。
   Webpack通过引用关系逐个打包模块，这些module就形成了一个Chunk。
 
@@ -386,10 +322,12 @@
   异步加载模块
   代码分割（code spliting）
 
-二十四、webpack插件
+十五、webpack插件
 
   TerserWebpackPlugin，还有其他一些替代方案可以用来压缩和最小化 JavaScript 代码，
   例如 UglifyJSWebpackPlugin 和 CleanCSSWebpackPlugin
+
+  之前压缩使用的UglifyjsWebpackPlugin，但其不支持ES6+语法，所以替换为TerserPlugin
 
   webpack-obfuscator
 
@@ -435,7 +373,7 @@
           minimizer: [
               new TerserPlugin({
                   cache: true,
-                  parallel: true,
+                  parallel: true, // 多进程并发运行
                   sourceMap: true, // Must be set to true if using source-maps in production
                   terserOptions: {
                     // https://github.com/webpack-contrib/terser-webpack-plugin#terseroptions
@@ -457,8 +395,9 @@
     })
 
   5、 图片压缩【image-webpack-loader】使用
+  6、 new CssMinimizerPlugin(), css压缩需要使用插件CssMinimizerWebpack
 
-  二十五、
+十六、、
     // 别名配置
     Object.assign(config, {
         // 开发生产共同配置
@@ -487,3 +426,4 @@
               })
           ]
       }
+

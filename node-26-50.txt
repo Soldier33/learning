@@ -96,3 +96,18 @@ jq 的链式调用本质上是 ​函数式编程 和 ​状态封装 的结合�
 
     (4)当浏览器执行到import "/src/App.vue?vue&type=style&index=0&scoped=7a7a37b1&lang.css";
     语句时，触发了加载模块操作，再次触发了@vitejs/plugin-vue-jsx中的transform钩子函数
+
+32、
+如何setTimeout 实现setInterval
+写一个loop函数，先定义空定时器，里面赋值定时器，定时器里面执行fn和loop，最后返回清除定时器
+
+33、如何实现预览 PDF 文件
+        1. 使用浏览器内置的 PDF 查看器
+
+        <!-- 方法1: 使用超链接 -->
+        <a href="/path/to/your/document.pdf" target="_blank">预览PDF</a>
+
+        <!-- 方法2: 使用JavaScript -->
+        <button onclick="window.open('/path/to/your/document.pdf', '_blank')">预览PDF</button>
+
+        2. 使用 PDF.js

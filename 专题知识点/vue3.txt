@@ -90,3 +90,22 @@ vue文件怎么解析：
     补充：
     有key值和没有key值的状况，头尾对比后，看长度去决定删除或者新增，
     通过key值去判断哪些是可以复用的，根据最长稳定序列去移动或新建节点
+
+    vue2的diff算法，只要依赖key, 没有key就首尾对比
+    收集旧树中key相同的节点，复用在新树
+
+8、计算属性如何收集依赖： https://juejin.cn/post/6854573220046372872
+    依赖收集的实现集中在 Watcher 与 Dep 两个类中
+
+    Dep 简单对象 data , props
+    Watcher 复合对象 computed, render
+
+    Dep.prototype.depend -> 依赖对象记录到 Watcher 对象 
+
+    Vue3中依赖收集过程的设计与Vue2相似，细节上有如下区别：
+
+    核心接口变成了 Composition 风格的 track 与 trigger 函数。
+    内部维护了一个 WeakMap 对象，用于记录属性到 effect 对象的依赖关系
+
+
+    9. 

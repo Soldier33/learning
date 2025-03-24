@@ -1,0 +1,89 @@
+1. 
+Vite 还有很多值得一提的性能优化，整体梳理一下：
+
+预编译：npm 包这类基本不会变化的模块，使用 Esbuild 在 预构建 阶段先打包整理好，减少 http 请求数
+按需编译：用户代码这一类频繁变动的模块，直到被使用时才会执行编译操作
+客户端强缓存：请求过的模块会被以 http 头 max-age=31536000,immutable 设置为强缓存，如果模块发生变化则用附加的版本 query 使其失效
+产物优化：相比于 Webpack ，Vite 直接锚定高版本浏览器，不需要在 build 产物中插入过多运行时与模板代码
+内置更好的分包实现：不需要用户干预，默认启用一系列智能分包规则，尽可能减少模块的重复打包
+更好的静态资源处理：Vite 尽量避免直接处理静态资源，而是选择遵循 ESM 方式提供服务，例如引入图片 import img from 'xxx.png' 语句，执行后 img 变量只是一个路径字符串。
+
+作者：范文杰
+链接：https://juejin.cn/post/6980141344131923999
+来源：稀土掘金
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+
+2. 
+
+Vite Server 的请求处理能力，是通过中间件实现的
+    https://zhuanlan.zhihu.com/p/532451109
+
+    Vite 的热更新相关脚本：/@vite/client
+    index.ts 的代码已经被编译成 js 了，并且拼接上了 sourcemap。
+    很多请求是 ts、tsx、vue，但无论什么后缀都是没有关系的，它们的 
+    Content-Type 都是 application/javascript，因此浏览器能够正确的运行处理。
+
+    热更新：
+    修改代码，vite server 监听到代码被修改
+    vite 计算出热更新的边界（即受到影响，需要进行更新的模块）
+    vite server 通过 websocket 告诉 vite client 需要进行热更新
+    浏览器拉取修改后的模块
+    执行热更新的代码
+
+3、vite依赖预构建：
+预构建：  https://blog.csdn.net/xiaolinlife/article/details/138524415
+
+    （1）1. 非esm 转为esm , 2. 合并模块
+    Vite 中正是为了「模块兼容性」以及「性能」这两方面大的原因，所以需要进行依赖预构建
+
+    将非 ESM 规范的代码转换为符合 ESM 规范的代码；
+    将第三方依赖内部的多个文件合并为一个，减少 http 请求数量；
+
+    （2）Vite 将会使用 esbuild 在应用启动时对于依赖部分进行预构建依赖。
+    依赖预构建仅适用于开发模式，并使用 esbuild 将依赖项转换为 ES 模块。
+    在生产构建中，将使用 @rollup/plugin-commonjs
+
+    （3）比如 lodash-es 中存在超过 600 个内置模块，当我们执行 import { debounce } from ‘lodash’ 时，
+    如果不进行预构建浏览器会同时发出 600 多个 HTTP 请求，这无疑会让页面加载变得明显缓慢。
+    正式通过依赖预构建，将 lodash-es 预构建成为单个模块后仅需要一个 HTTP 请求就可以解决上述的问题
+
+    （4）借助预构建的过程将这部分非 esm 模块的依赖模块转化为 esm 模块
+
+     vite 在预编译时会对于项目中使用到的第三方依赖进行依赖预构建，
+     将构建后的产物存放在 node_modules/.vite/deps 目录中，比如 ahooks.js、react.js 等
+     依赖预构建的过程简单来说就是生成 node_modules/deps 文件即可。
+
+     「将构建后的产物存储在 .vite/deps 目录中，同时将映射关系保存在 .vite/deps/_metadata.json 中，
+      其中 optimized 对象中的 react 表示原始依赖的入口文件而 file 则表示经过预构建后生成的产物（两者皆为相对路径）。」
+
+4、
+  依赖扫描：https://juejin.cn/post/7129160452377935903?spm=a2c6h.12873639.article-detail.9.22f9780anx17VW#heading-2
+  只有 bare import（裸依赖）会执行依赖预构建，
+  如：import xxx from "vue/xxx"   ，这个不行： import xxx from "./foo.ts" 
+  用名称去访问的模块是裸模块
+  用路径去访问的模块，不是 bare import
+
+  深度遍历依赖树，并对各种类型的模块进行处理
+
+  最复杂的就是 html 类型模块的处理，需要使用虚拟模块；
+  当遇到 bare import 时，需要判断是否在 node_modules 中，在的才记录依赖，然后  external。
+  其他 JS 无关的模块就直接 external
+  JS 模块由于 esbuild 本身能处理，不需要做任何的特殊操作
+
+  预构建只针对js
+
+
+5、
+  vite插件：
+  小图片: 对于较小的图片，@rollup/plugin-image直接将其转换为 Base64 编码
+        并嵌入到 JavaScript 文件中可以减少 HTTP 请求，提升页面加载速度。
+  大图片: 对于较大的图片，建议使用 @rollup/plugin-url 插件，
+        将图片文件输出到指定目录，并在代码中引用其路径。
+
+    @vitejs/plugin-legacy 打包出一个看起来兼容性比较好的版本
+
+6、计算时间
+  time npm run build
+
+  npm run build  55.54s user 4.55s system 269% cpu 22.260 total
