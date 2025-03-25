@@ -45,12 +45,16 @@ js 整数最多位数 15
 __dirname 是相对于当前模块的目录，而 process.cwd() 是整个应用程序的当前工作目录
 
 15、
-splice() 方法用于添加或删除数组中的元素。
+    splice() 方法用于添加或删除数组中的元素。
 
-var fruits = ["Banana", "Orange", "Apple", "Mango"];
-fruits.splice(2,0,"Lemon","Kiwi");
+    var fruits = ["Banana", "Orange", "Apple", "Mango"];
+    fruits.splice(2,0,"Lemon","Kiwi");
 
 
-fruits 输出结果：
+    fruits 输出结果：
 
-Banana,Orange,Lemon,Kiwi,Apple,Mango
+    Banana,Orange,Lemon,Kiwi,Apple,Mango
+
+16， 字符串和数字， + 偏好 字符串， > 偏好 数字
+
+17、实例上的__proto__ == 构造函数上的prototype

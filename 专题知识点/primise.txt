@@ -1,0 +1,29 @@
+1. promise
+
+    Promise.all()：Promise 都成功时返回一个包含所有结果的数组，如果任何一个 Promise 失败，则立即返回失败的结果。
+    Promise.race()： 第一个完成的结果
+    Promise.any()： 第一个成功的结果
+    Promise.allSettled()：返回一个包含每个 Promise 结果的对象数组
+    // 输出:
+    // [
+    //   { status: 'fulfilled', value: 1 },
+    //   { status: 'rejected', reason: 'Error' },
+    //   { status: 'fulfilled', value: 3 }
+    // ]
+
+    finally()：无论 Promise 是成功还是失败，都会执行的回调函数。
+
+    Promse.race  就是赛跑的意思，意思就是说，Promise.race([p1, p2, p3])里面哪个结果获得的快，就返回那个结果，不管结果本身是成功状态还是失败状态。
+    Promse.any  resolve必须等到有一个成功的结果, reject所有的都失败才执行reject
+    Promse.all   如果所有的Promise都正确执行了 , 否则只要有一个执行错误就reject 
+    Promise.allSettled  Promise 全部处理完成后，我们可以拿到每个 Promise 的状态，而不管其是否处理成功
+
+
+    1. race 快速失败机制, 多个服务同时执行，任一失败立即触发错误处理（如分布式系统探活）。
+    2. any 从最快的服务器检索资源
+
+　　3. 相比之下，Promise.all() 更适合彼此相互依赖或者在其中任何一个reject时立即结束。
+    eg. 比如说一个页面上需要等两个或多个ajax的数据回来以后才正常显示，在此之前只显示loading图标
+
+    4. Promise.allSettled() 当您有多个彼此不依赖的异步任务成功完成时，或者您总是想知道每个promise的结果时，通常使用它。
+    eg. 同时填了3干个独立的表单，这三个表单分三个接口提交到后端，三个接口独立，没有顺序依赖，这个时候我们需要等到请求全部完成后给与用户提示表单提交的情况

@@ -1,0 +1,72 @@
+1. 常见性能优化手段
+	1. 加载优化
+	* 资源压缩：
+		* CSS/JS 压缩：移除空格、注释，缩短文件体积（如使用 uglify-js、cssnano）。
+		* 图片优化：压缩格式（WebP）、懒加载（loading="lazy"）、CDN 加速。
+	* 缓存策略：
+		* 强缓存（Cache-Control: max-age=31536000）减少重复下载。
+		* 协商缓存（ETag、Last-Modified）。
+	* 按需加载	◦	
+			* 代码分割：通过 Webpack 的 splitChunks 分割代码。
+			* 动态导入：import() 实现按需加载模块。
+	1. 渲染优化：减少重绘与重排
+	2. 资源优化： Tree Shaking： 图片懒加载： 
+	3. 代码优化：避免阻塞渲染：减少第三方脚本：
+	4. 网络优化：HTTP/2 或 HTTP/3：DNS 预解析：预连接，合并请求
+
+	* 图片懒加载 + CDN 加速 → 页面加载时间减少 40%。
+	* 服务端渲染（SSR） + 预取关键资源 → 首屏时间提升 30%。
+
+
+2、性能优化方案：https://juejin.cn/post/7326268947069534234#heading-3
+	第一种，启用前端缓存
+	第二种，开启GZIP压缩 
+	第三种，使用函数节流和函数防抖
+	第四种，异步加载script文件或将script文件放在最后加载
+	第五种，减少重排和重绘
+	第六种，使用服务端渲染
+	第七种，将png/jpg/gif图片替换为webp格式图片
+	第八种，合并请求
+	第九种，启用事件委托（事件代理）
+	第十种，尽量使用CSS完成动画效果
+	第十一种，适当使用memo --- React篇
+	第十二种，使用懒加载
+	第十三种，使用骨架屏
+	第十四种，将moment.js换成day.js
+
+	Gzip是一种数据压缩算法，用于减少文件大小，加快传输速度。它通过将重复的字符串用更短的代码表示来压缩数据。
+
+	Nginx 流量按比例转发:https://juejin.cn/post/7463871170015019023
+	可以通过 加权轮询（Weighted Round Robin） 或 split_clients 模块来实现 流量按比例转发。以下是两种常见的实现方式：
+
+	http {
+		upstream backend {
+			server backend1.example.com weight=3;  # 权重为 3
+			server backend2.example.com weight=2;  # 权重为 2
+			server backend3.example.com weight=1;  # 权重为 1
+		}
+
+		server {
+			listen 80;
+
+			location / {
+				proxy_pass http://backend;
+			}
+		}
+	}
+
+	nginx的场景，图片防盗链怎么做，反向代理是什么，怎么做
+    图片防盗链实现：Referer字段实现。
+    反向代理（Reverse Proxy）
+    2.1 核心概念
+    反向代理充当客户端与后端服务器之间的中介：
+
+    功能：
+
+    隐藏真实服务器IP，提升安全性。
+
+    负载均衡，分散请求压力。
+
+    缓存静态内容，加速访问。
+
+    SSL终止，集中管理HTTPS证书

@@ -215,3 +215,9 @@ function solution(dna1, dna2) {
   }
   
   main();
+
+  8、
+  判断是否是圆内
+	function inCircle(cx,cy,x,y,r){
+		return (cx-x)^2+(cy-y)^2<r^2
+	}

@@ -13,5 +13,21 @@
 
 
 external_portal_release 作为练习
-
 "webpack": "^4.44.2"
+
+Todo:
+修改简历，加深深度,webpack, vite, 自动化命令
+
+3.25 缓存小册、书100页，vite加深
+- [ ] 面经，Vue3原理，手写call , bind,  字符串的最长子序列，
+- [ ] 手写代码反复复习：复习手写防抖、节流、随机数组、new , 柯里化
+
+
+- [ ] 学习react，severLess
+- [ ] 学习node，ts，webpack
+- [ ] 看书、牛客网， 刷题,
+
+待学习内容：
+SSR深度优化、D2C及DSL编译等智能UI，有自己深入理解的优化经验。
+熟悉Canvas、D3.js等可视化技术；Django
+有区块链行业从业经验（熟悉web3.js、wagmi、ethers等）
