@@ -41,7 +41,7 @@ Vuex 的语法相对较为复杂，需要定义state mutations、actions 和 get
 
 六、Vue
 
-vue文件怎么解析： 
+    vue文件怎么解析： 
     https://www.cnblogs.com/heavenYJJ/p/18058142 ,
     https://blog.csdn.net/lph159/article/details/142413043
     https://zhuanlan.zhihu.com/p/535102297
@@ -108,4 +108,4 @@ vue文件怎么解析：
     内部维护了一个 WeakMap 对象，用于记录属性到 effect 对象的依赖关系
 
 
-    9. 
+9. 

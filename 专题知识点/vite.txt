@@ -32,7 +32,7 @@ Vite Server 的请求处理能力，是通过中间件实现的
     执行热更新的代码
 
 3、vite依赖预构建：
-预构建：  https://blog.csdn.net/xiaolinlife/article/details/138524415
+    预构建：  https://blog.csdn.net/xiaolinlife/article/details/138524415
 
     （1）1. 非esm 转为esm , 2. 合并模块
     Vite 中正是为了「模块兼容性」以及「性能」这两方面大的原因，所以需要进行依赖预构建

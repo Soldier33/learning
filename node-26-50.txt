@@ -70,36 +70,11 @@ jq 的链式调用本质上是 ​函数式编程 和 ​状态封装 的结合�
 这种设计使得 jq 的代码简洁且易于维护，同时保证了高性能和灵活性。
 
 31、
-    vue文件怎么解析： 
-    https://www.cnblogs.com/heavenYJJ/p/18058142 ,
-    https://blog.csdn.net/lph159/article/details/142413043
-    https://zhuanlan.zhihu.com/p/535102297
-
-    1. @vitejs/plugin-vue-jsx库中有个叫transform的钩子
-    2. transform-> App.vue（底层调用vue/compiler-sfc） -> 创建descriptor 对象
-    3. 对应的函数转js代码、render函数、import语句
-
     
-    @vitejs/plugin-vue 就是一个 Rollup 插件
-    Vue 文件的解析依赖于 @vue/compiler-sfc 包, 处理单文件组件（SFC）的编译器
-    Vue 文件（单文件组件，Single File Component，SFC）
-
-    (1)@vitejs/plugin-vue-jsx库中有个叫transform的钩子函数，每当vite加载模块的时候就会触发这个钩子函数。
-    所以当import一个vue文件的时候，就会走到@vitejs/plugin-vue-jsx中的transform钩子函数中，
-    在transform钩子函数中主要调用了transformMain函数。
-
-    (2)genScriptCode函数为底层调用vue/compiler-sfc
-
-    (3)调用genScriptCode函数传入第一步生成的descriptor对象     将<script setup>模块编译为浏览器可执行的js代码。
-    调用genTemplateCode函数传入第一步生成的descriptor对象   将<template>模块编译为render函数。
-    调用genStyleCode函数传入第一步生成的descriptor对象      将<style scoped>模块编译为类似这样的import语句
-
-    (4)当浏览器执行到import "/src/App.vue?vue&type=style&index=0&scoped=7a7a37b1&lang.css";
-    语句时，触发了加载模块操作，再次触发了@vitejs/plugin-vue-jsx中的transform钩子函数
 
 32、
-如何setTimeout 实现setInterval
-写一个loop函数，先定义空定时器，里面赋值定时器，定时器里面执行fn和loop，最后返回清除定时器
+    如何setTimeout 实现setInterval
+    写一个loop函数，先定义空定时器，里面赋值定时器，定时器里面执行fn和loop，最后返回清除定时器
 
 33、如何实现预览 PDF 文件
         1. 使用浏览器内置的 PDF 查看器
