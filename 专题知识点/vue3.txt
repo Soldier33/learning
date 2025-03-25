@@ -1,37 +1,37 @@
-一、vue3 ：watch和watchEffect的区别
-watch, 要指定监听的数据，可以知道变化前后的数据
-watchEffect ，不需要指定，自动依赖收集，仅提供新值，简化配置
-https://juejin.cn/post/7474062103994646582
+1、vue3 ：watch和watchEffect的区别
+    watch, 要指定监听的数据，可以知道变化前后的数据
+    watchEffect ，不需要指定，自动依赖收集，仅提供新值，简化配置
+    https://juejin.cn/post/7474062103994646582
 
-二、vue3的dom树为什么快，渲染机制，带编译时信息的虚拟dom
-1. 缓存静态内容，没有变量的节点就不做对比，直接缓存
-2. 更新类型标记，vnode创建时编码了每个元素需要更新的类型 (补丁patch算法优化)
-3. 树结构打平，被打标记的节点被存在数组里面
+2、vue3的dom树为什么快，渲染机制，带编译时信息的虚拟dom
+    1. 缓存静态内容，没有变量的节点就不做对比，直接缓存
+    2. 更新类型标记，vnode创建时编码了每个元素需要更新的类型 (补丁patch算法优化)
+    3. 树结构打平，被打标记的节点被存在数组里面
 
-静态提升、补丁算法优化、事件处理优化:静态事件提升、事件缓存（将这个事件监听器提取出来 复用）
+    静态提升、补丁算法优化、事件处理优化:静态事件提升、事件缓存（将这个事件监听器提取出来 复用）
 
-静态节点和属性提升：减少重复创建和比对。
-补丁标志：精准更新动态节点。
-块树优化：缩小比对范围。
-事件侦听器缓存：减少事件处理开销。
-Tree Shaking 支持：减少打包体积。
+    静态节点和属性提升：减少重复创建和比对。
+    补丁标志：精准更新动态节点。
+    块树优化：缩小比对范围。
+    事件侦听器缓存：减少事件处理开销。
+    Tree Shaking 支持：减少打包体积。
 
-三、[Vue3] reactive() 的局限性
-1. 基础数据不能响应式、 
-2. 不能替换整个对象  // 这样做是错误的，不会保持响应性 state = { count: 1 };
-3. 解构操作不友好
-// 直接解构将会失去响应性
-const { count, title } = state;
+3、[Vue3] reactive() 的局限性
+    1. 基础数据不能响应式、 
+    2. 不能替换整个对象  // 这样做是错误的，不会保持响应性 state = { count: 1 };
+    3. 解构操作不友好
+    // 直接解构将会失去响应性
+    const { count, title } = state;
 
-// 使用 toRefs 解构，保持响应性
-const { count, title } = toRefs(state);
+    // 使用 toRefs 解构，保持响应性
+    const { count, title } = toRefs(state);
 
 
-四、pinia 和 vuex
-pinia 简洁和直观的 API , state, action, 灵活和易于使用。可以轻松地将 store 拆分为多个模块,action 能使用异步操作
-Vuex 的语法相对较为复杂，需要定义state mutations、actions 和 getters 
+4、pinia 和 vuex
+    pinia 简洁和直观的 API , state, action, 灵活和易于使用。可以轻松地将 store 拆分为多个模块,action 能使用异步操作
+    Vuex 的语法相对较为复杂，需要定义state mutations、actions 和 getters 
 
-五、vue中 keep-alive底层是如何实现的？
+5、vue中 keep-alive底层是如何实现的？
 
     <keep-alive> 的主要功能是缓存不活动的组件实例，而不是销毁它们。当组件再次被激活时，直接从缓存中恢复，避免重新渲染和挂载。
 
@@ -39,36 +39,20 @@ Vuex 的语法相对较为复杂，需要定义state mutations、actions 和 get
     <keep-alive> 内部维护了一个缓存对象（cache），用于存储被缓存的组件实例。
     缓存对象的键是组件的 name 选项或组件的 tag，值是组件的 VNode（虚拟 DOM 节点）。
 
-六、Vue
+6 、计算属性如何收集依赖： https://juejin.cn/post/6854573220046372872
+    依赖收集的实现集中在 Watcher 与 Dep 两个类中
 
-    vue文件怎么解析： 
-    https://www.cnblogs.com/heavenYJJ/p/18058142 ,
-    https://blog.csdn.net/lph159/article/details/142413043
-    https://zhuanlan.zhihu.com/p/535102297
+    Dep 简单对象 data , props
+    Watcher 复合对象 computed, render
 
-    1. @vitejs/plugin-vue-jsx库中有个叫transform的钩子
-    2. transform-> App.vue（底层调用vue/compiler-sfc） -> 创建descriptor 对象
-    3. 对应的函数转js代码、render函数、import语句
+    Dep.prototype.depend -> 依赖对象记录到 Watcher 对象 
 
-    
-    @vitejs/plugin-vue 就是一个 Rollup 插件
-    Vue 文件的解析依赖于 @vue/compiler-sfc 包, 处理单文件组件（SFC）的编译器
-    Vue 文件（单文件组件，Single File Component，SFC）
+    Vue3中依赖收集过程的设计与Vue2相似，细节上有如下区别：
 
-    (1)@vitejs/plugin-vue-jsx库中有个叫transform的钩子函数，每当vite加载模块的时候就会触发这个钩子函数。
-    所以当import一个vue文件的时候，就会走到@vitejs/plugin-vue-jsx中的transform钩子函数中，
-    在transform钩子函数中主要调用了transformMain函数。
+    核心接口变成了 Composition 风格的 track 与 trigger 函数。
+    内部维护了一个 WeakMap 对象，用于记录属性到 effect 对象的依赖关系
 
-    (2)genScriptCode函数为底层调用vue/compiler-sfc
-
-    (3)调用genScriptCode函数传入第一步生成的descriptor对象     将<script setup>模块编译为浏览器可执行的js代码。
-    调用genTemplateCode函数传入第一步生成的descriptor对象   将<template>模块编译为render函数。
-    调用genStyleCode函数传入第一步生成的descriptor对象      将<style scoped>模块编译为类似这样的import语句
-
-    (4)当浏览器执行到import "/src/App.vue?vue&type=style&index=0&scoped=7a7a37b1&lang.css";
-    语句时，触发了加载模块操作，再次触发了@vitejs/plugin-vue-jsx中的transform钩子函数
-
-七、diff算法：https://segmentfault.com/a/1190000023060173#item-3
+7、diff算法：https://segmentfault.com/a/1190000023060173#item-3
     flagment出现就是用看起来像一个普通的DOM元素，但它是虚拟的
 
     为什么要得到最长稳定序列
@@ -94,18 +78,7 @@ Vuex 的语法相对较为复杂，需要定义state mutations、actions 和 get
     vue2的diff算法，只要依赖key, 没有key就首尾对比
     收集旧树中key相同的节点，复用在新树
 
-8、计算属性如何收集依赖： https://juejin.cn/post/6854573220046372872
-    依赖收集的实现集中在 Watcher 与 Dep 两个类中
-
-    Dep 简单对象 data , props
-    Watcher 复合对象 computed, render
-
-    Dep.prototype.depend -> 依赖对象记录到 Watcher 对象 
-
-    Vue3中依赖收集过程的设计与Vue2相似，细节上有如下区别：
-
-    核心接口变成了 Composition 风格的 track 与 trigger 函数。
-    内部维护了一个 WeakMap 对象，用于记录属性到 effect 对象的依赖关系
+8、
 
 
 9. 

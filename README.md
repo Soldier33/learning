@@ -31,3 +31,4 @@ Todo:
 SSR深度优化、D2C及DSL编译等智能UI，有自己深入理解的优化经验。
 熟悉Canvas、D3.js等可视化技术；Django
 有区块链行业从业经验（熟悉web3.js、wagmi、ethers等）
+Web Asssembly

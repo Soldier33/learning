@@ -58,3 +58,40 @@
         :root[lang="ar"] { /* 阿拉伯语 */
             --font-scale: 0.9; /* 长文本缩小字号 */
         }
+
+5、计算宽度
+	布局控制 → offsetWidth/clientWidth
+	​视口定位 → getBoundingClientRect()
+	​动态样式 → getComputedStyle()
+	​滚动逻辑 → scrollWidth
+	​SVG 图形 → getBBox()
+	​框架开发 → 结合 Ref API 或ResizeObserver
+
+
+	offsetWidth
+	原理：返回元素渲染后的总宽度​（包含内边距、边框，但不含滚动条）
+
+	clientWidth
+	原理：返回元素可视区域的宽度​（含内边距，不含边框和滚动条）
+
+	scrollWidth
+	原理：返回元素内容总宽度​（含隐藏的溢出内容）
+
+	动态元素尺寸监听：
+	javascript
+	const observer = new ResizeObserver(entries => {
+	entries.forEach(entry => {
+		console.log('宽度变化:', entry.contentRect.width);
+	});
+	});
+
+	observer.observe(document.getElementById('dynamicElement'));
+
+6、BFC是一块块独立的渲染区域，可以将BFC看成是元素的一种属性，
+	拥有了这种属性的元素就会使他的子元素与世隔绝，不会影响到外部其他元素
+
+	bfc:display:inline-block、flex
+
+	使用BFC解决子元素浮动导致父元素高度塌陷的机制
+	margin重叠机制
+	普通元素和浮动元素相互重叠的机制

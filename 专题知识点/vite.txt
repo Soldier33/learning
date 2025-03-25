@@ -1,22 +1,21 @@
-1. 
-Vite 还有很多值得一提的性能优化，整体梳理一下：
+1. 总体功能：
+  Vite 还有很多值得一提的性能优化，整体梳理一下：
 
-预编译：npm 包这类基本不会变化的模块，使用 Esbuild 在 预构建 阶段先打包整理好，减少 http 请求数
-按需编译：用户代码这一类频繁变动的模块，直到被使用时才会执行编译操作
-客户端强缓存：请求过的模块会被以 http 头 max-age=31536000,immutable 设置为强缓存，如果模块发生变化则用附加的版本 query 使其失效
-产物优化：相比于 Webpack ，Vite 直接锚定高版本浏览器，不需要在 build 产物中插入过多运行时与模板代码
-内置更好的分包实现：不需要用户干预，默认启用一系列智能分包规则，尽可能减少模块的重复打包
-更好的静态资源处理：Vite 尽量避免直接处理静态资源，而是选择遵循 ESM 方式提供服务，例如引入图片 import img from 'xxx.png' 语句，执行后 img 变量只是一个路径字符串。
+  预编译：npm 包这类基本不会变化的模块，使用 Esbuild 在 预构建 阶段先打包整理好，减少 http 请求数
+  按需编译：用户代码这一类频繁变动的模块，直到被使用时才会执行编译操作
+  客户端强缓存：请求过的模块会被以 http 头 max-age=31536000,immutable 设置为强缓存，如果模块发生变化则用附加的版本 query 使其失效
+  产物优化：相比于 Webpack ，Vite 直接锚定高版本浏览器，不需要在 build 产物中插入过多运行时与模板代码
+  内置更好的分包实现：不需要用户干预，默认启用一系列智能分包规则，尽可能减少模块的重复打包
+  更好的静态资源处理：Vite 尽量避免直接处理静态资源，而是选择遵循 ESM 方式提供服务，例如引入图片 import img from 'xxx.png' 语句，执行后 img 变量只是一个路径字符串。
 
-作者：范文杰
-链接：https://juejin.cn/post/6980141344131923999
-来源：稀土掘金
-著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+  作者：范文杰
+  链接：https://juejin.cn/post/6980141344131923999
+  来源：稀土掘金
+  著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 
 
-2. 
-
-Vite Server 的请求处理能力，是通过中间件实现的
+2. 热更新：
+    Vite Server 的请求处理能力，是通过中间件实现的
     https://zhuanlan.zhihu.com/p/532451109
 
     Vite 的热更新相关脚本：/@vite/client
@@ -34,31 +33,53 @@ Vite Server 的请求处理能力，是通过中间件实现的
 3、vite依赖预构建：
     预构建：  https://blog.csdn.net/xiaolinlife/article/details/138524415
 
-    （1）1. 非esm 转为esm , 2. 合并模块
+    1.作用：非esm 转为esm , 2. 合并模块   
     Vite 中正是为了「模块兼容性」以及「性能」这两方面大的原因，所以需要进行依赖预构建
+
+    模块格式兼容问题和海量模块请求
 
     将非 ESM 规范的代码转换为符合 ESM 规范的代码；
     将第三方依赖内部的多个文件合并为一个，减少 http 请求数量；
 
-    （2）Vite 将会使用 esbuild 在应用启动时对于依赖部分进行预构建依赖。
-    依赖预构建仅适用于开发模式，并使用 esbuild 将依赖项转换为 ES 模块。
-    在生产构建中，将使用 @rollup/plugin-commonjs
+    1.1 借助预构建的过程将这部分非 esm 模块的依赖模块转化为 esm 模块
 
-    （3）比如 lodash-es 中存在超过 600 个内置模块，当我们执行 import { debounce } from ‘lodash’ 时，
+    1.2 比如 lodash-es 中存在超过 600 个内置模块，当我们执行 import { debounce } from ‘lodash’ 时，
     如果不进行预构建浏览器会同时发出 600 多个 HTTP 请求，这无疑会让页面加载变得明显缓慢。
     正式通过依赖预构建，将 lodash-es 预构建成为单个模块后仅需要一个 HTTP 请求就可以解决上述的问题
 
-    （4）借助预构建的过程将这部分非 esm 模块的依赖模块转化为 esm 模块
+    2. Vite 将会使用 esbuild 在应用启动时对于依赖部分进行预构建依赖。
+    依赖预构建仅适用于开发模式，并使用 esbuild 将依赖项转换为 ES 模块。
+    在生产构建中，将使用 @rollup/plugin-commonjs
 
+    
+    
+      A、 
      vite 在预编译时会对于项目中使用到的第三方依赖进行依赖预构建，
      将构建后的产物存放在 node_modules/.vite/deps 目录中，比如 ahooks.js、react.js 等
      依赖预构建的过程简单来说就是生成 node_modules/deps 文件即可。
 
+      B、
      「将构建后的产物存储在 .vite/deps 目录中，同时将映射关系保存在 .vite/deps/_metadata.json 中，
       其中 optimized 对象中的 react 表示原始依赖的入口文件而 file 则表示经过预构建后生成的产物（两者皆为相对路径）。」
 
-4、
-  依赖扫描：https://juejin.cn/post/7129160452377935903?spm=a2c6h.12873639.article-detail.9.22f9780anx17VW#heading-2
+      C、
+        所有的预构建产物默认缓
+        存在 node_modules/.vite 目录中。
+        如果以下 3 个地方都没有改动，Vite 将一直使用缓存
+        文件:
+        package.json 的 dependencies 字段
+        各种包管理器的 lock 文件
+        optimizeDeps 配置内容
+
+      D、
+      Vite 会根据应用入口( entries )自动搜集依赖，然后进行预构建，
+      某些情况下 Vite 默认的扫描行为
+      并不完全可靠，这就需要联合配置 include 来达到完美的预构建效果了
+
+      要尽力避免运行时的二次预构建，include 参数提前声明需要按需加载的依赖
+      include ： 场景一: 动态 import  场景二: 某些包被手动 exclude（少用exclude）
+
+4、依赖扫描：https://juejin.cn/post/7129160452377935903?spm=a2c6h.12873639.article-detail.9.22f9780anx17VW#heading-2
   只有 bare import（裸依赖）会执行依赖预构建，
   如：import xxx from "vue/xxx"   ，这个不行： import xxx from "./foo.ts" 
   用名称去访问的模块是裸模块
@@ -74,8 +95,7 @@ Vite Server 的请求处理能力，是通过中间件实现的
   预构建只针对js
 
 
-5、
-  vite插件：
+5、vite插件：
   小图片: 对于较小的图片，@rollup/plugin-image直接将其转换为 Base64 编码
         并嵌入到 JavaScript 文件中可以减少 HTTP 请求，提升页面加载速度。
   大图片: 对于较大的图片，建议使用 @rollup/plugin-url 插件，
@@ -83,7 +103,119 @@ Vite Server 的请求处理能力，是通过中间件实现的
 
     @vitejs/plugin-legacy 打包出一个看起来兼容性比较好的版本
 
+  配置：
+    build.assetsInlineLimit 配置静态资源
+
+    如果静态资源体积 >= 4KB，则提取成单独的文件
+    如果静态资源体积 < 4KB，则作为 base64 格式的字符串内联
+
+
+    vite-plugin-imagemin压缩图片  强烈推荐大家在项目中使用
+    vite-plugin-svg-icons 合并图标的方案也叫 雪碧图 
+
+
 6、计算时间
   time npm run build
 
   npm run build  55.54s user 4.55s system 269% cpu 22.260 total
+
+7.编译模版
+  import vue from "@vitejs/plugin-vue";
+
+  如果让 Vite 可以编译 Vue 模版，可以通过安装 Vite 的 Vue 插件实现。你可以这样理解，
+  Vite 默认只能支持 TS 代码。
+  而 Vue 的模板需要在编译阶段转换为 Typescript 代码 (渲染函数)才可以运行。
+  Vue 插件不但提供了模板的编译，同时还支持 Vue 单文件 (SFC) 组件的编译。
+
+    vue文件怎么解析： 
+    https://www.cnblogs.com/heavenYJJ/p/18058142 ,
+    https://blog.csdn.net/lph159/article/details/142413043
+    https://zhuanlan.zhihu.com/p/535102297
+
+    1. @vitejs/plugin-vue-jsx库中有个叫transform的钩子
+    2. transform-> App.vue（底层调用vue/compiler-sfc） -> 创建descriptor 对象
+    3. 对应的函数转js代码、render函数、import语句
+
+    
+    @vitejs/plugin-vue 就是一个 Rollup 插件
+    Vue 文件的解析依赖于 @vue/compiler-sfc 包, 处理单文件组件（SFC）的编译器
+    Vue 文件（单文件组件，Single File Component，SFC）
+
+    (1)@vitejs/plugin-vue-jsx库中有个叫transform的钩子函数，每当vite加载模块的时候就会触发这个钩子函数。
+    所以当import一个vue文件的时候，就会走到@vitejs/plugin-vue-jsx中的transform钩子函数中，
+    在transform钩子函数中主要调用了transformMain函数。
+
+    (2)genScriptCode函数为底层调用vue/compiler-sfc
+
+    (3)调用genScriptCode函数传入第一步生成的descriptor对象     将<script setup>模块编译为浏览器可执行的js代码。
+    调用genTemplateCode函数传入第一步生成的descriptor对象   将<template>模块编译为render函数。
+    调用genStyleCode函数传入第一步生成的descriptor对象      将<style scoped>模块编译为类似这样的import语句
+
+    (4)当浏览器执行到import "/src/App.vue?vue&type=style&index=0&scoped=7a7a37b1&lang.css";
+    语句时，触发了加载模块操作，再次触发了@vitejs/plugin-vue-jsx中的transform钩子函数
+
+8、Worker
+    Vite 中使用 Web Worker 也非常简单，我们可以在新建 Header/example.js 文件:
+    const start = () => {
+    let count = 0;
+    setInterval(() => {
+    // 给主线程传值
+    postMessage(++count);
+    }, 2000);
+    };
+    start();
+
+    然后在 Header 组件中引入，引入的时候注意加上 ?worker 后缀，相当于告诉 Vite 这是
+    一个 Web Worker 脚本文件:
+    import Worker from './example.js?worker';
+    // 1. 初始化 Worker 实例
+    const worker = new Worker();
+    // 2. 主线程监听 worker 的信息
+    worker.addEventListener('message', (e) => {
+    console.log(e);
+    });
+
+
+9、加深理解
+     能做到开发时的模块按需编译
+     vite 的 no-bundle 只是
+    对于源代码而言，对于第三方依赖而言，Vite 还是选择 bundle(打包)，并且使用速度极
+    快的打包器 Esbuild 来完成这一过程，达到秒级的依赖编译速度
+
+    执行 tsc 命令，也就是借助 TS 官方的编译器进行类型检查
+  
+
+10. 压缩
+    Vite 要将 Esbuild 作为生产环境下默认的压缩工具呢？因为压缩效率实在太高
+
+    在 Webpack 或者 Rollup 中
+    作为一个 Plugin 来完成代码打包后的压缩混淆的工作。
+    但 Terser 其实很慢，主要有 2个原因：
+    1. 压缩这项工作涉及大量 AST 操作，并且在传统的构建流程中，AST 在各个工具之间
+    无法共享，比如 Terser 就无法与 Babel 共享同一个 AST，造成了很多重复解析的过
+    程。
+    2. JS 本身属于解释性 + JIT（即时编译） 的语言，对于压缩这种 CPU 密集型的工作，
+    其性能远远比不上 Golang 这种原生语言。
+
+    Esbuild 这种从头到尾共享 AST 以及原生语言编写的 Minifier 在性能上好
+
+    将 Esbuild 各个垂直方向的能力
+  ( Bundler 、 Transformer 、 Minifier )利用的淋漓尽致
+
+
+  Esbuild 作为打包工具也有一些缺点。
+    不支持降级到 ES5 的代码。这意味着在低端浏览器代码会跑不起来。
+    不支持 const enum 等语法。这意味着单独使用这些语法在 esbuild 中会直接抛错。
+    不提供操作打包产物的接口，像 Rollup 中灵活处理打包产物的能力(如 renderChunk
+    钩子)在 Esbuild 当中完全没有。
+    不支持自定义 Code Splitting 策略。传统的 Webpack 和 Rollup 都提供了自定义拆
+    包策略的 API，而 Esbuild 并未提供，从而降级了拆包优化的灵活性。
+
+11.基于 Rollup 本身成熟的打包能力进行扩展和优化，主要包含
+    3 个方面:
+    1. CSS 代码分割。如果某个异步模块中引入了一些 CSS 代码，Vite 就会自动将这些
+        CSS 抽取出来生成单独的文件，提高线上产物的 缓存复用率 。
+    2. 自动预加载。Vite 会自动为入口 chunk 的依赖自动生成预加载标签 <link
+      rel="moduelpreload">
+      这种适当预加载的做法会让浏览器提前下载好资源，优化页面性能
+    3. 异步 Chunk 加载优化。优化 Rollup 产物依赖加载方式节省了不必要的网络开销

@@ -1,6 +1,6 @@
-面试知识点1-25
+ 知识点1-25
 
-一、同一个页面引入多个版本jQuery实现共存
+1、同一个页面引入多个版本jQuery实现共存
 	jQuery.noConflict()
 
 	$(function(){
@@ -24,7 +24,7 @@
     ​错误隔离：通过 catch 方法控制异常传播，避免链式崩溃。
     这种设计使得 jq 的代码简洁且易于维护，同时保证了高性能和灵活性。
 
-二、箭头函数不能用作 Generator 函数。
+2、箭头函数不能用作 Generator 函数。
 
 	箭头函数适合简单的回调和事件处理，而 Generator 函数适合需要暂停/恢复的复杂异步流程
 	上下文绑定：Generator 函数需要维护自己的 this 和调用栈状态，而箭头函数是静态绑定的，无法实现这种动态行为。
@@ -39,47 +39,19 @@
 	console.log(iterator.next()); // { value: 1, done: false }
 	console.log(iterator.next()); // { value: 2, done: false }
 
-三、计算宽度
-	布局控制 → offsetWidth/clientWidth
-	​视口定位 → getBoundingClientRect()
-	​动态样式 → getComputedStyle()
-	​滚动逻辑 → scrollWidth
-	​SVG 图形 → getBBox()
-	​框架开发 → 结合 Ref API 或ResizeObserver
+
+	不需要等待所有异步操作完成时，可以使用 forEach
+	如果你需要按顺序等待每个异步操作完成，
+	使用 for 循环（或其他支持 await 的循环，如 for...of 或传统的 for 循环）
+
+	try catch : 只能在同步函数或者async函数中使用try...catch。异步函数不行
 
 
-	offsetWidth
-	原理：返回元素渲染后的总宽度​（包含内边距、边框，但不含滚动条）
 
-	clientWidth
-	原理：返回元素可视区域的宽度​（含内边距，不含边框和滚动条）
-
-	scrollWidth
-	原理：返回元素内容总宽度​（含隐藏的溢出内容）
-
-	动态元素尺寸监听：
-	javascript
-	const observer = new ResizeObserver(entries => {
-	entries.forEach(entry => {
-		console.log('宽度变化:', entry.contentRect.width);
-	});
-	});
-
-	observer.observe(document.getElementById('dynamicElement'));
-
-四、BFC是一块块独立的渲染区域，可以将BFC看成是元素的一种属性，
-	拥有了这种属性的元素就会使他的子元素与世隔绝，不会影响到外部其他元素
-
-	bfc:display:inline-block、flex
-
-	使用BFC解决子元素浮动导致父元素高度塌陷的机制
-	margin重叠机制
-	普通元素和浮动元素相互重叠的机制
-
-五、如何setTimeout 实现setInterval
+3、如何setTimeout 实现setInterval
     写一个loop函数，先定义空定时器，里面赋值定时器，定时器里面执行fn和loop，最后返回清除定时器
 
-六、如何实现预览 PDF 文件
+4、如何实现预览 PDF 文件
         1. 使用浏览器内置的 PDF 查看器
 
         <!-- 方法1: 使用超链接 -->
@@ -91,65 +63,43 @@
         2. 使用 PDF.js
 
 
-
-七、websocket
-    全双工（两个方向上同时传输）、二进制帧、协议名（ws、wss）、一次握手
-
-    弹幕
-    媒体聊天
-    协同编辑
-    基于位置的应用
-    体育实况更新
-    股票基金报价实时更新
-
-八、小程序特有的双线程设计。 H5 下我们所有资源通常都会打到一个 bundle.js 文件里（不考虑分包加载），
+5、小程序特有的双线程设计。 H5 下我们所有资源通常都会打到一个 bundle.js 文件里（不考虑分包加载），
 	而小程序编译后的结果会有两个bundle，index.js封装的是小程序项目的 view 层，以及 index.worker.js 封装的是项目的业务逻辑，
 	在运行时，会有两条线程来分别处理这两个bundle，一个是主渲染线程，它负责加载并渲染 index.js 里的内容，
 	另外一个是 Service Worker线 程，它负责执行 index.worker.js 里封装的业务逻辑，这里面会有很多对底层api调用。
 
 
-
-十、垃圾回收机制
+6、垃圾回收机制
     标记清除：可以清除循环引用
     引用计数：缺点：循环引用无法清除，优点：立即清除
 
 	新生代，老生代，新生代里面有form和to， from是活跃变量，之后会复制到to区域
 
 
-十一、js文件中没有DOM操作，可以将JavaScript脚本设置为异步加载，用async或defer标记代码，
+7、js文件中没有DOM操作，可以将JavaScript脚本设置为异步加载，用async或defer标记代码，
      异步加载脚本，不会阻塞页面渲染。defer顺序可控，（async脚本独立时用）
 
-十二、
+8、代码规范大体可以分为目录规范、编码规范、提交规范。更重要的内容是介绍如何使用相应的工具来检查代码规范，保证项目的健康性。大体归纳如下：
+
+-   编码规范： ESLint （语法） + Prettier（格式）+ Husky (提交时自动检查)；
+-   提交 Message ： commitlint(提交信息样式检查) + Husky (提交时自动检查)。
 
 
-十三、TLS（Transport Layer Security，传输层安全协议）和 
-	SSL（Secure Sockets Layer，安全套接字层）
-	tls更安全
-
-十四、
-	一、证书颁发机构（CA）的信任体系
-    1. 根证书的信任：2. 中间证书的验证：
-	二、证书的验证过程
-    1. 证书的完整性检查：2. 证书的有效期检查：3. 域名匹配检查：
-	三、证书吊销检查
-    1. 证书吊销列表（CRL）： 2. 在线证书状态协议（OCSP）：
-
-十五、分片上传文件，如何校验文件完整性
+9、分片上传文件，如何校验文件完整性
 	一、使用哈希算法 : JavaScript 的crypto-js库计算文件的 MD5 哈希值：
 	二、校验和（字节总和）
 	三、文件大小比较
 	四、上传状态跟踪 （收到表示确认）
 
-十六、Object.keys()只返回了可枚举的属性property1和property2，
+10、Object.keys()只返回了可枚举的属性property1和property2，
 	而Object.getOwnPropertyNames()返回了所有属性，包括不可枚举的nonEnumerableProperty
 
-十七、Content-Type为application/octet-stream，代表以下含义：
+11、Content-Type为application/octet-stream，代表以下含义：
     * application/octet-stream表示这是一个通用的二进制流数据
     * 可以用于传输各种类型的二进制文件，如图片、音频、视频、压缩文件、可执行文件等。
 
-十八、
 
-二十、Web 安全问题及防御措施
+12、Web 安全问题及防御措施
 	XSS（跨站脚本攻击）
 	CSRF（跨站请求伪造）   后端生成 Token，前端提交时携带。
 	SQL 注入
@@ -163,33 +113,17 @@
     解决办法：流量过滤、负载均衡、加强认证和授权、升级硬件和软件
 
     utf8 是对 Unicode 的一种压缩算法
-	
 
-二十一、不需要等待所有异步操作完成时，可以使用 forEach
-	   如果你需要按顺序等待每个异步操作完成，
-	   使用 for 循环（或其他支持 await 的循环，如 for...of 或传统的 for 循环）
+13、
+	预加载原理：在加载页面的同时，用第二个线程加载图片，
+		当图片加载完毕后，将图片资源交给第一个线程去展示，从而实现图片的预加载
+	缺点：懒加载会出现白屏是因为图片发送http请求需要时间，
+		预加载同样也需要这样的话它的白屏时间就会集中出现在开始加载的时候
 
-二十二、try catch : 只能在同步函数或者async函数中使用try...catch。异步函数不行
+	懒加载是‘懒人’的好帮手，等你需要的时候才会加载资源，节省了流量和时间，让用户体验更流畅。
+	预加载则是‘提前量’的高手，预先加载资源，给用户带来更快的访问速度和更好的体验
 
-
-二十三、服务端向客户端推送数据的实现方案
-	1. 轮询。   浏览器请求并发是有限制的 ， 6个最多， 消耗性能
-	2. websocket。， 双向通讯的协议。 （聊天）
-	3. SSE  ie不支持 ， 一个单向通讯的协议也是一个长链接， 只能服务端主动给客户端推送数据
-
-二十四、预检请求：
-		预检请求是 CORS 机制的重要组成部分，用于确保跨域请求的安全性。
-			通过合理配置服务器响应头，可以减少预检请求的频率，提升性能。
-		预检请求（Preflight Request） 的响应状态码通常是 200 OK。
-
-		这是因为预检请求的目的是确认服务器是否允许实际的跨域请求，而不是实际处理请求。
-		服务器通过返回 200 OK 状态码和相关的 CORS 头信息，告诉浏览器是否允许后续的实际请求。
-
-
-		预检请求失败	403/405 等	服务器不允许跨域请求，浏览器会阻止实际请求。
-
-
-二十五、虚拟列表的基本原理：（为了流畅滚动）
+14、虚拟列表的基本原理：（为了流畅滚动）
 	虚拟列表通过只渲染当前可视区域内的列表项，从而提高长列表加载到页面的性能。
 
 	1. 设置子数据项高度：确定子数据项的具体高度。以确定当前区域内需要渲染的列表项。
