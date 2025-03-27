@@ -27,3 +27,25 @@
 
     4. Promise.allSettled() 当您有多个彼此不依赖的异步任务成功完成时，或者您总是想知道每个promise的结果时，通常使用它。
     eg. 同时填了3干个独立的表单，这三个表单分三个接口提交到后端，三个接口独立，没有顺序依赖，这个时候我们需要等到请求全部完成后给与用户提示表单提交的情况
+
+2. 箭头函数不能用作 Generator 函数。
+
+	箭头函数适合简单的回调和事件处理，而 Generator 函数适合需要暂停/恢复的复杂异步流程
+	上下文绑定：Generator 函数需要维护自己的 this 和调用栈状态，而箭头函数是静态绑定的，无法实现这种动态行为。
+
+	正确写法：
+	function* gen() {
+		yield 1;
+		yield 2;
+	}
+
+	const iterator = gen();
+	console.log(iterator.next()); // { value: 1, done: false }
+	console.log(iterator.next()); // { value: 2, done: false }
+
+
+	不需要等待所有异步操作完成时，可以使用 forEach
+	如果你需要按顺序等待每个异步操作完成，
+	使用 for 循环（或其他支持 await 的循环，如 for...of 或传统的 for 循环）
+
+	try catch : 只能在同步函数或者async函数中使用try...catch。异步函数不行

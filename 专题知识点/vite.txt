@@ -53,31 +53,31 @@
 
     
     
-      A、 
-     vite 在预编译时会对于项目中使用到的第三方依赖进行依赖预构建，
-     将构建后的产物存放在 node_modules/.vite/deps 目录中，比如 ahooks.js、react.js 等
-     依赖预构建的过程简单来说就是生成 node_modules/deps 文件即可。
+    A、 
+    vite 在预编译时会对于项目中使用到的第三方依赖进行依赖预构建，
+    将构建后的产物存放在 node_modules/.vite/deps 目录中，比如 ahooks.js、react.js 等
+    依赖预构建的过程简单来说就是生成 node_modules/deps 文件即可。
 
-      B、
-     「将构建后的产物存储在 .vite/deps 目录中，同时将映射关系保存在 .vite/deps/_metadata.json 中，
-      其中 optimized 对象中的 react 表示原始依赖的入口文件而 file 则表示经过预构建后生成的产物（两者皆为相对路径）。」
+    B、
+    「将构建后的产物存储在 .vite/deps 目录中，同时将映射关系保存在 .vite/deps/_metadata.json 中，
+    其中 optimized 对象中的 react 表示原始依赖的入口文件而 file 则表示经过预构建后生成的产物（两者皆为相对路径）。」
 
-      C、
-        所有的预构建产物默认缓
-        存在 node_modules/.vite 目录中。
-        如果以下 3 个地方都没有改动，Vite 将一直使用缓存
-        文件:
-        package.json 的 dependencies 字段
-        各种包管理器的 lock 文件
-        optimizeDeps 配置内容
+    C、
+      所有的预构建产物默认缓
+      存在 node_modules/.vite 目录中。
+      如果以下 3 个地方都没有改动，Vite 将一直使用缓存
+      文件:
+      package.json 的 dependencies 字段
+      各种包管理器的 lock 文件
+      optimizeDeps 配置内容
 
-      D、
-      Vite 会根据应用入口( entries )自动搜集依赖，然后进行预构建，
-      某些情况下 Vite 默认的扫描行为
-      并不完全可靠，这就需要联合配置 include 来达到完美的预构建效果了
+    D、
+    Vite 会根据应用入口( entries )自动搜集依赖，然后进行预构建，
+    某些情况下 Vite 默认的扫描行为
+    并不完全可靠，这就需要联合配置 include 来达到完美的预构建效果了
 
-      要尽力避免运行时的二次预构建，include 参数提前声明需要按需加载的依赖
-      include ： 场景一: 动态 import  场景二: 某些包被手动 exclude（少用exclude）
+    要尽力避免运行时的二次预构建，include 参数提前声明需要按需加载的依赖
+    include ： 场景一: 动态 import  场景二: 某些包被手动 exclude（少用exclude）
 
 4、依赖扫描：https://juejin.cn/post/7129160452377935903?spm=a2c6h.12873639.article-detail.9.22f9780anx17VW#heading-2
   只有 bare import（裸依赖）会执行依赖预构建，
@@ -101,8 +101,6 @@
   大图片: 对于较大的图片，建议使用 @rollup/plugin-url 插件，
         将图片文件输出到指定目录，并在代码中引用其路径。
 
-    @vitejs/plugin-legacy 打包出一个看起来兼容性比较好的版本
-
   配置：
     build.assetsInlineLimit 配置静态资源
 
@@ -112,6 +110,12 @@
 
     vite-plugin-imagemin压缩图片  强烈推荐大家在项目中使用
     vite-plugin-svg-icons 合并图标的方案也叫 雪碧图 
+
+    vite-plugin-chunk-split  自定义拆包
+
+    @vitejs/plugin-legacy 打包出一个看起来兼容性比较好的版本
+
+    vite-plugin-mkcert 在本地 Dev Server 上开启 HTTP2:
 
 
 6、计算时间
@@ -157,11 +161,11 @@
 8、Worker
     Vite 中使用 Web Worker 也非常简单，我们可以在新建 Header/example.js 文件:
     const start = () => {
-    let count = 0;
-    setInterval(() => {
-    // 给主线程传值
-    postMessage(++count);
-    }, 2000);
+      let count = 0;
+      setInterval(() => {
+      // 给主线程传值
+      postMessage(++count);
+      }, 2000);
     };
     start();
 
@@ -202,7 +206,7 @@
     将 Esbuild 各个垂直方向的能力
   ( Bundler 、 Transformer 、 Minifier )利用的淋漓尽致
 
-
+11、Esbuild
   Esbuild 作为打包工具也有一些缺点。
     不支持降级到 ES5 的代码。这意味着在低端浏览器代码会跑不起来。
     不支持 const enum 等语法。这意味着单独使用这些语法在 esbuild 中会直接抛错。
@@ -211,7 +215,19 @@
     不支持自定义 Code Splitting 策略。传统的 Webpack 和 Rollup 都提供了自定义拆
     包策略的 API，而 Esbuild 并未提供，从而降级了拆包优化的灵活性。
 
-11.基于 Rollup 本身成熟的打包能力进行扩展和优化，主要包含
+  如何达到这样超高的构建性能的呢？主要原因可以概括为 4 点。
+    1. 使用 Golang 开发，构建逻辑代码直接被编译为原生机器码，而不用像 JS 一样先代
+    码解析为字节码，然后转换为机器码，大大节省了程序运行时间。
+    2. 多核并行。内部打包算法充分利用多核 CPU 优势，所有的步骤尽可能并行，这也是
+    得益于 Go 当中多线程共享内存的优势。
+    3. 从零造轮子。 几乎没有使用任何第三方库，所有逻辑自己编写，大到 AST 解析，小
+    到字符串的操作，保证极致的代码性能。
+    4. 高效的内存利用。Esbuild 中从头到尾尽可能地复用一份 AST 节点数据，而不用像
+    JS 打包工具中频繁地解析和传递 AST 数据（如 string -> TS -> JS -> string)，造
+    成内存的大量浪费。
+
+12.Rollup
+  基于 Rollup 本身成熟的打包能力进行扩展和优化，主要包含
     3 个方面:
     1. CSS 代码分割。如果某个异步模块中引入了一些 CSS 代码，Vite 就会自动将这些
         CSS 抽取出来生成单独的文件，提高线上产物的 缓存复用率 。
@@ -219,3 +235,140 @@
       rel="moduelpreload">
       这种适当预加载的做法会让浏览器提前下载好资源，优化页面性能
     3. 异步 Chunk 加载优化。优化 Rollup 产物依赖加载方式节省了不必要的网络开销
+
+
+  对于一次完整的构建过程而言， Rollup 会先进入到 Build 阶段，解析各模块的内
+  容及依赖关系，然后进入 Output 阶段，完成打包及输出的过程。
+
+  transform 钩子的入参分别为 模块代码 、 模块 ID ，返回一个包含 code (代码内容)
+  和 map (SourceMap 内容) 属性的对象，当然也可以返回 null 来跳过当前插件的
+  transform 处理。需要注意的是，当前插件返回的代码会作为下一个插件 transform 钩
+  子的第一个入参，实现类似于瀑布流的处理
+
+
+  Rollup 的插件开发整体上是非常简洁和灵活的，总结为以下几个方面：
+  1. 插件逻辑集中管理： Webpack 的 Loader 和 Plugin 功能在 Rollup 只需要用一个插件，分别通过
+                  transform 和 renderChunk 两个 Hook 来实现
+  2. 插件 API 简洁，符合直觉
+  3. 插件间的互相调用
+
+13. 热更新：
+    通过 HMR 的技术我们就可以实现 局部刷新 和 状态保存
+    模块更新时逻辑: hot.accept， 为它决定了 Vite 进行热更新的边界
+    模块销毁时逻辑: hot.dispose
+    共享数据: hot.data 属性
+
+    import.meta.hot 对象只有在开发阶段才会被注入到全局
+
+    接受自身模块更新
+    接受依赖模块的更新
+    接受多个子模块的更新
+
+14、分包：
+  一个巨大单文件chunk: 
+  从页面加载性能的角度来说，主要会导致两个问题:
+  无法做到按需加载，即使是当前页面不需要的代码也会进行加载。
+  线上缓存复用率极低，改动一行代码即可导致整个 bundle 产物缓存失效。
+
+  InititalChunk 和 Async Chunk ，
+  前者指页面首屏所需要的 JS 代码，而后者当前页面并不一定需要
+
+  比如：路由组件 ，与当前路由无关的组件并不用加载
+  通过 Code Splitting 我们可以将按需加载的代码拆分出单独的chunk
+
+  线上的 缓存命中率 是一个重要的性能衡量标准
+
+  而 Vite 中内置如下的代码拆包能力:
+  CSS 代码分割，即实现一个 chunk 对应一个 css 文件。
+  默认有一套拆包策略，将应用的代码和第三方库的代码分别打包成两份产物，并
+  对于动态 import 的模块单独打包成一个 chunk
+
+
+
+  问题: 无法按需加载以及线上缓存命中率低
+
+    由于 Vite 生产环境使用 Rollup 进行打包， Rollup 底层的
+    拆包 API—— manualChunks ，
+    用 对象配置 和 函数配置 两种方式来自定义拆包策略，
+    对象配置使用上比较简单，但函数配置更加灵活。
+    函数配置中容易遇到的坑——chunk 循环依赖问题。
+
+    {
+      build: {
+        rollupOptions: {
+          output: {
+            // manualChunks 配置
+            manualChunks: {
+              // 将 React 相关库打包成单独的 chunk 中
+              'react-vendor': ['react', 'react-dom'],
+              // 将 Lodash 库的代码单独打包
+              'lodash': ['lodash-es'],
+              // 将组件库的代码打包
+              'library': ['antd', '@arco-design/web-react'],
+            },
+          },
+        }
+      },
+    }
+
+
+    vite-plugin-chunk-split
+    export default {
+        chunkSplitPlugin({
+        // 指定拆包策略
+        customSplitting: {
+        // 1. 支持填包名。`react` 和 `react-dom` 会被打包到一个名为`render-vendor`的 chunk 里面(包括
+        'react-vendor': ['react', 'react-dom'],
+        // 2. 支持填正则表达式。src 中 components 和 utils 下的所有文件被会被打包为`component-util`
+        'components-util': [/src\/components/, /src\/utils/]
+        }
+        })
+    }
+
+15、语法降级问题和 Polyfill 缺失问题
+    1. 不支持箭头函数，我们就需要将其转换为 function(){}
+    2.  Polyfill 本身可以翻译为 垫片 ，
+    也就是为浏览器提前注入一些 API 的实现代码，如 Object.entries 方法的实现
+
+    就是两种方式，一种是替换代码，一种是给代码补充实现代码
+
+
+    1. 编译时工具。代表工具有 @babel/preset-env 和 @babel/plugin-transform-runtime 。
+        package.json 中的 devDependencies
+    运行时基础库。代表库包括 core-js 和 regenerator-runtime 。
+        package.json 中的 dependencies
+
+    2. （1）@babel/preset-env +  useBuiltIns: "usage" （按需引入）
+    （2）
+    transform-runtime 方案的两个优化点: 不影响全局空间和优化文件体积
+    transform-runtime 方案可以作为 @babel/preset-env 中
+    useBuiltIns 配置的替代品
+
+    3. @vitejs/plugin-legacy
+
+    import legacy from '@vitejs/plugin-legacy';
+    import { defineConfig } from 'vite'
+    export default defineConfig({
+        plugins: [
+        // 省略其它插件
+        legacy({
+        // 设置目标浏览器，browserslist 配置语法
+        targets: ['ie >= 11'],
+        })
+    ]
+    })
+
+16、 Vite SSR工程化、联邦模块（多应用结合）
+
+17、 深入浅出vite 
+https://github.com/sanyuan0704/juejin-book-vite/blob/main/package.json
+
+18、性能优化：
+  网络优化。包括 HTTP2 、 DNS 预解析 、 Preload 、 Prefetch 等手段。
+  资源优化。包括 构建产物分析 、 资源压缩 、 产物拆包 、 按需加载 等优化方式。
+  预渲染优化，本文主要介绍 服务端渲染 (SSR)和 静态站点生成 (SSG)两种手段。
+
+  PS：
+  SSG 可以在构建阶段生成完整的 HTML 内容，
+  它与 SSR 最大的不同在于 HTML 的生
+  成在构建阶段完成，而不是在服务器的运行时

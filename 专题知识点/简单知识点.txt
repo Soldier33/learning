@@ -58,3 +58,21 @@ __dirname 是相对于当前模块的目录，而 process.cwd() 是整个应用�
 16， 字符串和数字， + 偏好 字符串， > 偏好 数字
 
 17、实例上的__proto__ == 构造函数上的prototype
+
+18、
+    let numsSet = new Set(nums);
+    let numsArray = Array.from(numsSet); // 将 Set 转换为数组
+
+    获取set的第一个元素
+    // only get the first item ✅
+    const [first] = set;
+
+    // iterator ✅
+    const first = set.keys().next().value;
+
+19、 WeakMap 和 WeakSet 通过弱引用避免内存泄漏
+20、node中函数带有Sync 一般是同步函数
+21、 生成器yield: 
+      1. 重启生成器的执行：next(), send(参数), throw()
+      2. 可迭代的迭代器，所以可以用for in
+22、 数组推导：[ expression for (variable in object) if (condition)] 
