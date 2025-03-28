@@ -14,6 +14,7 @@
 6. 基础类型在栈中，引用类型在堆中
 7.  伪类：特定的状态 :hover,:active ；   
     伪元素：特定部分，双冒号 ::before
+
 8. 密钥必须安全存储和传输，避免泄露
 
 9. numStr.replace(/^0{1,}/, '0'); // "000123" → "0123"
@@ -76,3 +77,41 @@ __dirname 是相对于当前模块的目录，而 process.cwd() 是整个应用�
       1. 重启生成器的执行：next(), send(参数), throw()
       2. 可迭代的迭代器，所以可以用for in
 22、 数组推导：[ expression for (variable in object) if (condition)] 
+
+23、String.fromCharCode(s[0].charCodeAt(0) - 1);
+    charCodeAt 字符串转化为utf-16数字
+    fromCharCode utf-16数字转化为字符串
+
+24、遍历
+    1. for...in经常被用来遍历一个object，
+    它可以遍历一个对象的所有非Symbol、可枚举的属性（包括原型链上的属性）。
+
+        自有属性、继承属性、枚举属性、不可枚举属性
+
+
+    2.  for...of 循环是 JavaScript 编程中非常实用和方便的语法结构，
+    用途：遍历可迭代对象（Iterable）的值。
+    可以用于遍历数组、字符串、Map、Set 等数据结构，
+    数组、字符串、Map、Set、TypedArray、arguments 等实现了 [Symbol.iterator] 接口的对象。
+    以及生成器函数生成的迭代器和其他支持迭代器协议的对象
+
+    3. Object.keys遍历
+    Object.keys()会返回一个对象所有的可枚举属性。与in操作符不同的是，
+    Object.keys不会去检查原型链上的那些属性
+    Object.values();
+    Object.entries();
+
+    4.
+    遍历，一般数字会按大小顺序， 字符串和symbol会按加入时间 
+
+    遍历对象（{}）：使用 for...in（注意过滤原型属性）。
+    遍历数组、字符串、Map、Set 等可迭代对象：使用 for...of。
+    普通对象无法用 for...of，除非手动实现 [Symbol.iterator] 接口。
+
+26、 await, async 是自动执行生成器函数的语法糖，
+    async/await 是由 generator函数 来实现的（yield *）
+    async 函数返回一个 Promise 对象
+
+
+算法题小技巧：
+1. 对于环状的字符串，可以拼接自身，然后去substring截取想要的效果

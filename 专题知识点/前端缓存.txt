@@ -22,7 +22,7 @@
     它几乎可以存储浏览器中的任何数据内容，
     包括二进制数据（ArrayBuffer 对象和 Blob 对象），其可以存储不少于 250M 的数据
 
-    D、
+    D、拓展gin中的使用：
     store := cookie.NewStore([]byte(setting.CookieSetting.Key))
 	store.Options(sessions.Options{MaxAge: 0, Path: "/", HttpOnly: true})
 	r.Use(sessions.Sessions("xxx-session", store)) 这代码作用是什么
@@ -189,3 +189,10 @@
     布局渲染树：浏览器会根据渲染树，计算每个节点的位置和大小。
     绘制渲染树：浏览器会根据渲染树，绘制页面。
     链接：https://juejin.cn/post/7404777076089208842
+
+5. https使用过吗 怎么保证安全
+    HTTP 是明文传输的，存在数据窃听、数据篡改和身份伪造等问题。而 HTTPS 通过引入 SSL/TLS，解决了这些问题。
+    SSL/TLS 在加密过程中涉及到了两种类型的加密方法：
+
+    非对称加密：服务器向客户端发送公钥，然后客户端用公钥加密自己的随机密钥，也就是会话密钥，发送给服务器，服务器用私钥解密，得到会话密钥。
+    对称加密：双方用会话密钥加密通信内容
