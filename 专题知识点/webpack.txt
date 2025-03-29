@@ -1,13 +1,22 @@
 [webpack] 如何优化产物大小 https://github.com/pro-collection/interview-question/issues/887
 
   A、 功能
-  1. 使用 Tree Shaking   清除未引用代码
-  2. 启用压缩(Uglification)  如删除未使用的代码、缩短变量名等
-  3. 代码分割(Code Splitting)   可以把代码分成多个 bundle，然后按需加载，从而减少初始加载时间
-  4. 使用 Externals 减轻体积     将其中常用的第三库（比如vue、vue-router、vuex等）抽离出来，放置在CDN中，通过<script>来引入，减少打包文件体积
-  5. 利用缓存(Caching)  [contenthash] 替换 [hash] 或 [chunkhash] 来为输出文件命名，只有当文件内容改变时，文件名称才改变
-  6. 移除未使用的 CSS 自动去除未使用的 CSS
-  7. 优化图片   image-webpack-loader等图片压缩插件，可以减小图片文件的体积
+    1. 使用 Tree Shaking   清除未引用代码
+    2. 启用压缩(Uglification)  如删除未使用的代码、缩短变量名等
+    3. 代码分割(Code Splitting)   可以把代码分成多个 bundle，然后按需加载，从而减少初始加载时间
+    4. 使用 Externals 减轻体积     将其中常用的第三库（比如vue、vue-router、vuex等）抽离出来，放置在CDN中，通过<script>来引入，减少打包文件体积
+                                  `externals`：用于声明外部资源，Webpack 会直接忽略这部分资源，跳过这些资源的解析、打包操作
+    5. 利用缓存(Caching)  [contenthash] 替换 [hash] 或 [chunkhash] 来为输出文件命名，只有当文件内容改变时，文件名称才改变
+    6. 移除未使用的 CSS 自动去除未使用的 CSS
+    7. 优化图片   image-webpack-loader等图片压缩插件，可以减小图片文件的体积
+
+
+    编译的时候还有还有一个很慢的原因是那些第三方库。
+    比如echarts、element-ui其实都非常的大，比如echarts打包完也还有 775kb。
+    所以你想大大提高编译速度，可以将这些第三方库 externals 出去，使用script的方式引入，
+    或者使用 dll的方式打包。经测试一般如echarts这样大的包可以节省十几秒到几十秒不等。
+
+    升级 node、升级 webpack、升级你的编译环境的硬件水平来的实在和简单。
 
 
    https://vue3js.cn/interview/webpack/improve_build.html#%E4%BA%8C%E3%80%81%E5%A6%82%E4%BD%95%E4%BC%98%E5%8C%96
@@ -32,18 +41,40 @@
       图片压缩【image-webpack-loader】使用
 
     resolve.extensions是解析到文件时自动添加拓展名 ： extensions:[".warm",".mjs",".js",".json"]
-  好文：https://www.cnblogs.com/ypSharing/p/vue-webpack.html
+    好文：https://www.cnblogs.com/ypSharing/p/vue-webpack.html
 
-  1.1 缩小文件的搜索范围 （resolve 别名，后缀）
-  1.2 使用DllPlugin减少基础模块编译次数
-  1.3 使用HappyPack开启多进程Loader转换
-  1.4 使用ParallelUglifyPlugin开启多进程压缩JS文件
+    1.1 缩小文件的搜索范围 （resolve 别名，后缀）
+    1.2 使用DllPlugin减少基础模块编译次数
+    1.3 使用HappyPack开启多进程Loader转换
+    1.4 使用ParallelUglifyPlugin开启多进程压缩JS文件
 
     压缩JS：Webpack内置UglifyJS插件、ParallelUglifyPlugin
     压缩ES6：第三方UglifyJS插件： uglify-webpack-plugin
     压缩CSS：css-loader?minimize、PurifyCSSPlugin： 
       需要配合 extract-text-webpack-plugin 使用，它主要的作用是可以去除没有用到的CSS代码，
       类似JS的Tree Shaking
+
+      1. webpack4用mini-css-extract-plugin更优， 替代extract-text-webpack-plugin
+
+      css 独立拆包最大的好处就是 js 和 css 的改动，不会影响对方。
+      比如我改了 js 文件并不会导致 css 文件的缓存失效
+      而且现在它自动会配合optimization.splitChunks的配置，可以自定义拆分 css 文件
+
+
+      - `mini-css-extract-plugin` 库同时提供 Loader、Plugin 组件，需要同时使用
+      - `mini-css-extract-plugin` 不能与 `style-loader` 混用，否则报错，所以上述示例中第 9 行需要
+        判断 `process.env.NODE_ENV` 环境变量决定使用那个 Loader
+      - `mini-css-extract-plugin` 需要与 `html-webpack-plugin` 同时使用，才能将产物路径以 `link` 标签方式插入到 html 中
+
+      2. optimize-css-assets-webpack-plugin 这个插件，它不仅能帮你压缩 css 还能优化你的代码
+      webpack4 : 
+      //配置
+      optimization: {
+        minimizer: [new OptimizeCSSAssetsPlugin()];
+      }
+
+
+      
 
 二、webpack 中有三种生成哈希值规则的方式，可以用来区分文件是否修改。
   * hash 与整个项目有关，项目里有文件修改，所有文件的哈希值都会变化。
@@ -57,6 +88,7 @@
     若对应css改变，则构建出来的bundle文件的的chunkhash也会随之改变，但入口文件xx.js的内容并没有改变，所以没有完全达到缓存意义。
 
     3. contenthash ：更优的缓存
+    contenthash 你可以简单理解为是 moduleId + content 所生成的 hash
 
     B、给css也加contenthash
     plugins: [
@@ -64,10 +96,15 @@
             filename: '[name].[contenthash].css',
         }),
     ],
+    
 
 
     C、
     通过file-loader或url-loader来处理图片，这时设置图片的hash，需要注意的是[hash]表示的是根据文件内容生成hash
+
+    `file-loader`、`url-loader`、`raw-loader` 都并不局限于处理图片，
+    它们还可以被用于加载任意类型的多媒体或文本文件，使用频率极高，几乎已经成为标配组件！
+    所以 Webpack5 直接内置了这些能力，开箱即可使用
 
 三、Loader 和 Plugin 的区别
 					            Loader						Plugin
@@ -158,6 +195,12 @@
 	1. Webpack 核心是项目整体打包，将多个文件打包成一个，首次加载时间过长，bundle文件
 	webpack热更新复杂，要对css,js不同类型的模块针对性不同配置
 
+  热更新慢可能的原因：
+  没有使用合理的 Devtool souce map 导致
+  没有正确使用 exclude/include 处理了不需要处理的如node_modules
+  在开发环境不要压缩代码UglifyJs、提取 css、babel polyfill、计算文件 hash 等不需要的操作
+
+
 	2. vite核心是基于esm的开发服务器，浏览器请求资源，对应发送资源，启动快，
 
     Webpack 的热更新基于文件监听和模块依赖图，适合需要兼容性和复杂构建逻辑的项目，
@@ -181,7 +224,7 @@
 
     未使用的导出、未引用的代码、副作用无关的代码
 
-    启用 Tree Shaking
+   1. 启用 Tree Shaking
     // vite.config.js
     export default {
       optimizeDeps: {
@@ -205,13 +248,13 @@
       },
     };
 
-    最佳实践：
+   2.  最佳实践：
     使用 ES6 Modules 按需导入。
     配合 TypeScript 获取更精准的静态分析。
     利用动态导入（import()）实现代码分割。
     通过构建工具（如 Vite/Webpack）启用 Tree Shaking。
 
-    副作用  大致可以理解成：一个函数会、或者可能会对函数外部变量产生影响的行为
+   3. 副作用  大致可以理解成：一个函数会、或者可能会对函数外部变量产生影响的行为
         eg:
           function go (url) {
           window.location.href = url
@@ -223,7 +266,7 @@
 
         "sideEffects": false , 都没有副作用，可以树摇
 
-    Dead Code ：未使用的导出、未引用的代码、副作用无关的代码
+    4. Dead Code ：未使用的导出、未引用的代码、副作用无关的代码
         // eg: data.js
         const data = [1, 2, 3];
 
@@ -238,6 +281,13 @@
         因此，这段代码对程序的行为没有任何影响（即没有副作用）
 
         https://juejin.cn/post/7276696853893546036
+
+    5. 默认 webpack 是支持Tree-Shaking的，但在你的项目中可能会因为babel的原因导致它失效
+
+    Tree Shaking这个功能是基于ES6 modules 的静态特性检测，来找出未使用的代码，
+    所以如果你使用了 babel 插件的时候，如：babel-preset-env，
+    它默认会将模块打包成commonjs，这样就会让Tree Shaking失效了。
+
 
 七、   在开发环境中，我们需要实时重新加载或热模块替换能力的server，相对完整的source map。
       但是在生产环境中，我们更加关注更小的bundle（压缩输出）, 更轻量的source map, 还有更优化的资源等
@@ -312,7 +362,8 @@
 
 。
 十四、、Chunk: https://juejin.cn/post/6844903889393680392
-  Webpack的打包是从一个入口文件开始，也可以说是入口模块，入口模块引用这其他模块，模块再引用模块。
+  Webpack的打包是从一个入口文件开始，也可以说是入口模块，
+  入口模块引用这其他模块，模块再引用模块。
   Webpack通过引用关系逐个打包模块，这些module就形成了一个Chunk。
 
   Chunk是过程中的代码块，Bundle是结果的代码块。
@@ -321,6 +372,19 @@
   entry入口
   异步加载模块
   代码分割（code spliting）
+
+
+  Webpack 默认会将以下三种模块做分包处理：
+
+  - Initial Chunk：`entry` 模块及相应子模块打包成 Initial Chunk；
+  - Async Chunk：通过 `import('./xx')` 等语句导入的异步模块及
+    相应子模块组成的 Async Chunk；
+  - Runtime Chunk：运行时代码抽离成 Runtime Chunk，可通过 [entry.runtime]配置项实现。
+
+  模块重复打包、资源冗余 & 低效缓存
+
+  Webpack 专门提供了 `SplitChunksPlugin` 插件，
+  用于实现更灵活、可配置的分包，提升应用性能
 
 十五、webpack插件
 
@@ -349,41 +413,53 @@
   production 模式下，由于提供了splitChunks和minimize，所以基本零配置，
   代码就会自动分割、压缩、优化，同时 webpack 也会自动帮你 Scope hoisting 和 Tree-shaking
 
-  2. 经过SideEffectsFlagPlugin处理后，没有副作用且没有被使用的模块都会被打上sideEffectFree标记
-
-  // webpack.pord.config.js
-  module.exports = {
+    module.exports = {
     optimization: {
-      sideEffects: true
-    }
+      minimizer: [
+        new UglifyJsPlugin({
+          cache: true,
+          parallel: true,
+        }),
+      ],
+    },
   };
+
+  2. 经过SideEffectsFlagPlugin处理后，
+      没有副作用且没有被使用的模块都会被打上sideEffectFree标记
+
+      // webpack.pord.config.js
+      module.exports = {
+        optimization: {
+          sideEffects: true
+        }
+      };
 
 
   3. terser-webpack-plugin来进行压缩
 
-  // webpack.pord.config.js
-  module.exports = {
-      optimization: {
-          minimize: true
+      // webpack.pord.config.js
+      module.exports = {
+          optimization: {
+              minimize: true
+          }
       }
-  }
 
-  // js压缩
-  const TerserPlugin = require('terser-webpack-plugin');
-  module.exports = {
-      optimization: {
-          minimizer: [
-              new TerserPlugin({
-                  cache: true,
-                  parallel: true, // 多进程并发运行
-                  sourceMap: true, // Must be set to true if using source-maps in production
-                  terserOptions: {
-                    // https://github.com/webpack-contrib/terser-webpack-plugin#terseroptions
-                  }
-              }),
-          ]
+      // js压缩
+      const TerserPlugin = require('terser-webpack-plugin');
+      module.exports = {
+          optimization: {
+              minimizer: [
+                  new TerserPlugin({
+                      cache: true,
+                      parallel: true, // 多进程并发运行
+                      sourceMap: true, // Must be set to true if using source-maps in production
+                      terserOptions: {
+                        // https://github.com/webpack-contrib/terser-webpack-plugin#terseroptions
+                      }
+                  }),
+              ]
+          }
       }
-  }
 
   4. 开启gizp压缩
   const CompressionWebpackPlugin = require('compression-webpack-plugin')//gzip压缩
@@ -397,7 +473,16 @@
     })
 
   5、 图片压缩【image-webpack-loader】使用
+      图像压缩是一种非常耗时的操作，建议只在生产环境下开启
   6、 new CssMinimizerPlugin(), css压缩需要使用插件CssMinimizerWebpack
+  7.  speed-measure-webpack-plugin 这个插件，它能监控 webpack 每一步操作的耗时
+  8. html-loader 编译后产生的字符串，会由 html-webpack-plugin 储存为 html 文件到输出目录
+     那些第三方资源的CDN，请注意先后顺序
+     通过 html-webpack-plugin注入到 index.html之中
+
+  9、[SpeedMeasureWebpackPlugin]
+    插件能够统计出各个 Loader、
+    插件的处理耗时，开发者可以根据这些数据分析出哪些类型的文件处理更耗时间
 
 十六、、
     // 别名配置
@@ -429,3 +514,319 @@
           ]
       }
 
+17 、webpack4内置的代码分割策略是这样的：
+
+    新的 chunk 是否被共享或者是来自 node_modules 的模块
+    新的 chunk 体积在压缩之前是否大于 30kb
+     (个人理解：文件压缩后会更小，如果只有几个页面用到，没必要拆出来，拆出来会多耗费一次http请求，直接打包在一起。
+     但是如果每个页面都用到这个，就可以打包合并成一个component-vendor.js的包)
+    按需加载 chunk 的并发请求数量小于等于 5 个
+    页面初始加载时的并发请求数量小于等于 3 个
+
+    作者：花裤衩
+    链接：https://juejin.cn/post/6844903652956585992
+    来源：稀土掘金
+    著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+    我们现在的策略是按照体积大小、共用率、更新频率重新划分我们的包，使其尽可能的利用浏览器缓存
+
+    其实优化就是一个博弈的过程，是让 a bundle 大一点还是 b? 是让首次加载快一点还是让 cache 的利用率高一点？ 
+    但有一点要切记，拆包的时候不要过分的追求颗粒化，什么都单独的打成一个 bundle，
+    不然你一个页面可能需要加载十几个.js文件，如果你还不是HTTP/2的情况下，请求的阻塞还是很明显的
+    (受限于浏览器并发请求数)。所以还是那句话资源的加载策略并没什么完全的方案，
+    都需要结合自己的项目找到最合适的拆包策略。
+
+    拆包策略：
+
+    基础类库 chunk-libs
+    UI 组件库 chunk-elementUI
+    自定义共用组件/函数 chunk-commons
+    低频组件 chunk-eachrts/chunk-xlsx等
+    业务代码 lazy-loading xxxx.js
+
+18、雪碧图曾经是一种使用广泛的性能优化技术，但 HTTP2 实现 TCP 多路复用之后，
+雪碧图的优化效果已经微乎其微 —— 甚至是反优化，可以预见随 HTTP2 普及率的提升，
+未来雪碧图的必要性会越来越低，因此建议读者们了解作用与基本原理即可，不必深究。
+
+
+- 开发环境需要使用 `webpack-dev-server` 实现 Hot Module Replacement；
+- 测试环境需要带上完整的 Soucemap 内容，以帮助更好地定位问题；
+- 生产环境需要尽可能打包出更快、更小、更好的应用代码，确保用户体验。
+
+
+流程配置、性能优化类配置、日志类配置、开发效率类配置等，这里面较常用，需要着重学习的配置有：
+
+- `entry`：声明项目入口文件，Webpack 会从这个文件开始递归找出所有文件依赖；
+- `output`：声明构建结果的存放位置；
+- `target`：用于配置编译产物的目标运行环境，支持 `web`、`node`、`electron` 等值，不同值最终产物会有所差异；
+- `mode`：编译模式短语，支持 `development`、`production` 等值，Webpack 会根据该属性推断默认配置；
+- `optimization`：用于控制如何优化产物包体积，内置 Dead Code Elimination、Scope Hoisting、代码混淆、代码压缩等功能；
+- `module`：用于声明模块加载规则，例如针对什么类型的资源需要使用哪些 Loader 进行处理；
+- `plugin`：Webpack 插件列表。
+
+19、webpack5 
+    1. [持久化缓存]
+    Webpack 5 最令人振奋的特性之一，它能够将首次构建的过程与结果数据持久化保存到本地文件系统，
+    在下次执行构建时跳过解析、链接、编译等一系列非常消耗性能的操作，
+    直接复用上次的 Module/ModuleGraph/Chunk 对象数据，迅速构建出最终产物。
+
+    cache: {
+        type: 'filesystem'
+    },
+
+    首次构建出的 Module、Chunk、ModuleGraph 等对象序列化后保存到硬盘中
+    后面再运行的时候，就可以跳过许多耗时的编译动作，直接复用缓存数据。
+
+
+    2. Webpack4：使用 `cache-loader`
+    修改配置，注意必须将 `cache-loader` 放在 `loader` 数组首位
+    `cache-loader` 只缓存了 Loader 执行结果，缓存范围与精度不如 Webpack5 内置
+    的缓存功能，所以性能效果相对较低
+
+
+    3. [hard-source-webpack-plugin]
+     也是一种实现缓存功能的第三方组件，
+    与 `cache-loader` 不同的是，它并不仅仅缓存了 Loader 运行结果，
+    还保存了 Webpack 构建过程中许多中间数据，包括：模块、模块关系、
+    模块 Resolve 结果、Chunks、Assets 等，效果几乎与 Webpack5 自带的 Cache 对齐
+
+
+    缓存路径：`node_module/.cache`
+
+
+    Webpack5 持久化缓存用法简单，且优化效果非常出色，确实是一个特别让人振奋的新功能，
+    甚至特定情况下能够让构建性能达到 Unbundle 方案的量级，
+    妥妥的 Webpack 性能优化利器！
+
+    而在 Webpack4 中，我们还可以借助下述组件实现缓存优化：
+
+    - `cache-loader`：针对 Loader 运行结果的通用缓存方案；
+    - `hard-source-webpack-plugin`：针对 Webpack 全生命周期的通用缓存方案；
+    - `babel-loader`：针对 Babel 工具的专用缓存能力；
+    - `eslint-loader`/`eslint-webpack-plugin`：针对 ESLint 的专用缓存方案；
+    - `stylelint-webpack-plugin`：针对 StyleLint 的专用缓存方案。
+
+    这些方案各有特色，但都无可置疑地能有效提升编译性能，建议你在尝试做性能优化时优先选用。
+
+20、
+  1. HappyPack 虽然确实能有效提升 Webpack 的打包构建速度，但它有一些明显的缺点：
+
+  - 作者已经明确表示不会继续维护，扩展性与稳定性缺乏保障，
+  随着 Webpack 本身的发展迭代，可以预见总有一天 HappyPack 无法完全兼容 Webpack；
+  - HappyPack 底层以自己的方式重新实现了加载器逻辑，源码与使用方法
+  都不如 Thread-loader 清爽简单，而且会导致一些意想不到的兼容性问题，
+  如 `awesome-typescript-loader`；
+  - HappyPack 主要作用于文件加载阶段，并不会影响后续的产物生成、合并、优化等功能，
+  性能收益有限。
+
+  2. Thread-loader：
+  Thread-loader 放在 `use` 数组首位，确保最先运行
+
+  一些 Loader 无法与 Thread-loader 共同使用，大家需要仔细加以甄别、测试
+
+  3. Parallel-Webpack：
+  Thread-loader、HappyPack 这类组件所提供的并行能力都仅作用于文件加载过程，
+  对后续 AST 解析、依赖收集、打包、优化代码等过程均没有影响，理论收益还是比较有限的。
+  对此，社区还提供了另一种并行度更高，
+  以多个独立进程运行 Webpack 实例的方案 —— 
+  [Parallel-Webpack]
+
+
+  parallel-webpack 相对于 Thread-loader、HappyPack 有更高的并行度，
+  但进程实例之间并没有做任何形式的通讯，
+  这可能导致相同的工作在不同进程 —— 或者说不同 CPU 核上被重复执行
+
+
+  这种技术实现，对单 entry 的项目没有任何收益，只会徒增进程创建成本；
+  但特别适合 MPA 等多 entry 场景，
+  或者需要同时编译出 esm、umd、amd 等多种产物形态的类库场景
+
+
+  Webpack4 默认使用 [Uglify-js]
+  实现代码压缩，Webpack5 之后则升级为 [Terser]
+
+  - 对于 Webpack4 之前的项目，可以使用 HappyPack 实现并行文件加载；
+  - Webpack4 之后则建议使用 Thread-loader；
+  - 多实例并行构建场景建议使用 Parallel-Webpack 实现并行；
+  - 生产环境下还可配合 `terser-webpack-plugin` 的并行压缩功能，提升整体效率。
+
+
+  理论上，并行确实能够提升系统运行效率，但 Node 单线程架构下，
+  所谓的并行计算都只能依托与派生子进程执行，
+  而创建进程这个动作本身就有不小的消耗 —— 大约 600ms
+
+  对于小型项目，构建成本可能可能很低，
+  引入多进程技术反而导致整体成本增加，
+  因此建议大家按实际需求斟酌使用上述多进程方案
+21、
+  始终使用最新 Webpack 版本，这算的上是性价比最高的优化手段之一了！
+  从 Webpack V3，到 V4，再到最新的 V5 版本，虽然构建功能在不断叠加增强，但性能反而不断得到优化提升，
+  这得益于 Webpack 开发团队始终重视构建性能，在各个大版本之间不厌其烦地重构核心实现，例如：
+
+  - V3 到 V4 重写 Chunk 依赖逻辑，将原来的父子树状关系
+  调整为 `ChunkGroup` 表达的有序图关系，提升代码分包效率；
+  - V4 到 V5 引入 `cache` 功能，支持将模块、模块关系图、产物等核心要素
+  持久化缓存到硬盘，减少重复工作。
+
+22.开发模式禁用产物优化
+  Webpack 提供了许多产物优化功能，例如：Tree-Shaking、SplitChunks、Minimizer 等，这些能力能够有效减少最终产物的尺寸，提升生产环境下的运行性能，但这些优化在开发环境中意义不大，反而会增加构建器的负担(都是性能大户)。
+
+  因此，开发模式下建议关闭这一类优化功能，具体措施：
+
+  - 确保 `mode='development'` 或 `mode = 'none'`，关闭默认优化策略；
+  - `optimization.minimize` 保持默认值或 `false`，关闭代码压缩；
+  - `optimization.concatenateModules` 保持默认值或 `false`，关闭模块合并；
+  - `optimization.splitChunks` 保持默认值或 `false`，关闭代码分包；
+  - `optimization.usedExports` 保持默认值或 `false`，关闭 Tree-shaking 功能；
+  最终，建议开发环境配置如：
+
+  module.exports = {
+    // ...
+    mode: "development",
+    optimization: {
+      removeAvailableModules: false,
+      removeEmptyChunks: false,
+      splitChunks: false,
+      minimize: false,
+      concatenateModules: false,
+      usedExports: false,
+    },
+  };
+
+  最小化 `watch` 监控范围
+  跳过 TS 类型检查
+  优化 ESLint 性能
+  慎用 `source-map`：
+      Webpack 提供了 `devtool` 选项，
+      可以配置 `eval`、`source-map`、`cheap-source-map` 等值，
+      不考虑其它因素的情况下，最佳实践：
+      - 开发环境使用 `eval` ，确保最佳编译速度；
+      - 生产环境使用 `source-map`，获取最高质量。
+  设置 `resolve` 缩小搜索范围
+     Webpack5 中，`resolve.extensions` 默认值为 `['.js', '.json', '.wasm']` 
+
+      - 修改 `resolve.extensions` 配置项，减少匹配次数；
+      - 代码中尽量补齐文件后缀名；
+      - 设置 `resolve.enforceExtension = true` ，
+      强制要求开发者提供明确的模块后缀名，不过这种做法侵入性太强，不太推荐。
+
+
+      Webpack 这一逐层查找的逻辑大多数情况下实用性并不高，
+      开发者可以通过修改 `resolve.modules` 配置项，主动关闭逐层搜索功能
+
+      const path = require('path');
+
+      module.exports = {
+        //...
+        resolve: {
+          modules: [path.resolve(__dirname, 'node_modules')],
+        },
+      };
+
+
+      除了缓存、多进程构建这一类大杀器之外，还可以通过控制构建范围、能力等方式
+      尽可能减少各个环节的耗时，包括文中介绍的：
+
+      - 使用最新 Webpack、Node 版本；
+      - 约束 Loader 执行范围；
+      - 使用 `noParse` 跳过文件编译等。
+
+      如果下次再遇到性能问题，建议可以先试着分析哪些环节占用时长更多，
+      然后有针对性的实施各项优化。
+
+
+23. Webpack 默认会将尽可能多的模块代码打包在一起，
+    优点是能减少最终页面的 HTTP 请求数，但缺点也很明显：
+
+    1. 页面初始代码包过大，影响首屏渲染性能；
+    2. 无法有效应用浏览器缓存，特别对于 NPM 包这类变动较少的代码，
+    业务代码哪怕改了一行都会导致 NPM 包缓存失效。
+
+    模块重复打包、资源冗余 & 低效缓存
+
+    为此，Webpack 提供了 `SplitChunksPlugin` 插件，
+    专门用于根据产物包的体积、引用次数等做分包优化，规避上述问题，特别适合生产环境使用。
+24. SplitChunksPlugin
+    1. `optimization.splitChunks.cacheGroup` 概念，
+    用于对不同特点的资源做分组处理，并为这些分组设置更有针对性的分包规则
+
+    2. 提供一些开箱即用的分包特性：
+
+    - `node_modules` 资源会命中 `defaultVendors` 规则，并被单独打包；
+    - 只有包体超过 20kb 的 Chunk 才会被单独打包；
+    - 加载 Async Chunk 所需请求数不得超过 30；
+    - 加载 Initial Chunk 所需请求数不得超过 30
+
+
+    3. 设置分包范围：
+    - 字符串 `'all'` ：对 Initial Chunk 与 Async Chunk 都生效，建议优先使用该值；
+    - 字符串 `'initial'` ：只对 Initial Chunk 生效；
+    - 字符串 `'async'` ：只对 Async Chunk 生效；
+    - 函数 `(chunk) => boolean` ：该函数返回 `true` 时生效；
+
+    module.exports = {
+    //...
+      optimization: {
+        splitChunks: {
+          chunks: 'all',
+        },
+      },
+    }
+
+    设置为 `all` 效果最佳，此时 Initial Chunk、Async Chunk 
+    都会被 `SplitChunksPlugin` 插件优化
+
+
+    4. 根据 Module 使用频率分包：
+      optimization: {
+      splitChunks: {
+        // 设定引用次数超过 2 的模块才进行分包
+        minChunks: 2
+      },
+    },
+    5. 限制分包数量
+    6. 限制分包体积
+         借助这些规则我们可以实现当包体过小时直接取消分包 —— 防止产物过"碎"
+    7. cacheGroups
+       缓存组的作用在于能为不同类型的资源设置更具适用性的分包规则，
+       一个典型场景是将所有 
+       `node_modules` 下的模块统一打包到 `vendors` 产物，从而实现第三方库与业务代码的分离。
+
+       Webpack 提供了两个开箱即用的 `cacheGroups`，
+       分别命名为 `default` 与 `defaultVendors`，默认配置：
+       module.exports = {
+          //...
+          optimization: {
+            splitChunks: {
+              cacheGroups: {
+                default: {
+                  idHint: "",
+                  reuseExistingChunk: true,
+                  minChunks: 2,
+                  priority: -20
+                },
+                defaultVendors: {
+                  idHint: "vendors",
+                  reuseExistingChunk: true,
+                  test: /[\\/]node_modules[\\/]/i,
+                  priority: -10
+                }
+              },
+            },
+          },
+        };
+
+        - 将所有 `node_modules` 中的资源单独打包到 `vendors-xxx-xx.js` 命名的产物
+        - 对引用次数大于等于 2 的模块 —— 也就是被多个 Chunk 引用的模块，单独打包
+
+
+        `splitChunks` 规则比较复杂，大致上可以分类为：
+
+          - 规则类：如 `minSize/minChunks` 等，匹配这些条件的 Module 都会被单独分包；
+          - `cacheGroup`：可以理解为针对特定资源的次级规则集合。
+
+
+
+          分包策略的好坏直接影响应用的运行性能，
+          常用策略一是单独打包 `node_modules` 代码(习惯称为 `vendor`)，
+          二是单独打包被频繁使用的模块
