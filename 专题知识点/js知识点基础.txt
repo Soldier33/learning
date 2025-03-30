@@ -1,8 +1,6 @@
 简单知识点：
-1. 
-    position:relative 相对定位，相对自身定位
-    position:absolute 绝对定位，相对于最近的不为static的父级元素定位
-
+1. 基础类型在栈中，引用类型在堆中
+    
 2. 前端内存泄漏：未清空的定时器、闭包、引用未被清除
 
 3.  typeof 引用类型不行，   typeof XXX
@@ -10,10 +8,13 @@
 
 4. 改变原数组：pop, push, shift, unshift, sort, reverse, splice
 
-5. IE盒子，少了边框和padding的宽度
-6. 基础类型在栈中，引用类型在堆中
-7.  伪类：特定的状态 :hover,:active ；   
-    伪元素：特定部分，双冒号 ::before
+5、WeakMap 和 WeakSet 通过弱引用避免内存泄漏
+
+6、node中函数带有Sync 一般是同步函数
+
+7、 生成器yield: 
+      1. 重启生成器的执行：next(), send(参数), throw()
+      2. 可迭代的迭代器，所以可以用for in
 
 8. 密钥必须安全存储和传输，避免泄露
 
@@ -36,14 +37,16 @@
 
     最大的整数就是2的32次方减1
     即 2 ** 32 - 1
-    书上在介绍数组索引时也能佐证,因为数组的索引是整数,最大的索引就是 2 ** 32 - 1 即4294967295
+    书上在介绍数组索引时也能佐证,因为数组的索引是整数,
+    最大的索引就是 2 ** 32 - 1 即4294967295
 
 12、字符串下标去除 str.slice(0, index) + str.slice(index + 1)
 
 13、 bom: window , screen , navigator, location, history
 
-14、
-__dirname 是相对于当前模块的目录，而 process.cwd() 是整个应用程序的当前工作目录
+14、目录
+    __dirname 是相对于当前模块的目录，
+    而 process.cwd() 是整个应用程序的当前工作目录
 
 15、
     splice() 方法用于添加或删除数组中的元素。
@@ -71,18 +74,14 @@ __dirname 是相对于当前模块的目录，而 process.cwd() 是整个应用�
     // iterator ✅
     const first = set.keys().next().value;
 
-19、 WeakMap 和 WeakSet 通过弱引用避免内存泄漏
-20、node中函数带有Sync 一般是同步函数
-21、 生成器yield: 
-      1. 重启生成器的执行：next(), send(参数), throw()
-      2. 可迭代的迭代器，所以可以用for in
-22、 数组推导：[ expression for (variable in object) if (condition)] 
 
-23、String.fromCharCode(s[0].charCodeAt(0) - 1);
+19、 数组推导：[ expression for (variable in object) if (condition)] 
+
+20、String.fromCharCode(s[0].charCodeAt(0) - 1);
     charCodeAt 字符串转化为utf-16数字
     fromCharCode utf-16数字转化为字符串
 
-24、遍历
+21、遍历
     1. for...in经常被用来遍历一个object，
     它可以遍历一个对象的所有非Symbol、可枚举的属性（包括原型链上的属性）。
 
@@ -108,12 +107,8 @@ __dirname 是相对于当前模块的目录，而 process.cwd() 是整个应用�
     遍历数组、字符串、Map、Set 等可迭代对象：使用 for...of。
     普通对象无法用 for...of，除非手动实现 [Symbol.iterator] 接口。
 
-26、 await, async 是自动执行生成器函数的语法糖，
+22、await, async 是自动执行生成器函数的语法糖，
     async/await 是由 generator函数 来实现的（yield *）
     async 函数返回一个 Promise 对象
 
 
-算法题小技巧：
-1. 对于环状的字符串，可以拼接自身，然后去substring截取想要的效果
-2. 拆分问题，只关注“大于“部份的解，只看一边的视角
-3. 看前缀，startsWith， str1.substring(0, length)

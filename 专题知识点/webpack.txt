@@ -51,11 +51,40 @@
     压缩JS：Webpack内置UglifyJS插件、ParallelUglifyPlugin
     压缩ES6：第三方UglifyJS插件： uglify-webpack-plugin
     压缩CSS：css-loader?minimize、PurifyCSSPlugin： 
-      需要配合 extract-text-webpack-plugin 使用，它主要的作用是可以去除没有用到的CSS代码，
+      需要配合 extract-text-webpack-plugin 使用，
+      它主要的作用是可以去除没有用到的CSS代码，
       类似JS的Tree Shaking
 
-      1. webpack4用mini-css-extract-plugin更优， 替代extract-text-webpack-plugin
+      webpack4用mini-css-extract-plugin更优， 替代extract-text-webpack-plugin
 
+
+      const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
+      const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+      module.exports = {
+            //...
+            module: {
+              rules: [
+                {
+                  test: /.css$/,
+                  // 注意，这里用的是 `MiniCssExtractPlugin.loader` 而不是 `style-loader`
+                  use: [MiniCssExtractPlugin.loader, "css-loader"],
+                },
+              ],
+            },
+            optimization: {
+              minimize: true,
+              minimizer: [
+                // Webpack5 之后，约定使用 `'...'` 字面量保留默认 `minimizer` 配置
+                "...",
+                new CssMinimizerPlugin(),
+              ],
+            },
+            // 需要使用 `mini-css-extract-plugin` 将 CSS 代码抽取为单独文件
+            // 才能命中 `css-minimizer-webpack-plugin` 默认的 `test` 规则
+            plugins: [new MiniCssExtractPlugin()],
+          };
+
+      1. 
       css 独立拆包最大的好处就是 js 和 css 的改动，不会影响对方。
       比如我改了 js 文件并不会导致 css 文件的缓存失效
       而且现在它自动会配合optimization.splitChunks的配置，可以自定义拆分 css 文件
@@ -461,6 +490,16 @@
           }
       }
 
+      多数情况下使用默认 Terser 配置即可
+      module.exports = {
+        //...
+        optimization: {
+          minimize: true
+        }
+      };
+      手动创建 [terser-webpack-plugin]
+      实例并传入压缩配置实现更精细的压缩功能, 比如去除打印，重复声明
+
   4. 开启gizp压缩
   const CompressionWebpackPlugin = require('compression-webpack-plugin')//gzip压缩
 
@@ -474,15 +513,21 @@
 
   5、 图片压缩【image-webpack-loader】使用
       图像压缩是一种非常耗时的操作，建议只在生产环境下开启
-  6、 new CssMinimizerPlugin(), css压缩需要使用插件CssMinimizerWebpack
+  6、 css-minimizer-webpack-plugin：
+       new CssMinimizerPlugin(), css压缩需要使用插件CssMinimizerWebpack
   7.  speed-measure-webpack-plugin 这个插件，它能监控 webpack 每一步操作的耗时
-  8. html-loader 编译后产生的字符串，会由 html-webpack-plugin 储存为 html 文件到输出目录
+  8. html-loader 编译后产生的字符串，
+    会由 html-webpack-plugin 储存为 html 文件到输出目录
      那些第三方资源的CDN，请注意先后顺序
      通过 html-webpack-plugin注入到 index.html之中
 
   9、[SpeedMeasureWebpackPlugin]
     插件能够统计出各个 Loader、
     插件的处理耗时，开发者可以根据这些数据分析出哪些类型的文件处理更耗时间
+  10. 使用 HtmlMinifierTerser 压缩 HTML
+    React、Vue 等 MVVM 框架，这衍生出来的
+    一个副作用是原生 HTML 的开发需求越来越少，HTML 
+    代码占比越来越低，所以大多数现代 Web 项目中其实并不需要考虑为 HTML 配置代码压缩工作流
 
 十六、、
     // 别名配置
@@ -545,24 +590,24 @@
     业务代码 lazy-loading xxxx.js
 
 18、雪碧图曾经是一种使用广泛的性能优化技术，但 HTTP2 实现 TCP 多路复用之后，
-雪碧图的优化效果已经微乎其微 —— 甚至是反优化，可以预见随 HTTP2 普及率的提升，
-未来雪碧图的必要性会越来越低，因此建议读者们了解作用与基本原理即可，不必深究。
+    雪碧图的优化效果已经微乎其微 —— 甚至是反优化，可以预见随 HTTP2 普及率的提升，
+    未来雪碧图的必要性会越来越低，因此建议读者们了解作用与基本原理即可，不必深究。
 
 
-- 开发环境需要使用 `webpack-dev-server` 实现 Hot Module Replacement；
-- 测试环境需要带上完整的 Soucemap 内容，以帮助更好地定位问题；
-- 生产环境需要尽可能打包出更快、更小、更好的应用代码，确保用户体验。
+    - 开发环境需要使用 `webpack-dev-server` 实现 Hot Module Replacement；
+    - 测试环境需要带上完整的 Soucemap 内容，以帮助更好地定位问题；
+    - 生产环境需要尽可能打包出更快、更小、更好的应用代码，确保用户体验。
 
 
-流程配置、性能优化类配置、日志类配置、开发效率类配置等，这里面较常用，需要着重学习的配置有：
+  流程配置、性能优化类配置、日志类配置、开发效率类配置等，这里面较常用，需要着重学习的配置有：
 
-- `entry`：声明项目入口文件，Webpack 会从这个文件开始递归找出所有文件依赖；
-- `output`：声明构建结果的存放位置；
-- `target`：用于配置编译产物的目标运行环境，支持 `web`、`node`、`electron` 等值，不同值最终产物会有所差异；
-- `mode`：编译模式短语，支持 `development`、`production` 等值，Webpack 会根据该属性推断默认配置；
-- `optimization`：用于控制如何优化产物包体积，内置 Dead Code Elimination、Scope Hoisting、代码混淆、代码压缩等功能；
-- `module`：用于声明模块加载规则，例如针对什么类型的资源需要使用哪些 Loader 进行处理；
-- `plugin`：Webpack 插件列表。
+  - `entry`：声明项目入口文件，Webpack 会从这个文件开始递归找出所有文件依赖；
+  - `output`：声明构建结果的存放位置；
+  - `target`：用于配置编译产物的目标运行环境，支持 `web`、`node`、`electron` 等值，不同值最终产物会有所差异；
+  - `mode`：编译模式短语，支持 `development`、`production` 等值，Webpack 会根据该属性推断默认配置；
+  - `optimization`：用于控制如何优化产物包体积，内置 Dead Code Elimination、Scope Hoisting、代码混淆、代码压缩等功能；
+  - `module`：用于声明模块加载规则，例如针对什么类型的资源需要使用哪些 Loader 进行处理；
+  - `plugin`：Webpack 插件列表。
 
 19、webpack5 
     1. [持久化缓存]
@@ -830,3 +875,145 @@
           分包策略的好坏直接影响应用的运行性能，
           常用策略一是单独打包 `node_modules` 代码(习惯称为 `vendor`)，
           二是单独打包被频繁使用的模块
+
+
+25. 代码压缩 
+    `optimization.minimizer` 数组接入代码压缩插件，比较常用的插件有：
+
+    - `terser-webpack-plugin`：用于压缩 ES6 代码的插件；
+    - `css-minimizer-webpack-plugin`：用于压缩 CSS 代码的插件；
+    - `html-minifier-terser`：用于压缩 HTML 代码的插件。
+
+     mini-css-extract-plugin更优， 替代extract-text-webpack-plugin
+     - `mini-css-extract-plugin` 需要
+     与 `html-webpack-plugin` 同时使用，才能将产物路径以 `link` 标签方式插入到 html 中
+
+     // 需要使用 `mini-css-extract-plugin` 将 CSS 代码抽取为单独文件
+     // 才能命中 `css-minimizer-webpack-plugin` 默认的 `test` 规则
+
+26、- 使用动态加载，减少首屏资源加载量；
+    - 使用 `externals`、Tree-Shaking、Scope Hoisting 特性，减少应用体积；
+    - 正确使用 `[hash]` 占位符，优化 HTTP 资源缓存效率；
+
+  使用动态加载，减少首屏资源加载量；
+  多数情况下我们没必要为小模块使用动态加载能力
+  常见的用法是配合 SPA 的前端路由能力实现页面级别的动态加载
+
+    动态加载是 Webpack 内置能力之一，我们不需要做任何额外配置
+    就可以通过动态导入语句(`import`、`require.ensure`)轻易实现。
+    但请 注意，这一特性有时候反而会带来一些新的性能问题：
+    **一是过度使用会使产物变得过度细碎，产物文件过多，运行时 HTTP 通讯次数也会变多**，
+    在 HTTP 1.x 环境下这可能反而会降低网络性能，得不偿失；
+    **二是使用时 Webpack 需要在客户端注入一大段用于支持动态加载特性的 Runtime**：
+
+27.Tree Shaking
+在 Webpack 中，启动 Tree Shaking 功能必须同时满足两个条件：
+
+- 配置 `optimization.usedExports` 为 `true`，标记模块导入导出列表；
+- 启动代码优化功能，可以通过如下方式实现：
+  - 配置 `mode = production`
+  - 配置 `optimization.minimize = true`
+  - 提供 `optimization.minimizer` 数组
+
+  // webpack.config.js
+    module.exports = {
+      mode: "production",
+      optimization: {
+        usedExports: true,
+      },
+    };
+
+    Webpack 会对所有使用 ESM 方案的模块启动 Tree-Shaking
+
+28、Scope Hoisting  “作用域提升”
+    Webpack 提供了 Scope Hoisting 功能，
+    用于 **将符合条件的多个模块合并到同一个函数空间** 中，从而减少产物体积，优化性能。
+    Scope Hoisting 底层基于 ES Module 方案的 [静态特性]，
+    推断模块之间的依赖关系，并进一步判断模块与模块能否合并
+
+    实现原理：
+    Scope Hoisting 的实现原理其实很简单：分析出模块之间的依赖关系，
+    尽可能将打散的模块合并到一个函数中，前提是不能造成代码冗余。
+     因此只有那些被引用了一次的模块才能被合并。
+
+    由于 Scope Hoisting 需要分析出模块之间的依赖关系，
+    因此源码必须采用 ES6 模块化语句，不然它将无法生效。
+
+    失效情况：
+    1. 非 ESM 模块
+    2. 模块被多个 Chunk 引用
+
+29. 性能优化
+  压缩、Tree-Shaking、Scope Hoisting 都在减少产物体积；
+  Code Splitting、外置依赖、`[hash]` 则有助于提升 HTTP 缓存效率；
+  动态加载则能够确保关键路径最小资源依赖。还可以监控产物体积
+
+
+  Webpack 的功能集非常庞大：模块打包、代码分割、按需加载、
+  Hot Module Replacement、文件监听、Tree-shaking、
+  Sourcemap、Module Federation、
+  Dev Server、DLL、多进程打包、Persistent Cache 等等
+  最最核心的功能依然是：**静态模块打包能力**
+
+30. ### 内容处理阶段
+
+插件处理完配置，webpack 运行起来之后，Vue SFC 文件会被多次传入不同的 Loader，
+经历多次中间形态变换之后才产出最终的 js 结果，大致上可以分为如下步骤：
+
+1. 路径命中 `/\.vue$/i` 规则，调用 `vue-loader` 生成中间结果 A；
+2. 结果 A 命中 `xx.vue?vue` 规则，调用 `vue-loader` Pitch Loader 生成中间结果 B；
+3. 结果 B 命中具体 Loader，直接调用 Loader 做处理
+
+此时**第一次**执行 vue-loader ，执行如下逻辑：
+
+1. 调用 `@vue/component-compiler-utils` 包的parse函数，将SFC 文本解析为AST对象；
+2. 遍历 AST 对象属性，转换为特殊的引用路径；
+3. 返回转换结果。
+
+Pitch Loader 的逻辑比较简单，做的事情也只是转换 import 路径
+
+我们可以将 `vue-loader` 的核心逻辑总结为：
+
+1. 首先给原始文件路径增加不同的参数，后续配合 `resourceQuery` 参数就可以分开处理这些内容，
+这样的实现相比于一次性处理，逻辑更清晰简洁，更容易理解；
+2. 经过 Normal Loader、Pitch Loader 两个阶段后，SFC 内容会
+被转化为 `import xxx from '!-babel-loader!vue-loader?xxx'` 格式的
+引用路径，以此复用用户配置。
+
+- Loader 主要负责将资源内容转译为 Webpack 能够理解、处理的标准 JavaScript 形式，
+  所以通常需要做 Loader 内通过 `return`/`this.callback` 方式返回翻译结果；
+- Loader Context 提供了许多实用接口，我们可以借助这些接口读取上下文信息，
+  或改变 Webpack 运行状态(相当于产生 Side Effect，例如通过 `emitFile` 接口)；
+- 假若我们开发的 Loader 需要对外提供配置选项，建议使用 `schema-utils` 
+  校验配置参数是否合法；
+- 假若 Loader 需要生成额外的资源文件，建议使用 `loader-utils` 拼接产物路径；
+- 执行时，Webpack 会按照 `use` 定义的顺序从前到后执行 Pitch Loader，
+  从后到前执行 Normal Loader，我们可以将一些预处理逻辑
+  放在 Pitch 中(如 `vue-loader`)；
+
+  31. 插件
+  Webpack 插件在代码形态上是一个带 `apply` 方法的对象，
+  我们可以在 `apply` 函数中注册各式各样的 Hook 回调，
+  监听对应事件，之后在回调中修改上下文状态，达到干预 Webpack 构建逻辑的效果
+
+
+  Webpack 虽然功能非常复杂，但本质上还是一个 Node 程序
+
+  Webpack Hook 底层的 Tapable 框架
+
+
+  1. **初始化阶段**：修整配置参数，创建 Compiler、Compilation 等基础对象，
+  并初始化插件及若干内置工厂、工具类，
+  并最终根据 `entry` 配置，找到所有入口模块；
+  2. **构建阶段**：从 `entry` 文件开始，调用 `loader` 将模块
+  转译为 JavaScript 代码，调用 [Acorn]
+  将代码转换为 AST 结构，遍历 AST 从中找出该模块依赖的模块；
+  之后 **递归** 遍历所有依赖模块，找出依赖的依赖，直至遍历所有项目资源后，
+  构建出完整的 **[模块依赖关系图]
+  3. **生成阶段**：根据 `entry` 配置，将模块组装为一个个 Chunk 对象，
+  之后调用一系列 Template 工厂类翻译 Chunk 代码并封装为 Asset，最后写出到文件系统
+
+
+  「**初始化**」的重点是根据用户配置设置好构建环境；
+  「**构建阶段**」则重在解读文件输入与文件依赖关系；
+  最后在「**生成阶段**」按规则组织、包装模块，并翻译为适合能够直接运行的产物包。

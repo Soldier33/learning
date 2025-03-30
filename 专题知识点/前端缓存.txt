@@ -35,17 +35,17 @@
 
 2. http缓存
 	A.强缓存：
-            1. expires，废弃，因为本地时间和服务器时间不同步的问题
-            2. cache-control  http1.1添加
-                'Cache-Control':'max-age=10'
-                Cache-control有max-age、s-maxage、no-cache、no-store、private、public这六个属性。
+        1. expires，废弃，因为本地时间和服务器时间不同步的问题
+        2. cache-control  http1.1添加
+            'Cache-Control':'max-age=10'
+            Cache-control有max-age、s-maxage、no-cache、no-store、private、public这六个属性。
 
-                * no-cache表示是强制进行协商缓存。
-                * no-store是表示禁止任何缓存策略。
+            * no-cache表示是强制进行协商缓存。
+            * no-store是表示禁止任何缓存策略。
 
-                资源加载大小变成了 `disk cache`，还有 `Memory Cache`（内存缓存），memory Cache 比 disk cache 更快
-                * **s-maxage 仅在代理服务器中生效**
-                * **在代理服务器中 s-maxage 优先级高于 max-age，同时出现时 max-age 会被覆盖**
+            资源加载大小变成了 `disk cache`，还有 `Memory Cache`（内存缓存），memory Cache 比 disk cache 更快
+            * **s-maxage 仅在代理服务器中生效**
+            * **在代理服务器中 s-maxage 优先级高于 max-age，同时出现时 max-age 会被覆盖**
 	B. 协商缓存：服务器响应请求时返回的报头首部e-tag 、 last-modified
             1.  last-modified 获取时间， Cache-Control字段值设置为:no-cache
                 判断依据： last-modified （响应头） === If-Modified-Since （请求头） 则采用缓存 （存在漏洞，比如只修改文件名、修改时间极短（假如毫秒）， 秒单位，）

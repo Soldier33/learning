@@ -95,3 +95,9 @@
 	使用BFC解决子元素浮动导致父元素高度塌陷的机制
 	margin重叠机制
 	普通元素和浮动元素相互重叠的机制
+
+7. position:relative 相对定位，相对自身定位
+    position:absolute 绝对定位，相对于最近的不为static的父级元素定位
+8. IE盒子，少了边框和padding的宽度
+9.  伪类：特定的状态 :hover,:active ；   
+    伪元素：特定部分，双冒号 ::before

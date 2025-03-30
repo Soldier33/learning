@@ -1,22 +1,24 @@
-1. 总体功能：
+# 1、 总体功能
   Vite 还有很多值得一提的性能优化，整体梳理一下：
 
   预编译：npm 包这类基本不会变化的模块，使用 Esbuild 在 预构建 阶段先打包整理好，减少 http 请求数
+  
   按需编译：用户代码这一类频繁变动的模块，直到被使用时才会执行编译操作
+  
   客户端强缓存：请求过的模块会被以 http 头 max-age=31536000,immutable 设置为强缓存，如果模块发生变化则用附加的版本 query 使其失效
+  
   产物优化：相比于 Webpack ，Vite 直接锚定高版本浏览器，不需要在 build 产物中插入过多运行时与模板代码
+  
   内置更好的分包实现：不需要用户干预，默认启用一系列智能分包规则，尽可能减少模块的重复打包
+  
   更好的静态资源处理：Vite 尽量避免直接处理静态资源，而是选择遵循 ESM 方式提供服务，例如引入图片 import img from 'xxx.png' 语句，执行后 img 变量只是一个路径字符串。
 
-  作者：范文杰
-  链接：https://juejin.cn/post/6980141344131923999
-  来源：稀土掘金
-  著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+[更多内容](https://juejin.cn/post/6980141344131923999)
+ 
 
-
-2. 热更新：
+# 2、热更新
     Vite Server 的请求处理能力，是通过中间件实现的
-    https://zhuanlan.zhihu.com/p/532451109
+    [更多内容](https://zhuanlan.zhihu.com/p/532451109)
 
     Vite 的热更新相关脚本：/@vite/client
     index.ts 的代码已经被编译成 js 了，并且拼接上了 sourcemap。
@@ -29,9 +31,22 @@
     vite server 通过 websocket 告诉 vite client 需要进行热更新
     浏览器拉取修改后的模块
     执行热更新的代码
+    
+    
+    通过 HMR 的技术我们就可以实现 局部刷新 和 状态保存
+    模块更新时逻辑: hot.accept， 为它决定了 Vite 进行热更新的边界
+    模块销毁时逻辑: hot.dispose
+    共享数据: hot.data 属性
 
-3、vite依赖预构建：
-    预构建：  https://blog.csdn.net/xiaolinlife/article/details/138524415
+    import.meta.hot 对象只有在开发阶段才会被注入到全局
+
+    接受自身模块更新
+    接受依赖模块的更新
+    接受多个子模块的更新
+
+# 3、vite依赖预构建
+    预构建：  [更多内容](https://blog.csdn.net/xiaolinlife/article/details/138524415)
+    
 
     1.作用：非esm 转为esm , 2. 合并模块   
     Vite 中正是为了「模块兼容性」以及「性能」这两方面大的原因，所以需要进行依赖预构建
@@ -79,9 +94,14 @@
     要尽力避免运行时的二次预构建，include 参数提前声明需要按需加载的依赖
     include ： 场景一: 动态 import  场景二: 某些包被手动 exclude（少用exclude）
 
-4、依赖扫描：https://juejin.cn/post/7129160452377935903?spm=a2c6h.12873639.article-detail.9.22f9780anx17VW#heading-2
+# 4、依赖扫描
+[更多内容](https://juejin.cn/post/7129160452377935903?spm=a2c6h.12873639.article-detail.9.22f9780anx17VW#heading-2)
+
   只有 bare import（裸依赖）会执行依赖预构建，
-  如：import xxx from "vue/xxx"   ，这个不行： import xxx from "./foo.ts" 
+  
+  如：import xxx from "vue/xxx"   ，
+  
+  这个不行： import xxx from "./foo.ts" 
   用名称去访问的模块是裸模块
   用路径去访问的模块，不是 bare import
 
@@ -95,7 +115,7 @@
   预构建只针对js
 
 
-5、vite插件：
+# 5、vite插件
   小图片: 对于较小的图片，@rollup/plugin-image直接将其转换为 Base64 编码
         并嵌入到 JavaScript 文件中可以减少 HTTP 请求，提升页面加载速度。
   大图片: 对于较大的图片，建议使用 @rollup/plugin-url 插件，
@@ -118,12 +138,12 @@
     vite-plugin-mkcert 在本地 Dev Server 上开启 HTTP2:
 
 
-6、计算时间
+# 6、计算时间
   time npm run build
 
   npm run build  55.54s user 4.55s system 269% cpu 22.260 total
 
-7.编译模版
+# 7、Vite编译模版
   import vue from "@vitejs/plugin-vue";
 
   如果让 Vite 可以编译 Vue 模版，可以通过安装 Vite 的 Vue 插件实现。你可以这样理解，
@@ -158,7 +178,7 @@
     (4)当浏览器执行到import "/src/App.vue?vue&type=style&index=0&scoped=7a7a37b1&lang.css";
     语句时，触发了加载模块操作，再次触发了@vitejs/plugin-vue-jsx中的transform钩子函数
 
-8、Worker
+# 8、Web Worker
     Vite 中使用 Web Worker 也非常简单，我们可以在新建 Header/example.js 文件:
     const start = () => {
       let count = 0;
@@ -180,7 +200,7 @@
     });
 
 
-9、加深理解
+# 9、加深理解
      能做到开发时的模块按需编译
      vite 的 no-bundle 只是
     对于源代码而言，对于第三方依赖而言，Vite 还是选择 bundle(打包)，并且使用速度极
@@ -189,7 +209,7 @@
     执行 tsc 命令，也就是借助 TS 官方的编译器进行类型检查
   
 
-10. 压缩
+# 10、压缩
     Vite 要将 Esbuild 作为生产环境下默认的压缩工具呢？因为压缩效率实在太高
 
     在 Webpack 或者 Rollup 中
@@ -206,7 +226,7 @@
     将 Esbuild 各个垂直方向的能力
   ( Bundler 、 Transformer 、 Minifier )利用的淋漓尽致
 
-11、Esbuild
+# 11、Esbuild
   Esbuild 作为打包工具也有一些缺点。
     不支持降级到 ES5 的代码。这意味着在低端浏览器代码会跑不起来。
     不支持 const enum 等语法。这意味着单独使用这些语法在 esbuild 中会直接抛错。
@@ -226,7 +246,7 @@
     JS 打包工具中频繁地解析和传递 AST 数据（如 string -> TS -> JS -> string)，造
     成内存的大量浪费。
 
-12.Rollup
+# 12、Rollup
   基于 Rollup 本身成熟的打包能力进行扩展和优化，主要包含
     3 个方面:
     1. CSS 代码分割。如果某个异步模块中引入了一些 CSS 代码，Vite 就会自动将这些
@@ -252,19 +272,7 @@
   2. 插件 API 简洁，符合直觉
   3. 插件间的互相调用
 
-13. 热更新：
-    通过 HMR 的技术我们就可以实现 局部刷新 和 状态保存
-    模块更新时逻辑: hot.accept， 为它决定了 Vite 进行热更新的边界
-    模块销毁时逻辑: hot.dispose
-    共享数据: hot.data 属性
-
-    import.meta.hot 对象只有在开发阶段才会被注入到全局
-
-    接受自身模块更新
-    接受依赖模块的更新
-    接受多个子模块的更新
-
-14、分包：
+# 13、分包
   一个巨大单文件chunk: 
   从页面加载性能的角度来说，主要会导致两个问题:
   无法做到按需加载，即使是当前页面不需要的代码也会进行加载。
@@ -325,7 +333,8 @@
         })
     }
 
-15、语法降级问题和 Polyfill 缺失问题
+# 14、语法降级问题和 Polyfill 缺失问题
+
     1. 不支持箭头函数，我们就需要将其转换为 function(){}
     2.  Polyfill 本身可以翻译为 垫片 ，
     也就是为浏览器提前注入一些 API 的实现代码，如 Object.entries 方法的实现
@@ -358,15 +367,17 @@
     ]
     })
 
-16、 Vite SSR工程化、联邦模块（多应用结合）
+# 15、 Vite SSR工程化、联邦模块（多应用结合）
 
-17、 深入浅出vite 
-https://github.com/sanyuan0704/juejin-book-vite/blob/main/package.json
+# 16、 深入浅出vite [更多内容](https://github.com/sanyuan0704/juejin-book-vite/blob/main/package.json)
 
-18、性能优化：
-  网络优化。包括 HTTP2 、 DNS 预解析 、 Preload 、 Prefetch 等手段。
-  资源优化。包括 构建产物分析 、 资源压缩 、 产物拆包 、 按需加载 等优化方式。
-  预渲染优化，本文主要介绍 服务端渲染 (SSR)和 静态站点生成 (SSG)两种手段。
+# 17、性能优化
+
+  网络优化：包括 HTTP2 、 DNS 预解析 、 Preload 、 Prefetch 等手段。
+  
+  资源优化：包括 构建产物分析 、 资源压缩 、 产物拆包 、 按需加载 等优化方式。
+  预渲染优化，
+  主要介绍 服务端渲染 (SSR)和 静态站点生成 (SSG)两种手段。
 
   PS：
   SSG 可以在构建阶段生成完整的 HTML 内容，
