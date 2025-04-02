@@ -1,9 +1,8 @@
-1、vue3 ：watch和watchEffect的区别
+# 1、vue3 ：watch和watchEffect的区别
     watch, 要指定监听的数据，可以知道变化前后的数据
     watchEffect ，不需要指定，自动依赖收集，仅提供新值，简化配置
-    https://juejin.cn/post/7474062103994646582
 
-2、vue3的dom树为什么快，渲染机制，带编译时信息的虚拟dom
+# 2、vue3的dom树为什么快，渲染机制，带编译时信息的虚拟dom
     1. 缓存静态内容，没有变量的节点就不做对比，直接缓存
     2. 更新类型标记，vnode创建时编码了每个元素需要更新的类型 (补丁patch算法优化)
     3. 树结构打平，被打标记的节点被存在数组里面
@@ -16,22 +15,26 @@
     事件侦听器缓存：减少事件处理开销。
     Tree Shaking 支持：减少打包体积。
 
-3、[Vue3] reactive() 的局限性
-    1. 基础数据不能响应式、 
-    2. 不能替换整个对象  // 这样做是错误的，不会保持响应性 state = { count: 1 };
-    3. 解构操作不友好
-    // 直接解构将会失去响应性
-    const { count, title } = state;
+# 3、与Vue2.x相比，vue3响应式实现的优缺点
+    优点：
 
-    // 使用 toRefs 解构，保持响应性
-    const { count, title } = toRefs(state);
+    1. 普适性更强，不需要针对数组做特殊处理； 也能应用于值类型变量
+    2. 启动速度更快，因为启动时不需要再遍历对象的所有属性，而是在运行过程中增量执行依赖管理
+    3. 实现上重构 Watcher-Dep 模式，
+        改用单个变量(reactivity/src/effect.ts#L10) 记录依赖关系，架构关系更简单，性能也稍有增强响应式能力
+    4. 通过 Composition API 开放，不再依赖于 Vue 实例，更容易复用
+    缺点：
+
+    响应式底层依赖的 Proxy 相比于 Object.defineProperty 在许多场景中性能是相对较差的，这种差距放在SSR场景可能会造成性能问题
+
+    更多内容：https://juejin.cn/post/6854573220046372872
 
 
-4、pinia 和 vuex
+# 4、pinia 和 vuex
     pinia 简洁和直观的 API , state, action, 灵活和易于使用。可以轻松地将 store 拆分为多个模块,action 能使用异步操作
     Vuex 的语法相对较为复杂，需要定义state mutations、actions 和 getters 
 
-5、vue中 keep-alive底层是如何实现的？
+# 5、vue中 keep-alive底层是如何实现的？
 
     <keep-alive> 的主要功能是缓存不活动的组件实例，而不是销毁它们。当组件再次被激活时，直接从缓存中恢复，避免重新渲染和挂载。
 
@@ -39,7 +42,9 @@
     <keep-alive> 内部维护了一个缓存对象（cache），用于存储被缓存的组件实例。
     缓存对象的键是组件的 name 选项或组件的 tag，值是组件的 VNode（虚拟 DOM 节点）。
 
-6 、计算属性如何收集依赖： https://juejin.cn/post/6854573220046372872
+    LRU算法
+
+# 6 、计算属性如何收集依赖： https://juejin.cn/post/6854573220046372872
     依赖收集的实现集中在 Watcher 与 Dep 两个类中
 
     Dep 简单对象 data , props
@@ -52,7 +57,7 @@
     核心接口变成了 Composition 风格的 track 与 trigger 函数。
     内部维护了一个 WeakMap 对象，用于记录属性到 effect 对象的依赖关系
 
-7、diff算法：https://segmentfault.com/a/1190000023060173#item-3
+# 7、diff算法：https://segmentfault.com/a/1190000023060173#item-3
     flagment出现就是用看起来像一个普通的DOM元素，但它是虚拟的
 
     为什么要得到最长稳定序列
@@ -78,14 +83,14 @@
     vue2的diff算法，只要依赖key, 没有key就首尾对比
     收集旧树中key相同的节点，复用在新树
 
-8、Vue中的$nextTick有什么作用
-Vue 的响应式系统是异步的。
-当数据发生变化时，Vue 并不会立即更新 DOM，而是将更新操作推入一个队列，并在下一个事件循环中批量处理。
-意味着，如果在数据变化后立即访问 DOM，可能会获取到未更新的 DOM 状态。
-$nextTick 提供了一种机制，确保在 DOM 更新完成后再执行代码。
+# 8、Vue中的$nextTick有什么作用
+    Vue 的响应式系统是异步的。
+    当数据发生变化时，Vue 并不会立即更新 DOM，而是将更新操作推入一个队列，并在下一个事件循环中批量处理。
+    意味着，如果在数据变化后立即访问 DOM，可能会获取到未更新的 DOM 状态。
+    $nextTick 提供了一种机制，确保在 DOM 更新完成后再执行代码。
 
 
-9. 最新Vue3.5写法，
+# 9. 最新Vue3.5写法，
     A. 不借助”外力“直接解构，依然保持响应式
         <template>
         <div>
@@ -108,6 +113,17 @@ $nextTick 提供了一种机制，确保在 DOM 更新完成后再执行代码�
 
         </script>
 
+
+        reactive() 的局限性
+        1. 基础数据不能响应式、 
+        2. 不能替换整个对象  // 这样做是错误的，不会保持响应性 state = { count: 1 };
+        3. 解构操作不友好
+        // 直接解构将会失去响应性
+        const { count, title } = state;
+
+        // 使用 toRefs 解构，保持响应性
+        const { count, title } = toRefs(state);
+
     B. 默认值只也有新的写法：
         const { testCount=18 } = defineProps({
             testCount: {
@@ -122,3 +138,167 @@ $nextTick 提供了一种机制，确保在 DOM 更新完成后再执行代码�
             default: 1
             },
         });
+# 10. provide和inject函数  实现数据多级传递
+
+    provides[key] = value将当前注入的内容存到provides属性对象中
+    inject函数拿到父组件中注入的内容
+
+    在vue中可以通过provied向整颗组件树提供数据，然后在树的任意节点可以通过inject拿到提供的数据
+
+# 11. vue3的宏是什么？
+        宏是一种特殊的代码，由编译器处理并转换为其他东西。它们实际上是一种更巧妙的字符串替换形式。
+        宏就是作用于编译时，也就是从vue文件编译为js文件这一过程。
+
+        为什么defineProps不需要import导入？
+        因为在编译过程中如果当前AST抽象语法树的节点类型是ExpressionStatement表达式语句，并且调用的函数是defineProps，
+        那么就调用remove方法将调用defineProps函数的代码给移除掉。
+        既然defineProps语句已经被移除了，自然也就不需要import导入了defineProps了。
+
+
+        为什么不能在非setup顶层使用defineProps？
+        因为在非setup顶层使用defineProps的代码生成AST抽象语法树后节点类型就不是ExpressionStatement表达式语句类型，
+        只有ExpressionStatement表达式语句类型才会走到processDefineProps函数中，
+        并且调用remove方法将调用defineProps函数的代码给移除掉。当代码运行在
+        浏览器时由于我们没有从任何地方import导入defineProps，当然就会报错defineProps is not defined。
+# 12. setup
+        在javascript标准中script标签是不支持setup属性的，浏览器根本就不认识setup属性。
+        所以很明显setup是作用于编译时阶段，也就是从vue文件编译为js文件这一过程。
+        setup编译后的代码
+            import { ref } from "vue";
+            import Child from "./Child.vue";
+
+            const title = "title";
+
+            const __sfc__ = {
+            __name: "index",
+            setup() {
+                const msg = ref("Hello World!");
+                if (msg.value) {
+                const content = "content";
+                console.log(content);
+                }
+                const __returned__ = { title, msg, Child };
+                return __returned__;
+            },
+        };
+        function render() .....
+        __sfc__.render = render;
+        export default __sfc__;
+
+        setup语法糖经过编译后就变成了setup函数，而setup函数的返回值是一个对象，
+        这个对象就是由在setup顶层定义的变量和import导入组成的。
+        vue在初始化的时候会执行setup函数，然后将setup函数返回值经过Proxy处理后塞到vue实例的setupState属性上。
+
+        执行render函数的时候会将vue实例上的setupState属性（也就是setup函数的返回值）传递给render函数，
+        所以在render函数中就可以访问到setup顶层定义的变量和import导入。
+        而render函数实际就是由template编译得来的，
+        所以说在template中就可以访问到setup顶层定义的变量和import导入。
+# 13. defineProps
+    1. 为什么defineProps不需要import导入？
+
+    因为在编译过程中如果当前AST抽象语法树的节点类型是ExpressionStatement表达式语句，并且调用的函数是defineProps，
+    那么就调用remove方法将调用defineProps函数的代码给移除掉。既然defineProps语句已经被移除了，自然也就不需要import导入了defineProps了。
+
+    2. 为什么不能在非setup顶层使用defineProps？
+
+    因为在非setup顶层使用defineProps的代码生成AST抽象语法树后节点类型就不是ExpressionStatement表达式语句类型，
+    只有ExpressionStatement表达式语句类型才会走到processDefineProps函数中，并且调用remove方法将调用defineProps函数的代码给移除掉。
+
+    当代码运行在浏览器时由于我们没有从任何地方import导入defineProps，当然就会报错defineProps is not defined。
+
+    3. defineProps是如何将声明的 props 自动暴露给模板？
+
+    编译时在移除掉defineProps相关代码时会将调用defineProps函数时传入的参数node节点信息存到ctx上下文中。
+    遍历完AST抽象语法树后，然后从上下文中存的参数node节点信息中拿到调用defineProps宏函数时传入props的开始位置和结束位置。
+
+    再使用slice方法并且传入开始位置和结束位置，从<script setup>模块的代码字符串中截取到props定义的字符串。
+    然后将截取到的props定义的字符串拼接到vue组件对象的字符串中，这样vue组件对象中就有了一个props属性，这个props属性在template模版中可以直接使用。
+
+# 14. defineModel
+    track函数就会手动收集依赖，执行trigger函数就会手动触发依赖，进行页面刷新。
+    在defineModel这个场景中track手动收集的依赖就是render函数，
+    trigger手动触发会导致render函数重新执行，进而完成页面刷新。
+
+    父：
+    <CommonChild v-model="inputValue" />
+
+    子：
+    <template>
+    <input v-model="model" />
+    <button @click="handelReset">reset</button>
+    </template>
+
+    <script setup lang="ts">
+    const model = defineModel();
+
+    使用defineModel宏函数后，为什么我们在子组件内没有写任何关于props定义的代码？
+
+    答案是本地会维护一个localValue变量接收父组件传递过来的名为modelValue的props。
+    调用defineModel函数的代码经过编译后会变成一个调用useModel函数的代码，useModel函数的返回值是一个ref对象。
+
+    当我们对defineModel的返回值进行“读操作”时，
+    类似于Proxy的get方法一样会对读操作进行拦截到返回值ref对象的get方法中。
+    而get方法的返回值为本地维护的localValue变量，
+    在watchSyncEffect的回调中将父组件传递过来的
+    名为modelValue的props赋值给本地维护的localValue变量。
+
+    并且由于是在watchSyncEffect中，所以每次props改变都会执行这个回调
+    所以本地维护的localValue变量始终是等于父组件传递过来的modelValue。
+    也正是因为defineModel宏函数的返回值是一个ref对象而不是一个prop，
+    所以我们可以在子组件内直接将defineModel的返回值使用v-model绑定到子组件input输入框上面。
+
+
+    虽然我们在代码中没有写过emit抛出事件的代码，但是在defineModel函数编译成的useModel函数中已经帮我们使用emit抛出事件了。
+    所以并没有打破vue的单向数据流
+
+# 15. defineExpose
+    父：使用ref
+    <script setup lang="ts">
+    import ChildDemo from "./child.vue";
+    import { ref } from "vue";
+
+    const child = ref();
+
+    function handleClick() {
+    console.log(child.value.validate);
+    child.value.validate?.();
+    }
+    </script>
+
+    子：
+    <script setup>
+    function validate() {
+    console.log("执行子组件validate方法");
+    }
+
+    defineExpose({
+    validate,
+    });
+    </script>
+
+    父组件想要访问子组件暴露的validate方法主要分为下面四步：
+
+    子组件使用defineExpose宏函数声明想要暴露validate方法。
+
+    defineExpose宏函数经过编译后变成__expose方法。
+
+    执行__expose方法将子组件需要暴露的属性或者方法组成的对象赋值给子组件vue实例上的exposed属性，也就是instance.exposed。
+
+    父组件使用ref访问子组件的validate方法，也就是访问child.value.validate。
+    其实访问的就是上一步的instance.exposed.validate方法，最终访问的就是defineExpose宏函数中暴露的validate方法。
+
+
+# 16. 作用域插槽的原理
+        子组件中的插槽实际就是在执行父组件插槽对应的方法，
+        在执行方法时可以将子组件的变量传递给父组件，
+        这就是作用域插槽的原理。
+
+
+        经过编译后父组件的插槽会被编译成一堆方法，这些方法组成的对象就是$slots对象。
+        在子组件中会去执行这些方法，并且可以将子组件的变量传给父组件，
+        由父组件去接收参数，这就是作用域插槽的原理。
+
+
+# 17. Vue内置了很多黑魔法，比如SFC、宏函数、指令、scoped等，
+        其中最大的黑魔法就是单文件组件SFC。
+        只要我们按照Vue的设计规范来，就能轻松的写出漂亮的代码。

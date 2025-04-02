@@ -3,6 +3,7 @@
 
 面试题：https://github.com/pro-collection/interview-question/issues
 面试题库：https://fe.ecool.fun/topic-list?tagId=26
+Vue3源码解析：https://vue-compiler.iamouyang.cn/script/what-setup.html
 
 书籍：
 《JavaScript设计模式与开发实践》
@@ -16,10 +17,9 @@ external_portal_release 作为练习
 "webpack": "^4.44.2"
 
 Todo:
-修改简历，加深深度,webpack, vite, Vue3原理， 自动化命令
+修改简历，加深深度, webpack, vite, Vue3原理， 自动化命令
 
-3.25 缓存小册 done, 书100页
-3.26 书100页，vite加深 doing ， 刷题3道
+
 
 - [] 字符串的最长子序列，
 - [持续] 手写代码反复复习：复习手写防抖、节流、随机数组、new , 柯里化，手写call , bind

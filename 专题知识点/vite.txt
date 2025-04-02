@@ -143,37 +143,71 @@
 
   npm run build  55.54s user 4.55s system 269% cpu 22.260 total
 
-# 7、Vite编译模版
-  import vue from "@vitejs/plugin-vue";
+# 7、处理 Vue 文件：Vite编译模版
+  Webpack 和 Vite 本身是没有能力处理 Vue 文件的，
+  其实实际背后生效的是vue-loader和@vitejs/plugin-vue
 
-  如果让 Vite 可以编译 Vue 模版，可以通过安装 Vite 的 Vue 插件实现。你可以这样理解，
-  Vite 默认只能支持 TS 代码。
-  而 Vue 的模板需要在编译阶段转换为 Typescript 代码 (渲染函数)才可以运行。
-  Vue 插件不但提供了模板的编译，同时还支持 Vue 单文件 (SFC) 组件的编译。
+  1. @vue下面的几个包
+    @vue/compiler-sfc：用于编译vue的SFC文件，这个包依赖vue下的其他包，
+    比如@vue/compiler-dom和@vue/compiler-core。这个包一般是给vue-loader 和 @vitejs/plugin-vue使用的。
 
-    vue文件怎么解析： 
+    @vue/compiler-dom：这个包专注于浏览器端的编译，处理浏览器dom相关的逻辑都在这里面。
+
+    @vue/compiler-core：从名字你也能看出来这个包是vue编译部分的核心，
+    提供了通用的编译逻辑，不管是浏览器端还是服务端编译最终都会走到这个包里面来
+
+
+    2. 
+      当我们import一个vue文件时会触发@vitejs/plugin-vue包的transform钩子函数，
+      在这个函数中会调用一个transformMain函数。
+      transformMain函数中会调用genScriptCode、genTemplateCode、genStyleCode，
+      分别对应的作用是将vue文件中的<script>模块编译为浏览器可直接运行的js代码、
+      将<template>模块编译为render函数、
+      将<style>模块编译为导入css文件的import语句。
+      genScriptCode函数底层调用的就是vue/compiler-sfc包的compileScript函数。
+
+      作者：前端欧阳
+      链接：https://juejin.cn/post/7345129748006354978
+      来源：稀土掘金
+      著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+    import vue from "@vitejs/plugin-vue";
+
+    如果让 Vite 可以编译 Vue 模版，可以通过安装 Vite 的 Vue 插件实现。你可以这样理解，
+    Vite 默认只能支持 TS 代码。
+    而 Vue 的模板需要在编译阶段转换为 Typescript 代码 (渲染函数)才可以运行。
+    Vue 插件不但提供了模板的编译，同时还支持 Vue 单文件 (SFC) 组件的编译。
+
+    3. vue文件怎么解析： 
     https://www.cnblogs.com/heavenYJJ/p/18058142 ,
     https://blog.csdn.net/lph159/article/details/142413043
     https://zhuanlan.zhihu.com/p/535102297
 
-    1. @vitejs/plugin-vue-jsx库中有个叫transform的钩子
-    2. transform-> App.vue（底层调用vue/compiler-sfc） -> 创建descriptor 对象
-    3. 对应的函数转js代码、render函数、import语句
+    _sfc_main 对象的 setup 方法对应 vue 文件中的 <script setup lang="ts"> 模块。
+    _sfc_render 函数对应 Vue 文件中的 <template> 模块。
+    import "/src/App.vue?vue&type=style&index=0&scoped=7a7a37b1&lang.css"; 对应 Vue 文件中的 <style scoped> 模块。
+
 
     
-    @vitejs/plugin-vue 就是一个 Rollup 插件
+    4. @vitejs/plugin-vue 就是一个 Rollup 插件
     Vue 文件的解析依赖于 @vue/compiler-sfc 包, 处理单文件组件（SFC）的编译器
     Vue 文件（单文件组件，Single File Component，SFC）
 
     (1)@vitejs/plugin-vue-jsx库中有个叫transform的钩子函数，每当vite加载模块的时候就会触发这个钩子函数。
     所以当import一个vue文件的时候，就会走到@vitejs/plugin-vue-jsx中的transform钩子函数中，
     在transform钩子函数中主要调用了transformMain函数。
+    v-for、v-bind、v-model。真正处理这些vue内置指令是在transform函数中。
+
+    transformMain 函数中的代码执行主流程，其实就是对应了一个 Vue 文件编译成 JavaScript 文件的流程。
 
     (2)genScriptCode函数为底层调用vue/compiler-sfc
+       根据源代码 code 字符串调用 createDescriptor 函数生成一个 descriptor 对象。
+       
+    createDescriptor函数在生成template属性的时候底层同样也会调用@vue/compiler-core包的baseParse函数，将template模块中的html字符串编译为AST抽象语法树。
 
-    (3)调用genScriptCode函数传入第一步生成的descriptor对象     将<script setup>模块编译为浏览器可执行的js代码。
-    调用genTemplateCode函数传入第一步生成的descriptor对象   将<template>模块编译为render函数。
-    调用genStyleCode函数传入第一步生成的descriptor对象      将<style scoped>模块编译为类似这样的import语句
+    (3)调用genScriptCode函数传入第一步生成的descriptor对象 ，底层调用 vue/compiler-sfc 的 compileScript 函数    将<script setup>模块编译为浏览器可执行的js代码。
+    调用genTemplateCode函数传入第一步生成的descriptor对象 ，底层调用 vue/compiler-sfc 的 compileTemplate 函数  将<template>模块编译为render函数。
+    调用genStyleCode函数传入第一步生成的descriptor对象   ，底层调用 vue/compiler-sfc 的 compileStyleAsync 函数   将<style scoped>模块编译为类似这样的import语句
 
     (4)当浏览器执行到import "/src/App.vue?vue&type=style&index=0&scoped=7a7a37b1&lang.css";
     语句时，触发了加载模块操作，再次触发了@vitejs/plugin-vue-jsx中的transform钩子函数
@@ -381,5 +415,4 @@
 
   PS：
   SSG 可以在构建阶段生成完整的 HTML 内容，
-  它与 SSR 最大的不同在于 HTML 的生
-  成在构建阶段完成，而不是在服务器的运行时
+  它与 SSR 最大的不同在于 HTML 的生成在构建阶段完成，而不是在服务器的运行时

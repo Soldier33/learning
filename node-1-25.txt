@@ -24,7 +24,14 @@
     ​错误隔离：通过 catch 方法控制异常传播，避免链式崩溃。
     这种设计使得 jq 的代码简洁且易于维护，同时保证了高性能和灵活性。
 
-2、
+2、“编译时”和“运行时”
+
+	Vue 是一个编译时和运行时同时存在的框架，
+	编译时说白了就是代码运行在 Node.js 阶段，
+	运行时代码跑在在浏览器中
+
+	运行时就是代码执行在浏览器的阶段。
+	编译时就是代码跑在node.js的阶段，比如执行yarn dev或者yarn build时代码在node.js中执行的阶段
 
 
 3、如何setTimeout 实现setInterval
@@ -126,3 +133,14 @@
 	需要流畅滚动长列表 → 必须虚拟列表
 
 	懒加载，分页
+
+	vue实现：https://juejin.cn/post/7449930918079545379
+
+15. navigator.sendBeacon 
+	发送一些统计数据到服务器的简单示例：
+
+	window.addEventListener("unload", function () {
+	var data = { action: "leave", timestamp: Date.now() };
+	navigator.sendBeacon("https://example.com/analytics", JSON.stringify(data));
+	});
+	在上面的例子中，当用户离开页面时，我们监听 unload 事件，并在该事件触发时使用 navigator.sendBeacon() 方法发送一些统计数据到服务器

@@ -112,3 +112,35 @@
     async 函数返回一个 Promise 对象
 
 
+23、 截取字符串的方法，slice 和 substring 的区别
+    slice：
+    用于从字符串或数组中提取指定范围的内容。
+    支持负数参数，负数表示从末尾开始计算。
+    'abcdef'.slice(1, 4); // 'bcd'
+    'abcdef'.slice(-3);   // 'def'
+
+    substring：
+    用于提取字符串中两个指定索引之间的字符。
+    不支持负数参数，负数会被当作 0 处理。
+    'abcdef'.substring(1, 4); // 'bcd'
+    'abcdef'.substring(-3);   // 'abc'
+24、判断是否是数组
+    方法 1： object.prototype.toString()
+    object.prototype.toString().call(obj).slice(8, -1) === "Array"
+
+    object.prototype.toString() 方法可按 [object xxxx] 的形式返回调用者的类型。此时的调用者为 object.prototype。
+    不可以直接使用 obj.toString()， 因为所有数据类型都重写了 toString() 方法，如 new Array([1,2,3]).toString() 的结果为 1, 2, 3。
+    因此，我们可以通过 call() 改变调用者的指向，来确保调用的是重写前的 toString 方法，且调用者是我们需要判断的变量。
+
+    方法 2：使用原型链判断
+
+    let instance = new fn();
+    console.log(fn.prototype.constructor === fn) // true: 原型对象含一个指针指向其构造函数
+    console.log(instance.__proto__ === fn.prototype) // true
+
+    方法 3：Array.isArray(obj)
+
+25、为什么使用语义化标签？
+    提高网页的可读性和结构化
+    有助于搜索引擎优化（SEO）
+    无障碍支持

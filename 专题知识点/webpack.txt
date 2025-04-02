@@ -1,6 +1,7 @@
 
 # 1. 优化产物 
 [更多内容](https://github.com/pro-collection/interview-question/issues/887)
+[知识图谱](https://gitmind.cn/app/docs/m1foeg1o)
 
 优化打包优先方案： 升级 node、升级 webpack、升级你的编译环境的硬件水平
 
@@ -53,12 +54,12 @@
     开启gizp压缩： compression webpack plugin
 
 
-[更多内容](https://vue3js.cn/interview/webpack/improve_build.html#%E4%BA%8C%E3%80%81%E5%A6%82%E4%BD%95%E4%BC%98%E5%8C%96)
+  [更多内容](https://vue3js.cn/interview/webpack/improve_build.html#%E4%BA%8C%E3%80%81%E5%A6%82%E4%BD%95%E4%BC%98%E5%8C%96)
 
-好文：https://www.cnblogs.com/ypSharing/p/vue-webpack.html
+  好文：https://www.cnblogs.com/ypSharing/p/vue-webpack.html
 
 
-压缩CSS
+  压缩CSS
 
 
     压缩CSS：css-loader?minimize、PurifyCSSPlugin： 
@@ -207,7 +208,7 @@ Webpack 插件在代码形态上是一个带 `apply` 方法的对象，
 
 ## 为什么需要loader:
 
-    loader 本身是一个函数
+  loader 本身是一个函数
   webpack开箱即用只支持JS和JSON两种文件类型，需要loader将其他类型的文件转为webpack能够处理的文件类型，并添加到依赖图中完成打包。
 
 
@@ -474,12 +475,14 @@ Webpack 插件在代码形态上是一个带 `apply` 方法的对象，
 
 # 7、   Sourcemap
 
+      核心价值：在优化构建和高效调试之间构建桥梁
+
       Sourcemap 是一种高效的位置映射算法，它将产物到源码之间的位置关系表达为 
       `mappings` 分层设计与 VLQ 编码，
       再通过 Chrome、Safari、VS Code、Sentry 
       等工具异地还原为接近开发状态的源码形式
 
-      [VLQ]
+      [VLQ] “只存差值+压缩成整数”
       是一种将整数数值转换为 Base64 的编码算法，
       它先将任意大的整数转换为一系列六位字节码，再按 Base64 规则转换为一串可见字符。
 
@@ -539,7 +542,7 @@ Webpack 插件在代码形态上是一个带 `apply` 方法的对象，
 
     ES6 Modules 不支持循环引用（编译时报错）​
 
- # 10 、webpack4内置的代码分割策略：
+# 10 、webpack4内置的代码分割策略：
 
     新的 chunk 是否被共享或者是来自 node_modules 的模块
     新的 chunk 体积在压缩之前是否大于 30kb
@@ -840,7 +843,8 @@ Webpack 插件在代码形态上是一个带 `apply` 方法的对象，
   
 
 # 15.开发模式禁用产物优化
-  Webpack 提供了许多产物优化功能，例如：Tree-Shaking、SplitChunks、Minimizer 等，这些能力能够有效减少最终产物的尺寸，提升生产环境下的运行性能，但这些优化在开发环境中意义不大，反而会增加构建器的负担(都是性能大户)。
+  Webpack 提供了许多产物优化功能，例如：Tree-Shaking、SplitChunks、Minimizer 等，
+  这些能力能够有效减少最终产物的尺寸，提升生产环境下的运行性能，但这些优化在开发环境中意义不大，反而会增加构建器的负担(都是性能大户)。
 
   因此，开发模式下建议关闭这一类优化功能，具体措施：
 
@@ -1185,4 +1189,91 @@ Pitch Loader 的逻辑比较简单，做的事情也只是转换 import 路径
     - 另一方面，开始遍历 ChunkGraph，转译每一个模块代码；
     - 最后，将所有模块与模块运行时依赖合并为最终输出的 Bundle —— 资产文件。
     
-    
+# 27. 手写webpack loader
+    @babel/parser 将源代码解析成 AST
+    @babel/traverse 对AST节点进行递归遍历，生成一个便于操作、转换的path对象
+    @babel/generator 将AST解码生成js代码
+    @babel/types通过该模块对具体的AST节点进行进行增、删、改、查
+
+    新建drop-console.js
+    const parser = require('@babel/parser')
+    const traverse = require('@babel/traverse').default
+    const generator = require('@babel/generator').default
+    const t = require('@babel/types')
+    module.exports=function(source){
+      const ast = parser.parse(source,{ sourceType: 'module'})
+      traverse(ast,{
+        CallExpression(path){ 
+          if(t.isMemberExpression(path.node.callee) && t.isIdentifier(path.node.callee.object, {name: "console"})){
+            path.remove()
+          }
+        }
+      })
+      const output = generator(ast, {}, source);
+      return output.code
+    }
+  
+
+    如何使用：
+    const path = require('path')
+    module.exports = {
+      mode:'development',
+      entry:path.resolve(__dirname,'index.js'),
+      output:{
+        filename:'[name].[contenthash].js',
+        path:path.resolve(__dirname,'dist')
+      },
+      module:{
+        rules:[{
+          test:/\.js$/,
+          use:path.resolve(__dirname,'drop-console.js')
+          }
+        ]
+      }
+    }
+
+    webpack4中已经集成了去除console功能，在minimizer中可配置 去除console
+
+# 28.  手写webpack plugin
+  compiler和 compilation的区别在于 
+
+  compiler代表了整个webpack从启动到关闭的生命周期，而compilation 只是代表了一次新的编译过程
+  compiler和compilation暴露出许多钩子，我们可以根据实际需求的场景进行自定义处理
+
+  在生成打包文件之前自动生成一个关于打包出文件的大小信息
+
+  新建一个webpack-firstPlugin.js
+  class firstPlugin{
+    constructor(options){
+      this.options = options
+    }
+    apply(compiler){
+      compiler.plugin('emit',(compilation,callback)=>{
+        let str = ''
+        for (let filename in compilation.assets){
+          str += `文件:${filename}  大小${compilation.assets[filename]['size']()}\n`
+        }
+        // 通过compilation.assets可以获取打包后静态资源信息，同样也可以写入资源
+        compilation.assets['fileSize.md'] = {
+          source:function(){
+            return str
+          },
+          size:function(){
+            return str.length
+          }
+        }
+        callback()
+      })
+    }
+  }
+  module.exports = firstPlugin
+
+  如何使用
+  const path = require('path')
+  const firstPlugin = require('webpack-firstPlugin.js')
+  module.exports = {
+      // 省略其他代码
+      plugins:[
+          new firstPlugin()
+      ]
+  }
