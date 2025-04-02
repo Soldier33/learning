@@ -137,6 +137,16 @@
 
     vite-plugin-mkcert 在本地 Dev Server 上开启 HTTP2:
 
+    vite-plugin-compression   压缩，阈值
+    viteCompression({
+      verbose: true, // 是否在控制台中输出压缩结果
+      disable: false,
+      threshold: 10240, // 如果体积大于阈值，将被压缩，单位为b，体积过小时请不要压缩，以免适得其反
+      algorithm: 'gzip', // 压缩算法，可选['gzip'，' brotliccompress '，'deflate '，'deflateRaw']
+      ext: '.gz',
+      deleteOriginFile: true // 源文件压缩后是否删除(我为了看压缩后的效果，先选择了true)
+    })
+
 
 # 6、计算时间
   time npm run build
@@ -258,7 +268,7 @@
     Esbuild 这种从头到尾共享 AST 以及原生语言编写的 Minifier 在性能上好
 
     将 Esbuild 各个垂直方向的能力
-  ( Bundler 、 Transformer 、 Minifier )利用的淋漓尽致
+   ( Bundler 、 Transformer 、 Minifier )利用的淋漓尽致
 
 # 11、Esbuild
   Esbuild 作为打包工具也有一些缺点。

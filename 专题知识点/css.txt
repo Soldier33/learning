@@ -1,9 +1,9 @@
-1. 隐藏元素
+# 1. 隐藏元素
 	display: none;
 	visibility: hidden;
 	opacity: 0;
 
-2. 居中：https://blog.csdn.net/m0_73560798/article/details/139392124
+# 2. 居中：https://blog.csdn.net/m0_73560798/article/details/139392124
     1. 
     display: flex;
     //水平居中
@@ -36,13 +36,13 @@
         height: 100px;
     }
 
-3.不可复制
+# 3.不可复制
 	css: user-select: none;
 	Js document.addEventListener("copy", function (e) {
         e.preventDefault();
     });
 
-4. 国际化和省略号
+# 4. 国际化和省略号
     A、 单行文本自适应省略号
     white-space: nowrap;  /* 禁止换行 */
     text-overflow: ellipsis; /* 溢出显示... */
@@ -59,7 +59,7 @@
             --font-scale: 0.9; /* 长文本缩小字号 */
         }
 
-5、计算宽度
+# 5、计算宽度
 	布局控制 → offsetWidth/clientWidth
 	​视口定位 → getBoundingClientRect()
 	​动态样式 → getComputedStyle()
@@ -87,7 +87,7 @@
 
 	observer.observe(document.getElementById('dynamicElement'));
 
-6、BFC是一块块独立的渲染区域，可以将BFC看成是元素的一种属性，
+# 6、BFC是一块块独立的渲染区域，可以将BFC看成是元素的一种属性，
 	拥有了这种属性的元素就会使他的子元素与世隔绝，不会影响到外部其他元素
 
 	bfc:display:inline-block、flex
@@ -96,8 +96,8 @@
 	margin重叠机制
 	普通元素和浮动元素相互重叠的机制
 
-7. position:relative 相对定位，相对自身定位
-    position:absolute 绝对定位，相对于最近的不为static的父级元素定位
-8. IE盒子，少了边框和padding的宽度
-9.  伪类：特定的状态 :hover,:active ；   
+# 7. position:relative 相对定位，相对自身定位
+   position:absolute 绝对定位，相对于最近的不为static的父级元素定位
+# 8. IE盒子，少了边框和padding的宽度
+# 9.  伪类：特定的状态 :hover,:active ；   
     伪元素：特定部分，双冒号 ::before
