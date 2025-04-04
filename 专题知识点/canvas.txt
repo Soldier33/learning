@@ -1,0 +1,145 @@
+canvas
+
+更多内容：http://learn.cpengx.cn/canvas/01-%E5%BC%80%E5%A7%8B%E5%AD%A6%E4%B9%A0/01-canvas%E7%BB%98%E5%88%B6%E5%9F%BA%E6%9C%AC%E5%9B%BE%E5%BD%A2.html
+
+一、绘制
+canvas 只支持两种形式的图形绘制：矩形和路径
+
+1. 三种方法绘制矩形：
+fillRect(x, y, width, height)
+绘制一个填充的矩形
+strokeRect(x, y, width, height)
+绘制一个矩形的边框
+clearRect(x, y, width, height)
+
+2. 绘制路径：
+moveTo 设置起点，可以绘制不连续的路径
+beginPath()
+新建一条路径，生成之后，图形绘制命令被指向到路径上生成路径。
+closePath()
+闭合路径之后图形绘制命令又重新指向到上下文中。
+stroke()
+通过线条来绘制图形轮廓。
+fill()
+
+当你调用 fill() 函数时，所有没有闭合的形状都会自动闭合，
+所以你不需要调用 closePath() 函数。但是调用 stroke() 时不会自动闭合。
+
+// 填充三角形
+  ctx.beginPath();
+  ctx.moveTo(25, 25);
+  ctx.lineTo(105, 25);
+  ctx.lineTo(25, 105);
+  ctx.fill();
+
+  // 描边三角形
+  ctx.beginPath();
+  ctx.moveTo(125, 125);
+  ctx.lineTo(125, 45);
+  ctx.lineTo(45, 125);
+  ctx.closePath();
+  ctx.stroke();
+
+3. 圆弧
+arc(x, y, radius, startAngle, endAngle, anticlockwise)
+arcTo(x1, y1, x2, y2, radius)
+
+A. arc(x, y, radius, startAngle, endAngle, anticlockwise)
+参数anticlockwise为一个布尔值。为 true 时，是逆时针方向，否则顺时针方向。
+
+备注： arc() 函数中表示角的单位是弧度，不是角度。角度与弧度的 js 表达式：
+弧度=(Math.PI/180)*角度。
+
+Math.PI可以理解为180度，半圆。如果要60度弧度，就Math.PI / 3
+
+笑脸例子：
+    ctx.beginPath();
+    ctx.arc(75, 75, 50, 0, Math.PI * 2, true); // 绘制
+    ctx.moveTo(110, 75);
+    ctx.arc(75, 75, 35, 0, Math.PI, false);   // 口 (顺时针)
+    ctx.moveTo(65, 65);
+    ctx.arc(60, 65, 5, 0, Math.PI * 2, true);  // 左眼
+    ctx.moveTo(95, 65);
+    ctx.arc(90, 65, 5, 0, Math.PI * 2, true);  // 右眼
+    ctx.stroke();
+
+
+B. arcTo(x1, y1, x2, y2, radius)
+先起点和终点画直线再，再画弧线
+
+C. 二次贝赛尔曲线，三次贝赛尔曲线
+
+控制点2个，3个更圆润
+
+ cxt.lineCap = 'round' // 默认: butt; 圆形: round; 方形: square
+
+
+二、样式和颜色
+
+1. fillStyle 和 strokeStyle
+
+// 这些 fillStyle 的值均为 '橙色'
+ctx.fillStyle = "orange";
+ctx.fillStyle = "#FFA500";
+ctx.fillStyle = "rgb(255,165,0)";
+ctx.fillStyle = "rgba(255,165,0,1)";
+
+
+ 2. globalAlpha  全局透明度
+ // 设置透明度值
+  ctx.globalAlpha = 0.2;
+
+3. rgba() 可以分别设置轮廓和填充样式
+ 4. 线型 Line styles
+5. 使用虚线
+6. 渐变 Gradients
+线性渐变：
+createLinearGradient(x1, y1, x2, y2)
+createLinearGradient 方法接受 4 个参数，表示渐变的起点 (x1,y1) 与终点 (x2,y2)。
+可以配合动画帧，做效果，requestAnimationFrame()
+
+径向渐变
+createRadialGradient, 
+（经典的径向渐变是只有一个中心点，简单地由中心点向外围的圆形扩张）
+可以做3d 圆形效果等
+
+
+7. 图案样式 Patterns
+
+ctx.createPattern(img,'repeat');   循环来实现图案
+repeat，repeat-x，repeat-y 和 no-repeat。
+
+三、绘制图像
+1. 获得一个指向HTMLImageElement的对象或者另一个 canvas 元素的引用作为源，也可以通过提供一个 URL 的方式来使用图片
+2. 使用drawImage()函数将图片绘制到画布上
+3. 渲染图片的方式有2中，一种是在JS里加载图片再渲染，另一种是把DOM里的图片拿到 canvas 里渲染。drawImage(image, dx, dy)
+4. 如果需要指定图片宽高，可以在前面的基础上再添加两个参数：drawImage(image, dx, dy, dw, dh)
+5. 截图图片同样使用drawImage() 方法，只不过传入的参数数量比之前都多，而且顺序也有点不一样了。drawImage(image, sx, sy, sw, sh, dx, dy, dw, dh)
+
+
+四、绘制文本
+1. fillText(text, x, y [, maxWidth])
+在指定的 (x,y) 位置填充指定的文本，绘制的最大宽度是可选的。
+strokeText(text, x, y [, maxWidth])
+在指定的 (x,y) 位置绘制文本边框，绘制的最大宽度是可选的。
+1. measureText().width 方法可以获取文本的长度，单位是 px
+
+
+
+
+Canvas 和 SVG 的区别
+
+Canvas	SVG
+用JS动态生成元素（一个HTML元素）	用XML描述元素（类似HTML元素那样，可用多个元素来描述一个图形）
+位图（受屏幕分辨率影响）	矢量图（不受屏幕分辨率影响）
+不支持事件	支持事件
+数据发生变化需要重绘	不需要重绘
+就上面的描述而言可能有点难懂，你可以打开 AntV 旗下的图形编辑引擎做对比。
+G6 是使用 canvas 开发的，X6 是使用 svg 开发的。
+
+我的建议是：如果要展示的数据量比较大，比如一条数据就是一个元素节点，那使用 canvas 会比较合适；如果用户操作的交互比较多，而且对清晰度有要求（矢量图），那么使用 svg 会比较合适。
+
+作者：德育处主任
+链接：https://juejin.cn/post/7116784455561248775
+来源：稀土掘金
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。

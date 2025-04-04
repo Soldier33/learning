@@ -11,7 +11,8 @@ diff细节：最长子序列
 三、
 业务或者技术上专研，
 Canvas 大数据量加载， antV
-V-model如何用
+V-model如何用, 
+设计模式
 nextTick原理
 性能优化
-
+业务代码

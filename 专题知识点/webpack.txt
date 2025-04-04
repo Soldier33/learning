@@ -446,12 +446,13 @@ Webpack 插件在代码形态上是一个带 `apply` 方法的对象，
     Webpack 会对所有使用 ESM 方案的模块启动 Tree-Shaking
 
 ## 7. Tree-shaking 的实现
-    一是需要先 「**标记**」 出模块导出值中哪些没有被用过；
-    二是使用代码压缩插件 —— 如 [Terser]删掉这些没被用到的导出变量。
 
-    > 标记功能需要配置 `optimization.usedExports = true` 开启
+    Webpack Tree-shaking原理
+    生效条件：
+    * 使用ES Module语法
+    * 生产模式开启optimization.usedExports
+    * 配合Terser进行代码删除
 
-    标记的效果就是删除那些没有被其它模块使用的“**导出语句**”
 
     ESM 下模块之间的依赖关系是高度确定的，与运行状态无关，
     编译工具只需要对 ESM 模块做静态分析，就可以从代码字面量中推断出

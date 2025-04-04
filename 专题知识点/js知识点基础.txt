@@ -144,3 +144,17 @@
     提高网页的可读性和结构化
     有助于搜索引擎优化（SEO）
     无障碍支持
+
+26. 递归：​栈溢出错误
+	function foo() {
+	foo(); // 每次调用都会再次触发 foo()
+	}
+	foo(); // 初始调用
+
+
+	这段代码会引发 ​栈溢出错误（Maximum call stack size exceeded）​，
+	因为函数 foo 无限递归调用自身，导致调用栈超出 JavaScript 引擎的限制。
+
+	递归需要有退出条件, 可以用尾调用优化
+
+27. 冒泡: mouseOver 和 mouseOut 事件会冒泡（父元素也会响应这个事件），而 mouseEnter 和 mouseLeave 不会冒泡。
