@@ -1,0 +1,358 @@
+React 
+1. React的特点
+组件化：React 通过将 UI 分解为独立的、可重用的组件，使得代码更易于管理和维护。每个组件只关注于自身的逻辑和视图。
+
+声明式编程：React 采用声明式的编程风格，开发者只需描述 UI 应该是什么样子的，而不需要手动操作 DOM。React 会根据数据的变化自动更新 UI。
+
+虚拟 DOM：React 使用虚拟 DOM（Virtual DOM）来优化 UI 的更新过程。当数据发生变化时，React 会创建一个新的虚拟 DOM，然后将其与之前的虚拟 DOM 进行比较，找出最小的变化，并将这些变化应用到实际的 DOM 中，从而提高性能。
+
+单向数据流：React 采用单向数据流（也称为单向数据绑定），这意味着数据在组件之间通过 props 进行传递，使得数据的流动更加清晰和可预测。
+
+生态系统：React 有一个庞大且活跃的社区，提供了大量的第三方库和工具，如 React Router（用于路由管理）、Redux（用于状态管理）等，帮助开发者构建复杂的应用。
+
+
+
+注意：我们需要遵守单向数据流，子组件不能直接修改父组件的props
+
+在React源码中会使用Object.freeze冻结props，限制props的修改。
+
+
+2. （原理：vdom fiber diff  requestIdleCallback）虚拟dom，意义在于 性能优化 跨平台性
+3. request Idle Callback。调度器，空闲时去执行
+4. Fiber 是 React 16 引入的一种新的协调引擎，用于解决和优化 React 应对复杂 UI 渲染时的性能问题
+
+    可中断的渲染：Fiber 允许将大的渲染任务拆分成多个小的工作单元（Unit of Work），使得 React 可以在空闲时间执行这些小任务。当浏览器需要处理更高优先级的任务时（如用户输入、动画），可以暂停渲染，先处理这些任务，然后再恢复未完成的渲染工作。
+    优先级调度：在 Fiber 架构下，React 可以根据不同任务的优先级决定何时更新哪些部分。React 会优先更新用户可感知的部分（如动画、用户输入），而低优先级的任务（如数据加载后的界面更新）可以延后执行。
+    双缓存树（Fiber Tree）：Fiber 架构中有两棵 Fiber 树——current fiber tree（当前正在渲染的 Fiber 树）和 work in progress fiber tree（正在处理的 Fiber 树）。React 使用这两棵树来保存更新前后的状态，从而更高效地进行比较和更新。
+    任务切片：在浏览器的空闲时间内（利用 requestIdleCallback思想），React 可以将渲染任务拆分成多个小片段，逐步完成 Fiber 树的构建，避免一次性完成所有渲染任务导致的阻塞。
+
+    作者：小满zs 链接：https://juejin.cn/post/7412539585823981608
+    https://message163.github.io/react-docs/components/practice.html
+
+范型加逗号纠正
+5. React.FC
+    * React.FC是函数式组件，是在TS使用的一个范型。FC是Function Component的缩写
+    * React.FC 帮助我们自动推导Props的类型。
+6. 不能操作原数组， 返回新数组、新对象，对象用解构和Object.assign
+7. Set函数是异步的，为了性能优化
+    import { useState } from "react"
+    function App() {
+    let [index, setIndex] = useState(0)
+    const heandleClick = () => {
+        setIndex(index => index + 1) //1
+        setIndex(index => index + 1) //2
+        setIndex(index => index + 1) //3
+    }
+    return (
+        <>
+        <h1>Index:{index}</h1>
+        <button onClick={heandleClick}>更改值</button>
+
+        </>
+    )
+    }
+    export default App
+
+8. 所有的hook都在最顶层调用
+9. useReducer 跟 useState 一样的都是帮我们管理组件的状态的，但是呢与useState不同的是 useReducer 是集中式的管理状态的
+      useReducer 和 useState 类似Vue ref 和 reactive
+
+    const [state, dispatch] = useReducer(reducer, initialState);
+    reducer。是处理函数
+    dispatch 是传值去调用 reducer
+
+
+
+10. const res = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot?)
+        * subscribe：用来订阅数据源的变化，接收一个回调函数，在数据源更新时调用该回调函数。
+        * getSnapshot：获取当前数据源的快照（当前状态）。
+        * getServerSnapshot?：在服务器端渲染时用来获取数据源的快照
+
+        const subscribe = (callback: () => void) => {
+            // 订阅
+            callback() 
+            return () => { 
+                // 取消订阅
+            }
+        }
+
+        const getSnapshot = () => {
+            return data
+        }
+
+    const res = useSyncExternalStore(subscribe, getSnapshot)
+
+    const [val, setVal] = useStorage('data', 1)
+
+    场景
+    1. 订阅外部 store 例如(redux,Zustand德语)
+    2. 订阅浏览器API 例如(online,storage,location)等
+    3. 抽离逻辑，编写自定义hooks
+    4. 服务端渲染支持
+
+    跨页面同步：通过监听storage事件
+
+    Vue: 
+    创建响应式变量：使用ref或reactive初始化一个变量，其初始值从localStorage读取。
+    监听变量变化：通过watch或watchEffect自动将变量变化同步到localStorage。
+    处理跨页面同步：监听storage事件，当其他标签页修改同一localStorage键时更新响应式变量。
+    处理默认值和序列化：确保读取和写入时正确处理JSON序列化及默认值。
+    生命周期管理：在组件挂载和卸载时添加/移除事件监听，避免内存泄漏。
+    onMounted(() => {
+        window.addEventListener('storage', handleStorageChange);
+    });
+
+
+12. useTransition  应用较少，内部必须同步
+    核心原理是将一部分状态更新处理为低优先级任务，这样可以将关键的高优先级任务先执行，而低优先级的过渡更新则会稍微延迟处理。这在渲染大量数据、进行复杂运算或处理长时间任务时特别有效。React 通过调度机制来管理优先级：
+    * 高优先级更新：直接影响用户体验的任务，比如表单输入、按钮点击等。
+    * 低优先级更新：相对不影响交互的过渡性任务，比如大量数据渲染、动画等，这些任务可以延迟执行
+
+    const [isPending, startTransition] = useTransition();
+
+
+    Vue: 通过 nextTick 机制批量执行。这种设计本身就避免了频繁的同步 DOM 操作，类似于 React 的调度思想
+    需结合 requestAnimationFrame
+
+13. useDeferredValue
+	和useTransition都是做性能优化
+
+    * useDeferredValue 并不是防抖,防抖是需要一个固定的延迟时间，
+    譬如1秒后再处理某些行为，但是useDeferredValue并不是一个固定的延迟，它
+    会根据用户设备的情况进行延迟，当设备情况好，那么延迟几乎是无感知的
+
+
+    useTransition 和 useDeferredValue 的区别
+    useTransition 和 useDeferredValue 都涉及延迟更新，但它们关注的重点和用途略有不同：
+
+    useTransition主要关注点是状态的过渡。它允许开发者控制某个更新的延迟更新，还提供了过渡标识，让开发者能够添加过渡反馈。
+    useDeferredValue主要关注点是单个值的延迟更新。它允许你把特定状态的更新标记为低优先级
+
+    useTransition 过渡列表， 做输入框会只剩下最后一个输入结果
+    useDeferredValue 做输入框、滚动
+
+14. useEffect
+    useEffect 是 React 中用于处理副作用的钩子。
+    并且useEffect 还在这里充当生命周期函数，
+    在之前你可能会在类组件中使用 
+    componentDidMount、componentDidUpdate 和 componentWillUnmount 
+    来处理这些生命周期事件。
+
+    副作用函数
+
+    1. 副作用函数 指的是那些在执行时会改变外部状态或依赖外部可变状态的函数。
+    2. 可预测性降低但是副作用不一定是坏事有时候副作用带来的效果
+    才是我们所期待的
+    3. 高耦合度函数非常依赖外部的变量状态紧密
+
+    操作引用类型
+    操作本地存储例如localStorage
+    调用外部API，例如fetch ajax
+    操作DOM
+    计时器
+
+
+    useEffect(setup, dependencies?)
+    useEffect 返回 undefined
+
+    useEffect(() => {
+    // 副作用代码
+    return () => {
+        // 清理代码
+    }
+    }, [dependencies]);
+    1. 组件渲染完成后执行的
+    2. 类似于componentDidMount、componentDidUpdate组合起来的
+    初始化时候会执行一次，更新会执行，组件卸载也会执行。
+    3. 如果不传值，响应数据就都会监听
+    4. 例子：数据变化时候去请求
+    useEffect(() => {
+        fetchUserData();
+    }, [userId]);
+
+
+15. useLayoutEffect
+    浏览器完成布局和绘制之前执行副作用
+    同步执行
+    阻塞DOM渲染
+
+    useEffect
+    浏览器完成布局和绘制之后执行副作用
+    异步执行
+    不阻塞DOM渲染
+
+    useLayoutEffect应用：点击详情后返回，页面依然回到原来的位置，
+    并且不会滚动过程，体验更好，展示的就是已经操作完dom后的结果，不会展示过程 
+    可以把滚动位置记录地址栏上面，/？top=XXXX
+
+16. useRef
+    1. 可以操作dom,  2. 数据存储
+    initialValue：ref 对象的 current 属性的初始值。
+    可以是任意类型的值。这个参数在首次渲染后被忽略
+    let timer = useRef<null | NodeJS.Timeout>(null)
+    let num = useRef(0)
+    
+    
+    1. 组件在重新渲染的时候，useRef的值不会被重新初始化。
+    2. 改变 ref.current 属性时，React 不会重新渲染组件。React 不知道它何时会发生改变，因为 ref 是一个普通的 JavaScript 对象。
+    3. useRef的值不能作为useEffect等其他hooks的依赖项，因为它并不是一个响应式状态。
+    4. useRef不能直接获取子组件的实例，需要使用forwardRef。
+
+
+    Vue: 
+    ref
+     .value 属性给予了 Vue 一个机会来检测 ref 何时被访问或修改。
+    在其内部，Vue 在它的 getter 中执行追踪，
+    在它的 setter 中执行触发。
+    从概念上讲，你可以将 ref 看作是一个像这样的对象
+
+
+17. useImperativeHandle
+    父组件可以调用子组件的方法，或者访问子组件的属性。 
+    就类似于Vue的defineExpose
+
+    useImperativeHandle(ref, ()=>{
+        return {
+            // 暴露给父组件的方法或属性
+        }
+    }, [deps])
+
+    1. 
+    19版本不需要配合forwardRef一起使用，直接使用即可，他会把Ref跟props放到一起，你会发现变得更加简单了
+    19版本useRef的参数改为必须传入一个参数例如useRef<ChildRef>(null)
+    父组件：
+    const childRef = useRef<ChildRef>(null)
+    childRef.current?.validate()
+    子组件：
+    useImperativeHandle(ref, () => {
+      return {
+         name: 'child',
+         validate: validate,
+         reset: reset
+      }
+   })
+
+
+   2.  18版本需要配合forwardRef一起使用
+    const Child = forwardRef<ChildRef>((_, ref) => {.....
+
+18. useContext
+    useContext 提供了一个无需为每层组件手动添加 props，
+    就能在组件树间进行数据传递的方法。设计的目的就是解决组件树间数据传递的问题
+        const ThemeContext = React.createContext<ThemeContextType>({} as ThemeContextType);
+        // 定义上下文类型
+        interface ThemeContextType {
+        theme: string;
+        setTheme: (theme: string) => void;
+        }
+        const themeContext = useContext(ThemeContext);
+
+        18 版本
+        <ThemeContext.Provider value={{ theme, setTheme }}>
+            <Parent />
+         </ThemeContext.Provider>
+
+        19 版本
+          <ThemeContext value={{ theme, setTheme }}> 
+            <Parent />
+         <ThemeContext> 
+
+        传递的key必须为value
+        如果使用多个Context，那么需要注意，如果使用的值是相同的，那么会覆盖。
+
+
+19. useMemo 
+    1. 性能优化，类似于Vue的computed。
+    2. 使用 React.memo 包裹组件[一般用于子组件]，可以避免组件重新渲染。
+
+    3. 首先明确 React 组件的渲染条件：
+    组件的 props 发生变化
+    组件的 state 发生变化
+    useContext 发生变化
+
+
+    const total = useMemo(() => {
+      console.log('total');
+      return  goods.reduce((total, item) => total + item.price * item.count, 0)
+   }, [goods]); //依赖项
+
+
+   import React, { memo } from 'react';
+    const MyComponent = React.memo(({ prop1, prop2 }) => {
+    // 组件逻辑
+    });
+    const App = () => {
+    return <MyComponent prop1="value1" prop2="value2" />;
+    };
+
+20. useCallback
+    缓存函数
+    useCallback 用于优化性能，返回一个记忆化的回调函数，
+    可以减少不必要的重新渲染，也就是说它是用于缓存组件内的函数，避免函数的重复创建。
+
+20. useDebugValue
+    配合React DevTools调试
+    useDebugValue 是一个专为开发者调试自定义 Hook 而设计的 React Hook。
+    它允许你在 React 开发者工具中为自定义 Hook 添加自定义的调试值。
+
+21. 自定义hooks的规则
+自定义hooks必须以use开头
+自定义hooks可以调用其他hooks(内置的hooks和自定义的hooks)
+
+ahooks,react-use,SWR,react-hook-form 第三方库
+
+22. 组件通信
+父子：props
+兄弟：事件中心
+    兄弟1:
+    const event = new Event('on-card') //添加到事件中心
+    const clickTap = () => {
+        console.log(event)
+        event.params = { name: '我见过龙' }
+        window.dispatchEvent(event) //派发事件
+    }
+
+    兄弟2:
+     //接受参数
+    window.addEventListener('on-card', (e) => {
+        console.log(e.params, '触发了')
+    })
+
+23. 受控组件
+    类似Vue 的 v-model , 用value 
+     <input type="text" value={value} onChange={handleChange} />
+   
+   非受控组件， 用useRef, 直接操作dom， 
+   const inputRef = useRef<HTMLInputElement>(null)
+    <input type="text" onChange={handleChange} defaultValue={value} ref={inputRef} />
+
+    特殊的表单File， 只能是非受控组件
+    对于file类型的表单控件，它是一个特殊的组件，
+    因为它的值只能由用户通过文件选择操作来设置，而不能通过程序直接设置。
+24. 异步组件Suspense
+    <Suspense fallback={<div>Loading...</div>}>
+        <AsyncComponent />
+    </Suspense>
+25. useId 
+    1. 为组件生成唯一 ID
+    2. 解决 SSR 场景下的 ID 不一致问题
+    3. 无障碍交互唯一ID
+
+    use API 用于获取组件内部的Promise,或者Context的内容
+26. createPortal 
+    作用是：将一个组件渲染到DOM的任意位置，跟Vue的Teleport组件类似。
+    应用在全局组件
+27. css modules
+    React 没有Vue的Scoped，但是React又是SPA(单页面应用)，
+    所以需要一种方式来解决css的样式冲突问题，也就是把每个组件的样式做成单独的作用域，
+    实现样式隔离，而css modules就是一种解决方案，但是我们需要借助一些工具来实现，
+    比如webpack，postcss，css-loader，vite等。
+
+
+    编译结果, 可以看到button类名被编译成了button_pmkzx_6，
+    这就是css modules的实现原理，通过在类名前添加一个唯一的哈希值，来实现样式隔离。
+
+作者：小满zs
+链接：https://juejin.cn/post/7465203074531377178
+来源：稀土掘金
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。

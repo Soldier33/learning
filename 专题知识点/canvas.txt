@@ -96,7 +96,11 @@ ctx.fillStyle = "rgba(255,165,0,1)";
 线性渐变：
 createLinearGradient(x1, y1, x2, y2)
 createLinearGradient 方法接受 4 个参数，表示渐变的起点 (x1,y1) 与终点 (x2,y2)。
-可以配合动画帧，做效果，requestAnimationFrame()
+可以配合动画帧，做效果，requestAnimationFrame(
+
+由于定时器的时间只是我们自己设置的一个期望渲染时间，但这个时间点其实并非浏览器一个重绘的时间点，当这两个时间点出现偏差时，可能就会发生丢帧之类的现象。
+
+requestAnimationFrame提供了更加平缓并且更加有效率的方式来执行动画，当系统准备好了重绘条件时才会调用我们动画帧的绘制方法。
 
 径向渐变
 createRadialGradient, 
@@ -109,12 +113,13 @@ createRadialGradient,
 ctx.createPattern(img,'repeat');   循环来实现图案
 repeat，repeat-x，repeat-y 和 no-repeat。
 
-三、绘制图像
+三、绘制图像和视频
 1. 获得一个指向HTMLImageElement的对象或者另一个 canvas 元素的引用作为源，也可以通过提供一个 URL 的方式来使用图片
 2. 使用drawImage()函数将图片绘制到画布上
 3. 渲染图片的方式有2中，一种是在JS里加载图片再渲染，另一种是把DOM里的图片拿到 canvas 里渲染。drawImage(image, dx, dy)
 4. 如果需要指定图片宽高，可以在前面的基础上再添加两个参数：drawImage(image, dx, dy, dw, dh)
 5. 截图图片同样使用drawImage() 方法，只不过传入的参数数量比之前都多，而且顺序也有点不一样了。drawImage(image, sx, sy, sw, sh, dx, dy, dw, dh)
+6. 可以绘制动态视频然后添加水印
 
 
 四、绘制文本
@@ -124,7 +129,36 @@ strokeText(text, x, y [, maxWidth])
 在指定的 (x,y) 位置绘制文本边框，绘制的最大宽度是可选的。
 1. measureText().width 方法可以获取文本的长度，单位是 px
 
+五、几何变形
+translate 位移 translate(x, y) *x *是左右偏移量，y 是上下偏移量
+rotate旋转  rotate(angle)
+scale缩放。scale(x, y)   如果比 1 小，会缩小图形，如果比 1 大会放大图形
+transfrom
 
+六、合成
+globalCompositeOperation
+可以实现刮刮卡
+
+七、裁剪
+ clip()
+
+八、像素操作
+createImageData() 
+getImageData() 
+putImageData() 
+可以实现图片灰度和反相颜色
+
+保存图片
+canvas.toDataURL('image/png')
+你也可以从画布中创建一个Blob对像。
+canvas.toBlob(callback, type, encoderOptions)
+
+九、pixi.js 
+
+Application, Assets, Sprite ， 应用，纹理，精灵，容器，舞台
+可以添加滤镜效果pix-filters
+
+Pixi.js是一个非常快的 2D sprite 渲染引擎，支持webgl。可以帮助我们显示、动画和管理交互式图形，这样我们就可以轻松地使用JavaScript和其他HTML5技术制作游戏和应用程序。
 
 
 Canvas 和 SVG 的区别

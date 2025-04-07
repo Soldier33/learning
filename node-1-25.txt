@@ -228,9 +228,9 @@
 	即时编译
 	优化与去优化
 
-# 20. 
+# 20. 使用 requestIdleCallback，开发者可以更好地利用浏览器的空闲序列来执行不紧急的任务，同时保持用户交互的流畅度。
 
- ​# 20. 渲染超大规模数据Dom : 
+ ​# 21. 渲染超大规模数据Dom : 
 	Canvas 通过直接操作像素和 GPU 加速，能够显著提升渲染效率。以下是使用 Canvas 渲染超大规模数据的核心策略和优化技巧
 
 	优化方向：减少绘制调用次数，利用批量操作和硬件加速。
@@ -255,3 +255,103 @@
 	​减少布局抖动：避免在 JavaScript 中频繁读取布局属性（如 offsetWidth），改用 ResizeObserver。
 	​简化样式：避免复杂的 CSS 动画和 box-shadow 等性能消耗大的属性。
 	​使用 will-change：提示浏览器提前优化特定元素：
+
+# 22. blob对象
+	表示二进制类型的大对象
+blob对象实现文件下载
+blob使用场景：
+	分片上传
+	从互联网下载数据
+	blob用作url
+	blob转换为Base64
+	图片压缩
+	生成pdf
+	blob与ArrayBuffer的区别
+
+
+# 23. 首屏渲染
+
+1. 性能监听对象 ， 监测时间
+    1. performanceObserver
+2. 异步组件，这样不需要加载这个组件的资源
+3. 骨架屏,mount执行挂载，然后才会替换<div id="app”> 里面的内容
+
+
+# 24. 大数据渲染： 
+虚拟列表、 
+分批渲染， 把数据分为二维数组，然后调用requestAnimationFrame分堆渲染，达到不卡顿的情况
+懒加载触底加载
+
+	Tips:
+	requestAnimationFrame是浏览器用于定时循环操作的一个API,
+	通常用于动画和游戏开发。它会把每一帧中的所有DOM操作集中起来,
+	在重绘之前一次性更新,并且关联到浏览器的重绘操作。
+
+
+
+# 25. 在表单校验场景中， 如何实现页面视口滚动到报错的位置【热度: 248】
+
+	// 滚动到出现问题的元素位置
+      var element = document.getElementById(key);
+      element.scrollIntoView({ block: "center", behavior: "smooth" });
+# 26. 大文件上传：
+创建分片数据
+文件内容创建hash
+调用发生分片接口
+
+# 27. 实现懒加载：IntersectionObserver （可以做：1.图片懒加载， 2.埋点曝光）
+export const useInView = (ref: Ref) => {
+  const observer = new IntersectionObserver(callback, options);
+
+  onMounted(() => {
+    Object.keys(ref.value).forEach((e) => observer.observe(ref.value[e]));
+  });
+};
+
+# 28. requestAnimationFrame + fragment（时间分片）
+
+	原理其实就是 通过 requestAnimationFrame 实现分块儿加载。
+
+	requestAnimationFrame + fragment（时间分片）
+
+	requestAnimationFrame也是个定时器，不同于setTimeout，
+	它的时间不需要我们人为指定，这个时间取决于当前电脑的刷新率，如果是 60Hz ，那么就是 16.7ms 执行一次，如果是 120Hz 那就是 8.3ms 执行一次
+
+	因此requestAnimationFrame也是个宏任务，前阵子面试就被问到过这个
+
+	fragment是虚拟文档碎片，我们一次for循环产生 20 个li的过程中可以全部把真实dom挂载到fragment上，
+	然后再把fragment挂载到真实dom上，这样原来需要回流十万次，现在只需要回流100000 / 20次
+
+
+		requestAnimationFrame 的优化原理
+		​1. 与显示器刷新率同步
+
+		​机制：
+		requestAnimationFrame 的回调会在浏览器 ​下一次重绘前 执行（通常是每秒 60 次，即每帧 16.67ms），确保动画的每一帧与屏幕刷新同步。
+		​优势：
+		避免因 JavaScript 执行时机不当导致的画面撕裂或跳帧。
+		​2. 减少布局抖动（Layout Thrashing）​
+
+		​问题：
+		频繁读写布局属性（如 offsetWidth 和 style.width）会强制浏览器多次执行布局计算。
+		​解决方案：
+		requestAnimationFrame 将读写操作集中在同一帧内，减少布局抖动：
+
+# 29. 水印：
+明水印：可以背景、SVG、 canvas
+暗水印：服务端做，将信息写进文件二进制代码中，需要保证文件不变
+
+# 30. 
+	DNS协议，将域名映射到ip上
+
+	闭包，方法里面返回一个方法，意义，延长变量生命周期 ，创建私有环境
+	存在内存当中，但是外部是用不了的，防抖节流就是闭包
+	之前没有class, 没办法创建私有变量，所以用闭包
+
+
+	全局变量会污染，不能回收
+
+	BigInt 超过最大数字， decimal.js 格式化
+
+# 31. 副作用，影响外部的状态  或  依赖外部状态， 存在不可预测
+	纯函数不会修改外部的状态，不会依赖外部状态
