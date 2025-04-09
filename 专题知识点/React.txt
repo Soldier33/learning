@@ -2,8 +2,9 @@ React
 1. React的特点
 组件化：React 通过将 UI 分解为独立的、可重用的组件，使得代码更易于管理和维护。每个组件只关注于自身的逻辑和视图。
 
-声明式编程：React 采用声明式的编程风格，开发者只需描述 UI 应该是什么样子的，而不需要手动操作 DOM。React 会根据数据的变化自动更新 UI。
-
+声明式编程：React 采用声明式的编程风格，开发者只需描述 UI 应该是什么样子的，
+    而不需要手动操作 DOM。React 会根据数据的变化自动更新 UI。
+    (相对应的是，命名式编程， 一步一步做的效果)
 虚拟 DOM：React 使用虚拟 DOM（Virtual DOM）来优化 UI 的更新过程。当数据发生变化时，React 会创建一个新的虚拟 DOM，然后将其与之前的虚拟 DOM 进行比较，找出最小的变化，并将这些变化应用到实际的 DOM 中，从而提高性能。
 
 单向数据流：React 采用单向数据流（也称为单向数据绑定），这意味着数据在组件之间通过 props 进行传递，使得数据的流动更加清晰和可预测。
@@ -18,8 +19,14 @@ React
 
 
 2. （原理：vdom fiber diff  requestIdleCallback）虚拟dom，意义在于 性能优化 跨平台性
+   
+    原理
+    vdom fiber diff
+
+    requestidlecallback
 3. request Idle Callback。调度器，空闲时去执行
-4. Fiber 是 React 16 引入的一种新的协调引擎，用于解决和优化 React 应对复杂 UI 渲染时的性能问题
+4. Fiber 是 React 16 引入的一种新的协调引擎，
+    1. 用于解决和优化 React 应对复杂 UI 渲染时的性能问题
 
     可中断的渲染：Fiber 允许将大的渲染任务拆分成多个小的工作单元（Unit of Work），使得 React 可以在空闲时间执行这些小任务。当浏览器需要处理更高优先级的任务时（如用户输入、动画），可以暂停渲染，先处理这些任务，然后再恢复未完成的渲染工作。
     优先级调度：在 Fiber 架构下，React 可以根据不同任务的优先级决定何时更新哪些部分。React 会优先更新用户可感知的部分（如动画、用户输入），而低优先级的任务（如数据加载后的界面更新）可以延后执行。
@@ -29,12 +36,66 @@ React
     作者：小满zs 链接：https://juejin.cn/post/7412539585823981608
     https://message163.github.io/react-docs/components/practice.html
 
-范型加逗号纠正
+    2. Fiber是协程，比线程更精细，表示对渲染线程实现更精细的控制
+
+    实现增量渲染，增量渲染指的是把一个渲染任务分解为多个渲染任务，而后将其分散到多个帧里。
+    增量渲染是为了实现任务的可中断、可恢复，并按优先级处理任务，从而达到更顺滑的用户体验
+
+
+    3. Fiber的可中断、可恢复怎么实现的
+
+    fiber是协程，是比线程更小的单元，可以被人为中断和恢复，
+    当react更新时间超过1帧时，会产生视觉卡顿的效果，因此我们可以通过fiber把浏览器渲染过程分段执行，
+    每执行一会就让出主线程控制权，执行优先级更高的任务
+
+    4. React渲染流程
+    React用JSX描述页面，JSX经过babel编译为render function，
+    执行后产生VDOM，VDOM不是直接渲染的，会先转换为fiber，
+    再进行渲染。vdom转换为fiber的过程叫reconcile，转换过程会创建DOM，
+    全部转换完成后会一次性commit到DOM，这个过程不是一次性的，
+    而是可打断的，这就是fiber架构的渲染流程
+
+    作者：lyllovelemon
+    链接：https://juejin.cn/post/7182382408807743548
+    来源：稀土掘金
+    著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+
+        hook: 
+
+        数据驱动
+        useState
+        useReducer
+        useSyncExternalStore
+        useTransition
+        useDeferredValue
+
+        副作用
+        useEffect
+        useLayoutEffect
+        useInsertionEffect
+
+        状态传递
+        useRef
+        useImperativeHandle
+        useContext
+
+        状态派生
+        useMemo
+        useCallback
+
+        工具Hooks
+        useDebugValue
+
+        useId
 5. React.FC
     * React.FC是函数式组件，是在TS使用的一个范型。FC是Function Component的缩写
     * React.FC 帮助我们自动推导Props的类型。
 6. 不能操作原数组， 返回新数组、新对象，对象用解构和Object.assign
+    范型加逗号纠正
+
 7. Set函数是异步的，为了性能优化
+    1. 
     import { useState } from "react"
     function App() {
     let [index, setIndex] = useState(0)
@@ -47,11 +108,20 @@ React
         <>
         <h1>Index:{index}</h1>
         <button onClick={heandleClick}>更改值</button>
-
         </>
     )
     }
     export default App
+
+    2. 
+    setState自动批处理
+
+    react18，将所有事件都进行批处理，即多次setState会被合并为1次执行，提高了性能，
+    在数据层，将多个状态更新合并成一次处理（在视图层，将多次渲染合并成一次渲染）
+
+    3. 实现机制类似于vue的$nextTick和浏览器的事件循环机制，
+    每个setState都会被react加入到任务队列，多次对同一个state使用setState只会返回最后一次的结果，
+    因为它不是立刻就更新，而是先放在队列中，等时机成熟在执行批量更新。
 
 8. 所有的hook都在最顶层调用
 9. useReducer 跟 useState 一样的都是帮我们管理组件的状态的，但是呢与useState不同的是 useReducer 是集中式的管理状态的
@@ -60,8 +130,6 @@ React
     const [state, dispatch] = useReducer(reducer, initialState);
     reducer。是处理函数
     dispatch 是传值去调用 reducer
-
-
 
 10. const res = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot?)
         * subscribe：用来订阅数据源的变化，接收一个回调函数，在数据源更新时调用该回调函数。
@@ -104,14 +172,16 @@ React
 
 
 12. useTransition  应用较少，内部必须同步
-    核心原理是将一部分状态更新处理为低优先级任务，这样可以将关键的高优先级任务先执行，而低优先级的过渡更新则会稍微延迟处理。这在渲染大量数据、进行复杂运算或处理长时间任务时特别有效。React 通过调度机制来管理优先级：
+    核心原理是将一部分状态更新处理为低优先级任务，这样可以将关键的高优先级任务先执行，
+    而低优先级的过渡更新则会稍微延迟处理。
+    这在渲染大量数据、进行复杂运算或处理长时间任务时特别有效。React 通过调度机制来管理优先级：
     * 高优先级更新：直接影响用户体验的任务，比如表单输入、按钮点击等。
     * 低优先级更新：相对不影响交互的过渡性任务，比如大量数据渲染、动画等，这些任务可以延迟执行
 
     const [isPending, startTransition] = useTransition();
 
-
-    Vue: 通过 nextTick 机制批量执行。这种设计本身就避免了频繁的同步 DOM 操作，类似于 React 的调度思想
+    Vue: 通过 nextTick 机制批量执行。
+    这种设计本身就避免了频繁的同步 DOM 操作，类似于 React 的调度思想
     需结合 requestAnimationFrame
 
 13. useDeferredValue
@@ -132,6 +202,8 @@ React
     useDeferredValue 做输入框、滚动
 
 14. useEffect
+    处理副作用，清除副作用
+
     useEffect 是 React 中用于处理副作用的钩子。
     并且useEffect 还在这里充当生命周期函数，
     在之前你可能会在类组件中使用 
@@ -139,7 +211,6 @@ React
     来处理这些生命周期事件。
 
     副作用函数
-
     1. 副作用函数 指的是那些在执行时会改变外部状态或依赖外部可变状态的函数。
     2. 可预测性降低但是副作用不一定是坏事有时候副作用带来的效果
     才是我们所期待的
@@ -163,12 +234,12 @@ React
     }, [dependencies]);
     1. 组件渲染完成后执行的
     2. 类似于componentDidMount、componentDidUpdate组合起来的
-    初始化时候会执行一次，更新会执行，组件卸载也会执行。
+        初始化时候会执行一次，更新会执行，组件卸载也会执行。
     3. 如果不传值，响应数据就都会监听
     4. 例子：数据变化时候去请求
-    useEffect(() => {
-        fetchUserData();
-    }, [userId]);
+        useEffect(() => {
+            fetchUserData();
+        }, [userId]);
 
 
 15. useLayoutEffect
@@ -296,27 +367,27 @@ React
     它允许你在 React 开发者工具中为自定义 Hook 添加自定义的调试值。
 
 21. 自定义hooks的规则
-自定义hooks必须以use开头
-自定义hooks可以调用其他hooks(内置的hooks和自定义的hooks)
+    自定义hooks必须以use开头
+    自定义hooks可以调用其他hooks(内置的hooks和自定义的hooks)
 
-ahooks,react-use,SWR,react-hook-form 第三方库
+    ahooks,react-use,SWR,react-hook-form 第三方库
 
 22. 组件通信
-父子：props
-兄弟：事件中心
-    兄弟1:
-    const event = new Event('on-card') //添加到事件中心
-    const clickTap = () => {
-        console.log(event)
-        event.params = { name: '我见过龙' }
-        window.dispatchEvent(event) //派发事件
-    }
+    父子：props
+    兄弟：事件中心
+        兄弟1:
+        const event = new Event('on-card') //添加到事件中心
+        const clickTap = () => {
+            console.log(event)
+            event.params = { name: '我见过龙' }
+            window.dispatchEvent(event) //派发事件
+        }
 
-    兄弟2:
-     //接受参数
-    window.addEventListener('on-card', (e) => {
-        console.log(e.params, '触发了')
-    })
+        兄弟2:
+        //接受参数
+        window.addEventListener('on-card', (e) => {
+            console.log(e.params, '触发了')
+        })
 
 23. 受控组件
     类似Vue 的 v-model , 用value 
@@ -338,10 +409,23 @@ ahooks,react-use,SWR,react-hook-form 第三方库
     2. 解决 SSR 场景下的 ID 不一致问题
     3. 无障碍交互唯一ID
 
+    在服务器和客户端生成相同的唯一一个id，避免hydrating的不兼容
     use API 用于获取组件内部的Promise,或者Context的内容
+
+    
 26. createPortal 
     作用是：将一个组件渲染到DOM的任意位置，跟Vue的Teleport组件类似。
     应用在全局组件
+
+    const App = () => {
+        return createPortal(<div>小满zs</div>, document.body);
+    };
+
+    Vue的Teleport：
+    <Teleport to="body">
+        <div v-if="open" class="modal">
+        </div>
+    </Teleport>
 27. css modules
     React 没有Vue的Scoped，但是React又是SPA(单页面应用)，
     所以需要一种方式来解决css的样式冲突问题，也就是把每个组件的样式做成单独的作用域，
@@ -352,7 +436,94 @@ ahooks,react-use,SWR,react-hook-form 第三方库
     编译结果, 可以看到button类名被编译成了button_pmkzx_6，
     这就是css modules的实现原理，通过在类名前添加一个唯一的哈希值，来实现样式隔离。
 
-作者：小满zs
-链接：https://juejin.cn/post/7465203074531377178
-来源：稀土掘金
-著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+    作者：小满zs
+    链接：https://juejin.cn/post/7465203074531377178
+    来源：稀土掘金
+    著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+28. React组件都是按需引入，没有全局组件的概念
+29. 函数式组件、类式组件。 
+    <MyComponent> 组件标签，react就会帮忙实例化一个实例，
+    然后调用render方法
+    然后render返回的vdom转为真实dom
+
+    类中都开启了局部的严格模式，普通函数如果不开启用严格，里面的this就是window
+
+    类中this指向问题用bind解决
+
+    需要什么hook就引入
+    Hoc高阶组件 
+
+30. 在React RouterV7 中，
+    是拥有不同的路由模式，路由模式的选择将直接影响你的整个项目。
+    React Router 提供了四种核心路由创建函数：
+    createBrowserRouter(推荐 history API)、
+    createHashRouter (hash #)、
+    createMemoryRouter (路由表)
+    和 createStaticRouter（SSR）
+
+31. 外部 store 例如(redux,Zustand德语)
+
+32. React组件为什么不能返回多个元素
+
+    这个问题也可以理解为React组件为什么只能有一个根元素，原因：
+
+    1. React组件最后会编译为render函数，函数的返回值只能是1个，
+    如果不用单独的根节点包裹，就会并列返回多个值，这在js中是不允许的
+
+    2.  react的虚拟DOM是一个树状结构，树的根节点只能是1个，如果有多个根节点，无法确认是在哪棵树上进行更新
+    vue的根节点为什么只有一个也是同样的原因
+    React组件怎样可以返回多个组件
+
+    使用HOC（高阶函数）
+
+    使用React.Fragment,可以让你将元素列表加到一个分组中，
+    而且不会创建额外的节点（类似vue的template)
+
+ 
+    3. 差异：
+    ​Vue 3 的改进： 支持多根组件，直接在模板中编写多个根级元素，无需包裹容器。
+    Vue 3 通过 ​虚拟 DOM 的改进 支持多根节点：
+     减少 DOM 结构的嵌套层级
+
+     相似性： React 通过 <React.Fragment> 或 <>...</> 语法支持多根节点。
+​       差异： Vue 3 的 Fragment 是隐式的，无需手动声明。
+
+    <template>
+    <h1>标题</h1>
+    <p>内容段落 1</p>
+    <p>内容段落 2</p>
+    </template>
+
+    vue3的Fragment实现原理.md
+    Vue3 之所以能够支持多节点的 Fragment，是因为在内部采用了 Virtual DOM 和片段的机制。
+    Vue3 会将多个节点放入一个片段中，然后作为组件的根节点进行 Virtual DOM 操作。使用片段的方式，可以方便地处理多节点的情况，并提高渲染效率
+
+    实际 DOM 更新时遵循单个根元素规则： 虽然 Vue 3 允许组件具有多个根节点，但在实际的 DOM 结构中，
+    每个组件仍然需要遵循单个根元素的规则。因此，在将虚拟 DOM 更新到实际的 DOM 时，Vue 会确保每个组件的多个根节点都被插入到正确的位置，且符合 DOM 规范。
+
+
+
+33. 函数组件与类组件的区别:
+
+    类组件需要声明constructor，函数组件不需要
+    类组件需要手动绑定this，函数组件不需要
+    类组件有生命周期钩子，函数组件没有
+    类组件可以定义并维护自己的state，属于有状态组件，函数组件是无状态组件
+    类组件需要继承class，函数组件不需要
+    类组件使用的是面向对象的方法，封装：组件属性和方法都封装在组件内部 继承:通过extends React.Component继承;函数组件使用的是函数式编程思想
+
+34. why React hooks
+    优点：
+    告别难以理解的class组件
+    解决业务逻辑难以拆分的问题
+    使状态逻辑复用变的简单可行
+    函数组件从设计理念来看，更适合react
+
+    局限性：
+    hooks还不能完整的为函数组件提供类组件的能力
+    函数组件给了我们一定程度的自由，却也对开发者的水平提出了更高的要求
+    Hooks 在使用层面有着严格的规则约束
+
+
+35. SWC 是基于 Rust 开发的

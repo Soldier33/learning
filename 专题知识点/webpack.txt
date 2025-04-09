@@ -3,9 +3,13 @@
 [更多内容](https://github.com/pro-collection/interview-question/issues/887)
 [知识图谱](https://gitmind.cn/app/docs/m1foeg1o)
 
+常用的优化手段
+构建速度优化:
+构建体积优化:
+
 优化打包优先方案： 升级 node、升级 webpack、升级你的编译环境的硬件水平
 
-始终使用最新 Webpack 版本，这算的上是性价比最高的优化手段之一了！
+  始终使用最新 Webpack 版本，这算的上是性价比最高的优化手段之一了！
   从 Webpack V3，到 V4，再到最新的 V5 版本，虽然构建功能在不断叠加增强，但性能反而不断得到优化提升，
   这得益于 Webpack 开发团队始终重视构建性能，在各个大版本之间不厌其烦地重构核心实现，例如：
 
@@ -153,11 +157,13 @@
         所以 Webpack5 直接内置了这些能力，开箱即可使用
 
 # 3、Loader 和 Plugin 的区别
-			  Loader				Plugin
-    典型应用	处理 CSS、图片、字体等资源	  代码压缩、资源管理、环境变量注入等
+			  Loader				                        Plugin
+    典型应用	处理 CSS、图片、字体等资源	   代码压缩、资源管理、环境变量注入等
     配置方式	在 module.rules 中配置	     在 plugins 中配置
-    作用	    转换模块的源代码			  扩展 Webpack 的功能
-    输入/输出	接收源文件，返回转换后的内容   不直接处理文件，而是操作构建过程
+    作用	    转换模块的源代码			       扩展 Webpack 的功能
+    输入/输出	接收源文件，返回转换后的内容    不直接处理文件，而是操作构建过程
+
+
     Loader：用于转换模块的源代码。适合处理文件级别的任务（如 CSS、图片、字体等）。通过 module.rules 配置。
     Plugin：用于扩展 Webpack 的功能。适合处理构建过程级别的任务（如代码压缩、资源优化等）。通过 plugins 配置。
 
@@ -294,7 +300,8 @@ Webpack 插件在代码形态上是一个带 `apply` 方法的对象，
     Custom Loader	特定文件深度处理	★★★★	★★★	✔️
 
 # 5、Webpack 和 vite 的原理 以及热更新
-(热更新就是更新受影响的模块，但是不刷新页面)
+     (热更新就是更新受影响的模块，但是不刷新页面)
+
 ## webpack
 	1. Webpack 核心是项目整体打包，将多个文件打包成一个
         首次加载时间过长，bundle文件	
@@ -445,6 +452,37 @@ Webpack 插件在代码形态上是一个带 `apply` 方法的对象，
 
     Webpack 会对所有使用 ESM 方案的模块启动 Tree-Shaking
 
+
+  两种级别的 tree shaking: modules-levels 和 statements-level
+  modules-level， 移除未使用的 module，要配置 optimization.sideEffects 为 true， 即开启 tree shaking；
+  statements-level，移除 module 中未使用的 module，需要配置 optimization.useExports: true， optimization.minimize: true;
+
+
+    // ./webpack.config.js
+    module.exports = {
+     // ... 其他配置项
+     optimization: {
+       // 模块只导出被使用的成员,  
+       usedExports: true,
+       // 压缩输出结果
+       minimize: true,
+       // 尽可能合并每一个模块到一个函数中
+       concatenateModules: true
+      }
+    }
+
+      直接 "sideEffects": false 表示项目中所有代码都没有副作用
+    "sideEffects": [
+      "./src/components/extend.js",
+      "*.css"
+    ]
+
+    sideEffects需要设置两个地方：
+
+    webpack.config.js 中的 sideEffects 用来开启这个功能
+    package.json 中的 sideEffects 用来标识我们的哪些代码没有副作用
+
+
 ## 7. Tree-shaking 的实现
 
     Webpack Tree-shaking原理
@@ -474,7 +512,7 @@ Webpack 插件在代码形态上是一个带 `apply` 方法的对象，
     Tree-Shaking 并不能完美删除所有无效的模块导出，
     需要我们在业务代码中遵循若干最佳实践规则，帮助 Tree-Shaking 更好地运行
 
-# 7、   Sourcemap
+# 7、   sourcemap
 
       核心价值：在优化构建和高效调试之间构建桥梁
 
@@ -499,6 +537,23 @@ Webpack 插件在代码形态上是一个带 `apply` 方法的对象，
       module : cheap-module-eval-source-map显示loader前的代码，
                cheap-source-map 则是经过 babel-loader 编译处理的内容
 
+      sourcemap
+      开发环境：需要考虑速度快，调试更友好   速度快( eval > inline > cheap >... )
+      生产环境：需要考虑源代码要不要隐藏，调试要不要更友好
+
+      ！！！开发环境 用eval-cheap-module-source-map， 需要调试 loader 转换前的代码
+
+
+      生产环境建议使用 none，也就是不生成 sourcemap 文件，防止有人通过 sourcemap 复原源代码。
+      
+其实是由 source-map、cheap、module、inline、hidden、eval、nosource 这 7 个关键字组合生成的。
+      eval  source-map 文件会内联到 bundle 中
+      source-map
+      cheap：阉割版，少行和列
+      moudel: 可以看之前的源码
+      inline
+      nosources
+      hidden
 
       - 对于开发环境，适合使用：
         - `eval`：速度极快，但只能看到原始文件结构，看不到打包前的代码内容；
@@ -547,7 +602,8 @@ Webpack 插件在代码形态上是一个带 `apply` 方法的对象，
 
     新的 chunk 是否被共享或者是来自 node_modules 的模块
     新的 chunk 体积在压缩之前是否大于 30kb
-     (个人理解：文件压缩后会更小，如果只有几个页面用到，没必要拆出来，拆出来会多耗费一次http请求，直接打包在一起。
+     (个人理解：文件压缩后会更小，如果只有几个页面用到，没必要拆出来，
+     拆出来会多耗费一次http请求，直接打包在一起。
      但是如果每个页面都用到这个，就可以打包合并成一个component-vendor.js的包)
     按需加载 chunk 的并发请求数量小于等于 5 个
     页面初始加载时的并发请求数量小于等于 3 个
@@ -559,9 +615,11 @@ Webpack 插件在代码形态上是一个带 `apply` 方法的对象，
 
     我们现在的策略是按照体积大小、共用率、更新频率重新划分我们的包，使其尽可能的利用浏览器缓存
 
-    其实优化就是一个博弈的过程，是让 a bundle 大一点还是 b? 是让首次加载快一点还是让 cache 的利用率高一点？ 
+    其实优化就是一个博弈的过程，是让 a bundle 大一点还是 b? 
+    是让首次加载快一点还是让 cache 的利用率高一点？ 
     但有一点要切记，拆包的时候不要过分的追求颗粒化，什么都单独的打成一个 bundle，
-    不然你一个页面可能需要加载十几个.js文件，如果你还不是HTTP/2的情况下，请求的阻塞还是很明显的
+    不然你一个页面可能需要加载十几个.js文件，
+    如果你还不是HTTP/2的情况下，请求的阻塞还是很明显的
     (受限于浏览器并发请求数)。所以还是那句话资源的加载策略并没什么完全的方案，
     都需要结合自己的项目找到最合适的拆包策略。
 
@@ -590,10 +648,19 @@ Webpack 插件在代码形态上是一个带 `apply` 方法的对象，
 
   Webpack 默认会将以下三种模块做分包处理：
 
-  - Initial Chunk：`entry` 模块及相应子模块打包成 Initial Chunk；
+  典型的 import 'xxx' from 'xxx' 属于静态依赖， import('xxx') 属于动态依赖。
+  将首屏不需要的资源先分离出来，减小请求文件的体积，达到首屏优化的目的。
+  通常情况下，整个模块依赖图会默认分解为 1 个入口文件所在的
+   initial bundle(有时候也叫 main bundle) 和多个动态依赖所在的 async bundles
+
+  - Initial Chunk：`entry` 模块及相应子模块打包成 Initial Chunk；（沿着静态依赖能遍历到的所有模块）
   - Async Chunk：通过 `import('./xx')` 等语句导入的异步模块及
     相应子模块组成的 Async Chunk；
   - Runtime Chunk：运行时代码抽离成 Runtime Chunk，可通过 [entry.runtime]配置项实现。
+
+
+  runtime chunk: 根据 optimizaiton.runtimeChunk: true 从 initial chunk 中分离出来，
+  负责安装 chunk、安装 module、加载 lazy chunk；
 
   模块重复打包、资源冗余 & 低效缓存
 
@@ -789,6 +856,12 @@ Webpack 插件在代码形态上是一个带 `apply` 方法的对象，
     - `stylelint-webpack-plugin`：针对 StyleLint 的专用缓存方案。
 
     这些方案各有特色，但都无可置疑地能有效提升编译性能，建议你在尝试做性能优化时优先选用。
+
+
+
+    不管是 Webpack5 的持久化缓存，还是 Webpack4 中 loader 的 cache，
+    都是首次构建时将构建内容缓存到本地。
+    等到第二次构建时候，通过对比时间戳或者 md5 等
 
 # 14、并行文件加载
   1. HappyPack 虽然确实能有效提升 Webpack 的打包构建速度，但它有一些明显的缺点：
@@ -1196,7 +1269,7 @@ Pitch Loader 的逻辑比较简单，做的事情也只是转换 import 路径
     @babel/generator 将AST解码生成js代码
     @babel/types通过该模块对具体的AST节点进行进行增、删、改、查
 
-    新建drop-console.js
+    新建drop-console.js ， 去除打印
     const parser = require('@babel/parser')
     const traverse = require('@babel/traverse').default
     const generator = require('@babel/generator').default
@@ -1278,3 +1351,37 @@ Pitch Loader 的逻辑比较简单，做的事情也只是转换 import 路径
           new firstPlugin()
       ]
   }
+
+
+29. 如何写一个 loader、plugin
+loader 本质上一个函数，用于将其他类型的文件，转化为浏览器可以识别的文件类型。  traverse
+
+
+自己写一个 Plugin:
+
+创建一个 class，需要提供实例方法 - apply;
+apply 方法在触发时， 会传入一个 compiler 对象，然后我们可以在 apply 内部，通过 compiler.hooks.xxxx.tap('插件名称', callback) 的形式订阅 compiler 的 hooks。
+当到了 compiler 的某个阶段时，触发该阶段的对应的 hook，执行对应的 callback。
+
+
+在 webpack 的 plugins 配置项中提供 plugin 对应的实例；
+
+
+在 compiler 构建初始化的过程中，会触发 plugin 实例的 apply 方法，订阅指定的 compiler 的 hook；
+
+
+写一个可替换打包文件内容中指定字符串的 plugin:
+
+    class ReplacePlugin {
+        constructor(option) { ...}
+
+        apply(compiler) {
+            compiler.hooks.compilation.tap('ReplacePlugin', (compilation, compilationParams) => {
+                compilation.hooks.afterOptimizeAssets.tap('ReplacePlugin', (assets) => {
+                    Object.keys(assets).forEach(key => {
+                        assets[key] = new OriginalSource(assets[key].source().replace(/https:\/\/reactjs/, 'zjh'));
+                    })
+                });
+            });
+        }
+    }

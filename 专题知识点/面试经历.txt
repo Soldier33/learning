@@ -16,3 +16,65 @@ V-model如何用,
 nextTick原理
 性能优化
 业务代码
+
+四、
+表单、表格、缓存策略
+Css后处理 为什么用vh
+图片能不能gzip
+review关于前端
+首屏从什么结果优化到什么结果
+external: ['vue'], 还能不能tree shaking 
+webpack和vite 对比
+
+
+
+Css后处理 为什么用vh？
+1. 视口比例控制的精准性
+场景：需要元素尺寸严格按视口比例缩放（如全屏轮播图、背景遮罩）
+    示例：实现一个始终占屏幕高度 60% 的容器：
+        css
+        Copy
+        .container {
+        height: 60vh; /* 直接挂钩视口高度 */
+        }
+对比 rem：需通过 JS 动态计算 1rem 对应的视口比例，复杂度高
+
+2. 字体响应式的终极方案
+场景：希望字体大小随视口平滑缩放（非断点式变化）
+
+示例：字体从 PC 到移动端无缝缩小：
+
+优势：无需媒体查询断点，减少代码维护成本
+3. 避开 rem 的字体缩放污染
+* 问题：用户修改浏览器默认字体大小时，rem 布局可能被破坏
+* 示例：用户将浏览器默认字体从 16px 改为 20px 时：
+    * rem 布局元素会按比例放大，可能导致 UI 错乱
+    * vw/vh 布局完全不受影响
+
+
+
+webpack和vite 对比：
+1. bundle， 只有业务代码bundle
+2. loader, plugin
+3. 持久化缓存
+4. treeshaking 
+5. 分包： vendor, components-util
+6. 热更新
+7. 代码分割：减少请求，较少体积    体积大小、共用率、更新频率
+8. sourceMap
+9. AST利用
+webpakc : 持久化缓存、 sourceMap 丰富、 模块依赖关系图
+vite：  prefetch、预热常用文件、 vite依赖预构建、依赖扫描，
+        esbuild + rollup 、 按需加载、缓存策略
+
+        1. 首屏、懒加载响应速度对比 Webpack 会慢；二次预构建会对开发体验造成影响；
+        2. vite  build.sourcemap¶
+        类型： boolean | 'inline' | 'hidden'
+        默认： false
+
+转换过程是通过 loader 处理(不同的构建工具，叫法不同。
+Webpack、Esbuild 是 loader， Rollup、Parcel、Vite 是 plugin)。
+
+ VITE v3.2.7  ready in 921 ms 
+
+加载时间：2.10 秒

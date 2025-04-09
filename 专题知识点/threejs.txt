@@ -1,0 +1,28 @@
+Three.js
+
+1. 轨道控制器,查看物体
+    坐标辅助控制器，
+
+
+2. 控制物体移动
+    相机camera和物体mesh都继承Object3D类。
+    所以camera、mesh都属于3d对象。
+    从3d对象的官方文档里，我们可以
+    找到position属性，并且该属性一个vector3对象
+
+    父元素和子元素 操作效果会叠加
+
+3. GUI可以调试开发位置
+4. 三点成面 
+5. 立方几何体：const geometry = new THREE.BoxGeometry(1, 1, 1);
+6. 贴图
+7. 纹理的颜色空间
+8. 线性雾，指数雾new THREE.Fog.  FogExp2
+9. glTF格式， 加载压缩过的模型
+   GLTF 文件通常以 .gltf 或 .glb 作为后缀名，其中 .gltf 是 JSON 格式文件，
+   可能会附带二进制文件（.bin）和图片素材；而 .glb 则是将所有数据整合成一个二进制文件
+10. Tween应用，补间动画
+11. gsap库去做补间动画
+12. UV去采集颜色
+13. 包围盒可以顶点平均去求 中心点
+14. cannon物理库，提供更真实的效果，摩擦，弹力，重力

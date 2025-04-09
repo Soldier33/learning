@@ -15,8 +15,13 @@
 
 [更多内容](https://juejin.cn/post/6980141344131923999)
  
-
+ 
 # 2、热更新
+
+    Vite会立即使用WebSocket向浏览器推送更新，
+    然后浏览器通过重新获取被改动的模块，替换原有的代码，从而实现了部分更新
+
+
     Vite Server 的请求处理能力，是通过中间件实现的
     [更多内容](https://zhuanlan.zhihu.com/p/532451109)
 
@@ -94,6 +99,13 @@
     要尽力避免运行时的二次预构建，include 参数提前声明需要按需加载的依赖
     include ： 场景一: 动态 import  场景二: 某些包被手动 exclude（少用exclude）
 
+    E.
+    有几个源来决定 vite 是否需要重新进行预构建:
+
+    package.json 中的 dependencies 列表；
+    lockfile；
+    vite.config.js；
+
 # 4、依赖扫描
 [更多内容](https://juejin.cn/post/7129160452377935903?spm=a2c6h.12873639.article-detail.9.22f9780anx17VW#heading-2)
 
@@ -128,7 +140,7 @@
     如果静态资源体积 < 4KB，则作为 base64 格式的字符串内联
 
 
-    vite-plugin-imagemin压缩图片  强烈推荐大家在项目中使用
+    vite-plugin-imagemin   压缩图片  强烈推荐大家在项目中使用
     vite-plugin-svg-icons 合并图标的方案也叫 雪碧图 
 
     vite-plugin-chunk-split  自定义拆包
@@ -141,11 +153,13 @@
     viteCompression({
       verbose: true, // 是否在控制台中输出压缩结果
       disable: false,
-      threshold: 10240, // 如果体积大于阈值，将被压缩，单位为b，体积过小时请不要压缩，以免适得其反
+      threshold: 10240, // 如果体积大于阈值，将被压缩，单位为b，体积过小时请不要压缩，以免适得其反 (10kb)
       algorithm: 'gzip', // 压缩算法，可选['gzip'，' brotliccompress '，'deflate '，'deflateRaw']
       ext: '.gz',
       deleteOriginFile: true // 源文件压缩后是否删除(我为了看压缩后的效果，先选择了true)
     })
+
+    因为浏览器解压也需要时间，所以代码体积不是很大的话不建议使用 gzip 压缩
 
 
 # 6、计算时间
@@ -258,6 +272,8 @@
 
     在 Webpack 或者 Rollup 中
     作为一个 Plugin 来完成代码打包后的压缩混淆的工作。
+
+
     但 Terser 其实很慢，主要有 2个原因：
     1. 压缩这项工作涉及大量 AST 操作，并且在传统的构建流程中，AST 在各个工具之间
     无法共享，比如 Terser 就无法与 Babel 共享同一个 AST，造成了很多重复解析的过
@@ -286,8 +302,8 @@
     得益于 Go 当中多线程共享内存的优势。
     3. 从零造轮子。 几乎没有使用任何第三方库，所有逻辑自己编写，大到 AST 解析，小
     到字符串的操作，保证极致的代码性能。
-    4. 高效的内存利用。Esbuild 中从头到尾尽可能地复用一份 AST 节点数据，而不用像
-    JS 打包工具中频繁地解析和传递 AST 数据（如 string -> TS -> JS -> string)，造
+    4. 高效的内存利用。Esbuild 中从头到尾尽可能地复用一份 AST 节点数据，
+    而不用像JS 打包工具中频繁地解析和传递 AST 数据（如 string -> TS -> JS -> string)，造
     成内存的大量浪费。
 
 # 12、Rollup
@@ -379,6 +395,9 @@
 
 # 14、语法降级问题和 Polyfill 缺失问题
 
+    Vite 只处理语法转译，且 不包含任何 polyfill
+    插件 @vitejs/plugin-legacy 来支持
+
     1. 不支持箭头函数，我们就需要将其转换为 function(){}
     2.  Polyfill 本身可以翻译为 垫片 ，
     也就是为浏览器提前注入一些 API 的实现代码，如 Object.entries 方法的实现
@@ -426,3 +445,341 @@
   PS：
   SSG 可以在构建阶段生成完整的 HTML 内容，
   它与 SSR 最大的不同在于 HTML 的生成在构建阶段完成，而不是在服务器的运行时
+
+# 18. 首屏缓存策略：采用持久化缓存策略
+
+ 预构建内容通常是由项目中的第三库生成的，采用强缓存策略，业务代码则采用协商缓存策略。
+
+
+  1. 开发模式下，请求预加载文件采用强缓存策略，请求业务文件采用协商缓存策略。
+  2. 首次访问应用请求业务文件时，尽管会命中协商缓存，
+    但 sever 端依旧会进行 resolve、load、transform 操作，导致响应需要消耗一定的时间。
+  3. 二次访问应用，强缓存和协商缓存同时起作用，性能很好。
+
+
+  正常启动 dev server, 我们发现应用的首屏性能还是有点差的。
+  主要原因有两点:
+  大量的文件请求；
+  尽管有强缓存和协商缓存策略，首次请求的业务文件依然需要实时做 resolve、load、transform 操作；
+  其中，第二点对首屏性能影响最大，大量的时间都消耗在对源文件做 transform 的过程中，比如将 less 转化为 css。
+
+
+
+  buildStart，config，和 configResolved 钩子不应运行过长的时间和进行大量的操作。
+  这些钩子会在开发服务器启动期间等待，这会延迟可以在浏览器中访问站点的时间。
+
+  resolveId，load，和 transform 钩子可能会导致一些文件加载速度比其他文件慢。虽然有时无法避免，但仍值得检查可能的优化区域。
+  例如，检查 code 是否包含特定关键字，或 id 是否匹配特定扩展名，然后再进行完整的转换
+
+
+
+  解决服务器启动慢、页面加载慢、构建慢等问题
+  需要考虑分割代码、优化静态资源、引入 SSR、引入 CDN、
+  预加载、预取、优化 CSS、缓存、Web Worker、减少 DOM 操作等
+
+
+# 19. 自定义持久化缓存
+      Vite对请求会做缓存处理，如果是相同的请求会直接缓存
+      若是第一次请求，则会通过transformRequest处理
+
+      transformMiddleware实现
+      transformRequest 第一次请求
+      doTransform  先判断moduleGraph这个map是否有，若有则直接返回缓存内容， 没就获取resolveId
+      loadAndTransform 相当于webpack loader处理非js模块， js就不处理，fs直接读取返回客户端
+      pluginContainer.transform，获取看所有插件
+      importAnalysisPlugin，插件开始使用
+      normalizeUrl
+      plugin/resolve.ts
+
+      moduleGraph, 用来缓存请求过的文件内容和对应的 ETag 信息。
+
+
+      如何利用持久化缓存策略来提升 Vite 开发模式下首屏性能
+      https://juejin.cn/post/7166554132428357645
+
+     自定义持久化缓存
+      const persistentCachePlugin = () => {
+    let _server;
+    let cache = {};
+    let cachePath = path.resolve('./', 'node_modules/.vite/cache/');
+    return {
+        name: 'persistent-cache-plugin',
+        configureServer: async server => {
+            _server = server;
+            server.middlewares.use((req, res, next) => {
+                if (cache[req.url]) {
+                    const ifNoneMatch = req.headers['if-none-match'];
+                    if (ifNoneMatch && cache[req.url] === ifNoneMatch) {
+                       const { moduleGraph, transformRequest } = server;
+                       if (moduleGraph.urlToModuleMap.size && moduleGraph.urlToModuleMap.get(req.url) && moduleGraph.urlToModuleMap.get(req.url).transformResult) {
+                          next();
+                          return;
+                        } else {
+                          res.statusCode = 304;
+                          setTimeout(() => {
+                            transformRequest(req.url, server, {
+                              html: req.headers.accept?.includes('text/html')
+                            });
+                          }, 3000);
+                          return res.end();
+                        }
+                    }
+               }
+               next();
+           })
+        },
+        buildStart: async () => {
+            if (fs.existsSync(cachePath + '/cache.json')) {
+                cache = require(cachePath + '/cache.json');
+            }
+            process.once('SIGINT', async () => {
+                try {
+                    await server.close();
+                } finally {
+                    process.exit();
+                }
+            });
+        },
+        buildEnd: async () => {
+          if (!fs.existsSync(cachePath)) {
+            fs.mkdirSync(cachePath);
+          }
+          for(let [key, value] of _server.moduleGraph.urlToModuleMap) {
+            if (value.transformResult && value.transformResult.etag) {
+              cache[key] = value.transformResult.etag
+            }
+          }
+          fs.writeFileSync(cachePath + '/cache.json', JSON.stringify(cache) , err => {
+            console.log(err);
+          });
+        }
+    }
+}
+
+当浏览器请求一个文件时，dev server 会先根据请求 url 去 moduleGraph 中查找是否有已经缓存的 module
+如果存在，根据对应的 module，获取 etag 信息，然后和请求头中的 etag 信息做对比。相同，则返回 304，告诉浏览器使用缓存；
+不相同，则重新做 resolve、load、transform 操作，返回新的内容并收集到 moduleGraph 中。
+
+# 20.性能优化措施
+      1. 减少解析操作  resolve.extensions   ./Component.jsx
+      当经常遇到最糟糕的情况时，解析导入路径可能是一项昂贵的操作。例如，Vite 支持通过 resolve.extensions 选项“猜测”导入路径，
+      该选项默认为 ['.mjs', '.js', '.mts', '.ts', '.jsx', '.tsx', '.json']。
+
+      2. 避免使用桶文件 export * from './color.js'
+
+      3. 预热常用文件
+        vite --debug transform 并检查日志来找到频繁使用的文件，然后把它添加到 Vite 配置里面
+
+          export default defineConfig({
+            server: {
+              warmup: {
+                clientFiles: [
+                  './src/components/BigComponent.vue',
+                  './src/utils/big-utils.js',
+                ],
+              },
+            },
+          });
+
+
+
+    
+
+# 21. 通过 prefetch 优化懒加载性能
+      // 用于提前获取首屏资源
+      <link ref="preload" href="xxxxx" as="script" />
+
+      // 用于提前获取非首屏资源
+      <link ref="prefetch" href="xxxx"  as="script" />
+
+      // 用于提前建立 http 连接
+      <link ref="preconnect" href="xxx" />
+
+
+      整个首页的加载过程为:
+
+      首屏加载；
+      prefetch 懒加载资源；
+      根据当前路由懒加载 order-manage 页面；
+
+      prefetch 导致 dev-server 需要同时处理 order-manage 页面资源 + 其他懒加载页面资源，导致 order-manage 资源响应速度变慢，使得 order-manage 页面渲染速度变慢。
+      这个问题同样也有解决方案，我们可以在首页懒加载完成以后再去 prefetch。
+
+
+      作者：0o华仔o0
+      链接：https://juejin.cn/post/7131636427183357965
+      来源：稀土掘金
+      著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+      // PrefetchLazyPathsPlugin.ts
+      export const PrefetchLazyPathsPlugin = (entry: string, paths: string[] = []) => {
+          return {
+              name: 'prefetch-lazy-paths-plugin',
+              async transform(code, id) {
+                  // 只对入口文件做代码注入
+                  if (id.includes(entry)) {
+                      return `
+                          ${code};
+                          window.onload = () => {
+                              const lazyPages = ${JSON.stringify(paths)};
+                              lazyPages.forEach(item => fetch(item));
+                          }
+                      `
+                  }
+                  return code;
+              },
+          }
+      }
+
+
+      // vite.config.ts
+      const lazyPaths = [
+          '/src/pages/order-manage/index.tsx',
+          '/src/pages/customer-manage/index.tsx',
+          '/src/pages/customer-group/index.tsx',
+          ...
+      ]
+
+      export default {
+          ...
+          plugins: [
+              PrefetchLazyPathsPlugin('/src/index.tsx', lazyPaths);
+          ]
+      }
+
+# 22. vite缓存策略
+
+    首次访问应用时协商缓存为什么没有起作用就好理解了。
+    因为这个时候，dev server 内部的缓存为空，所有的请求都需要经历 resolve、load、transform 的过程，导致响应耗时较久
+
+    开发模式下，请求预加载文件采用强缓存策略，请求业务文件采用协商缓存策略。
+
+
+    首次访问应用请求业务文件时，尽管会命中协商缓存，但 sever 端依旧会进行 resolve、load、transform 操作，导致响应需要消耗一定的时间。
+    二次访问应用，强缓存和协商缓存同时起作用，性能很好
+    在 dev server 关闭之前将 moduleGraph 缓存到本地，等到再次启动时读取本地缓存， 也就是这一点做的事 # 19. 自定义持久化缓存
+
+
+    如果是 js/ts/tsx/jsx/CJS 文件，先通过 plugin 的 resolveId hook，解析为绝对路径；
+    然后再通过 plugin 的 load hook 加载源文件，
+    然后再通过 plugin 的 transform hook 做源文件做转换(jsx -> js, tsx -> js, ts -> js)、
+    找到模块的依赖模块，然后再对依赖模块做同样的处理；
+
+# 23. 生产环境：
+  build
+  解析整个构建操作需要的配置项。vite 通过读取 vite.config.js 的方式来获取构建操作需要的配置项 - build。
+
+  cssCodeSplit: true, //如果禁用，整个项目中的所有 CSS 将被提取到一个 CSS 文件中。
+  sourcemap: false,
+  assetsInlineLimit: 4096, 小于4kb的变成base64去减少请求
+
+# 24. manifest
+
+
+manifest.json 文件扮演着资源映射表的关键角色，主要用于解决生产环境下资源的版本控制和加载问题
+
+    1. 文件名哈希映射
+
+    记录所有构建产物(JS/CSS/图片等)的 原始文件名 → 带哈希的实际文件名 的对应关系
+
+    json
+    Copy
+    {
+      "src/main.ts": {
+        "file": "assets/main.8e5d10a3.js",
+        "css": "assets/main.bae03eb2.css"
+      }
+    }
+    2. 长效缓存策略
+
+    通过哈希指纹实现：文件内容变化 → 哈希变化 → 自动更新 CDN/浏览器缓存
+
+    3. SSR 关键依赖
+
+    服务端渲染时，需要通过 manifest 正确加载客户端资源路径
+
+# 25. 格式化为 ESM 模块
+   functon require() {
+      let mod = { exports: {} };
+      (function(exports, mod) {
+         const func = () => { console.log('func') };
+         exports = func;
+      })(mod.exports, mod);
+      return mod;
+   }
+   export default require();
+
+    CJS 模块就被格式化为 ESM 模块。
+
+
+# 26. 加载性能
+    为了在生产环境中获得最佳的加载性能，最好还是将代码进行 tree-shaking、lazy load 和 chunk 分割（以获得更好的缓存)
+
+
+    开发模式下 vite 比 webpack 快的原因：
+
+    vite 不需要做全量的打包，这是比 webpack 要快的最主要的原因；
+    vite 在解析模块依赖关系时，利用了 esbuild，更快；
+    充分利用缓存；
+
+
+实战应用
+    产物分析报告
+    Gzip 压缩
+    图片压缩
+    产物拆包：不会变化，体积较大的分为一个包
+             拆包策略：
+              基础类库 chunk-libs
+              UI 组件库 chunk-elementUI
+              自定义共用组件/函数 chunk-commons
+              低频组件 chunk-eachrts/chunk-xlsx等
+              业务代码 lazy-loading xxxx.js
+
+              1. output: {
+                manualChunks (id) {
+                  if (id.includes('/node_modules/monaco-editor/')) return 'monaco'
+                  if (id.includes('/node_modules/ali-oss/')) return 'ali-oss'
+                  if (id.includes('/node_modules/')) return 'vendor'
+                }
+
+                2.   experimentalMinChunkSize: 10*1024, // 单位b
+                chunk 小于这个值则会尝试跟其他 chunk 合并，它只对纯函数有作用，如果是 console.log 就会失效
+
+
+
+                3. js最小拆分包
+
+                配置vite.config 的 output 属性
+                让打开那个页面，加载那个页面的js ，让之间的关联足够小
+
+                output: {
+                    // 最小化拆分包
+                    manualChunks(id) {
+                      if (id.includes('node_modules')) {
+                        return id.toString().split('node_modules/')[1].split('/')[0].toString();
+                      }
+                    }
+                  },
+
+
+    CDN 加速：使用 vite-plugin-cdn-import 配置，以 lodash 为例
+        // vite.config.js
+        import { defineConfig } from 'vite'
+        import viteCDNPlugin from 'vite-plugin-cdn-import'
+
+        export default defineConfig({
+          plugins: [
+            viteCDNPlugin({
+              // 需要 CDN 加速的模块
+              modules: [
+                {
+                  name: 'lodash',
+                  var: '_',
+                  path: `https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js`
+                }
+              ]
+            })
+          ]
+        })
+
+

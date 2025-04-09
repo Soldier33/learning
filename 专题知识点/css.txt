@@ -115,3 +115,39 @@
 .element {
   background: radial-gradient(shape size, color-stop1, color-stop2, ...);
 }
+
+12. tailwind
+tailwind 就是基于 postcss 的 AST 实现的 css 代码生成工具，并且做了通过 extractor 提取 js、html 中 class 的功能。
+tailwind 还有种叫 JIT 的编译方式，这个原理也容易理解，本来是全部引入原子 css 然后过滤掉没有用到的，而 JIT 的话就是根据提取到的 class 来动态引入原子 css，更高效一点。
+
+
+UnoCSS
+属性模式样式更为直观，可读性更强一点；
+
+<div class="bg-blue-400 hover:bg-blue-500 text-sm text-white py-2 px-4 border-2 rounded border-blue-200">普通模式 </div>
+//属性模式
+<div 
+  bg="blue-400 hover:blue-500"
+  text="sm white"
+  font="mono light"
+  p="y-2 x-4"
+  border="2 rounded  blue-200"
+>
+  属性模式
+</div>
+
+原子化CSS可以减少CSS的体积，同时提高CSS类的复用率，减少类名起名的复杂度；
+但是由于多种CSS样式堆积，可能会造成class名过长的缺点；同时增加记住CSS样式的记忆成本；
+
+
+原子化 CSS 的优势
+
+提高开发效率 利用原子化框架提供的预设原子类，在少量样式编写上可以极大的提高开发效率，不需要单独定义在样式文件中
+免去起名烦恼 我们经常会因为起名而烦恼，之前也尝试过各种 css 命名方法，包括BEM。然而当html层级嵌套比较深的情况下，BEM 命名法也会有起名难、不直观的缺陷
+避免样式堆积 可以很好的避免历史样式的堆积，不存在历史样式类不敢删除的问题，有效的减少 CSS 的体积
+样式隔离 天然的支持组件间的样式隔离，没有自定义的 class 也就无需担心组件之间样式的影响
+
+作者：fina8
+链接：https://juejin.cn/post/7197305502303911995
+来源：稀土掘金
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。

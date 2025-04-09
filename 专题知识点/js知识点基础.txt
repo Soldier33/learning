@@ -158,10 +158,9 @@
 	递归需要有退出条件, 可以用尾调用优化
 
 27. 冒泡: mouseOver 和 mouseOut 事件会冒泡（父元素也会响应这个事件），
-而 mouseEnter 和 mouseLeave 不会冒泡。
+    而 mouseEnter 和 mouseLeave 不会冒泡。
 
 28. JavaScript中只有6个假值：
-
         undefined
         null
         NaN

@@ -51,3 +51,5 @@
 	使用 for 循环（或其他支持 await 的循环，如 for...of 或传统的 for 循环）
 
 	try catch : 只能在同步函数或者async函数中使用try...catch。异步函数不行
+
+3. Vue nextTick 实现上是用promise.then()
