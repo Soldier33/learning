@@ -51,30 +51,35 @@ Css后处理 为什么用vh？
     * rem 布局元素会按比例放大，可能导致 UI 错乱
     * vw/vh 布局完全不受影响
 
+        webpack和vite 对比：
+        1. bundle， 只有业务代码bundle
+        2. loader, plugin
+        3. 持久化缓存， vite也有缓存策略
+        4. treeshaking 
+        5. 分包： vendor, components-util
+        6. 热更新
+        7. 代码分割、压缩文件：减少请求，较少体积    体积大小、共用率、更新频率
+        8. sourceMap
+        9. AST利用
+        webpack : 持久化缓存、 sourceMap 丰富、 模块依赖关系图
+        vite：  prefetch、预热常用文件、 vite依赖预构建、依赖扫描，
+                esbuild + rollup 、 按需加载、缓存策略
 
+                1. 首屏、懒加载响应速度对比 Webpack 会慢；二次预构建会对开发体验造成影响；
+                2. vite  build.sourcemap¶
+                类型： boolean | 'inline' | 'hidden'
+                默认： false
 
-webpack和vite 对比：
-1. bundle， 只有业务代码bundle
-2. loader, plugin
-3. 持久化缓存
-4. treeshaking 
-5. 分包： vendor, components-util
-6. 热更新
-7. 代码分割：减少请求，较少体积    体积大小、共用率、更新频率
-8. sourceMap
-9. AST利用
-webpakc : 持久化缓存、 sourceMap 丰富、 模块依赖关系图
-vite：  prefetch、预热常用文件、 vite依赖预构建、依赖扫描，
-        esbuild + rollup 、 按需加载、缓存策略
+        转换过程是通过 loader 处理(不同的构建工具，叫法不同。
+        Webpack、Esbuild 是 loader， Rollup、Parcel、Vite 是 plugin)。
 
-        1. 首屏、懒加载响应速度对比 Webpack 会慢；二次预构建会对开发体验造成影响；
-        2. vite  build.sourcemap¶
-        类型： boolean | 'inline' | 'hidden'
-        默认： false
+        VITE v3.2.7  ready in 921 ms 
 
-转换过程是通过 loader 处理(不同的构建工具，叫法不同。
-Webpack、Esbuild 是 loader， Rollup、Parcel、Vite 是 plugin)。
+        加载时间：2.10 秒
 
- VITE v3.2.7  ready in 921 ms 
-
-加载时间：2.10 秒
+五、
+怎么收集依赖
+react和vue的差异
+node相关， 脚手架
+非关系型数据库
+SSR理解

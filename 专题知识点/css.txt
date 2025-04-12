@@ -60,44 +60,44 @@
         }
 
 # 5、计算宽度
-	布局控制 → offsetWidth/clientWidth
-	​视口定位 → getBoundingClientRect()
-	​动态样式 → getComputedStyle()
-	​滚动逻辑 → scrollWidth
-	​SVG 图形 → getBBox()
-	​框架开发 → 结合 Ref API 或ResizeObserver
+    布局控制 → offsetWidth/clientWidth
+    ​视口定位 → getBoundingClientRect()
+    ​动态样式 → getComputedStyle()
+    ​滚动逻辑 → scrollWidth
+    ​SVG 图形 → getBBox()
+    ​框架开发 → 结合 Ref API 或ResizeObserver
 
 
-	offsetWidth
-	原理：返回元素渲染后的总宽度​（包含内边距、边框，但不含滚动条）
+    offsetWidth
+    原理：返回元素渲染后的总宽度​（包含内边距、边框，但不含滚动条）
 
-	clientWidth
-	原理：返回元素可视区域的宽度​（含内边距，不含边框和滚动条）
+    clientWidth
+    原理：返回元素可视区域的宽度​（含内边距，不含边框和滚动条）
 
-	scrollWidth
-	原理：返回元素内容总宽度​（含隐藏的溢出内容）
+    scrollWidth
+    原理：返回元素内容总宽度​（含隐藏的溢出内容）
 
-	动态元素尺寸监听：
-	javascript
-	const observer = new ResizeObserver(entries => {
-	entries.forEach(entry => {
-		console.log('宽度变化:', entry.contentRect.width);
-	});
-	});
+    动态元素尺寸监听：
+    javascript
+    const observer = new ResizeObserver(entries => {
+    entries.forEach(entry => {
+      console.log('宽度变化:', entry.contentRect.width);
+    });
+    });
 
-	observer.observe(document.getElementById('dynamicElement'));
+    observer.observe(document.getElementById('dynamicElement'));
 
 # 6、BFC是一块块独立的渲染区域，可以将BFC看成是元素的一种属性，
-	拥有了这种属性的元素就会使他的子元素与世隔绝，不会影响到外部其他元素
+      拥有了这种属性的元素就会使他的子元素与世隔绝，不会影响到外部其他元素
 
-	bfc:display:inline-block、flex
+      bfc:display:inline-block、flex
 
-	使用BFC解决子元素浮动导致父元素高度塌陷的机制
-	margin重叠机制
-	普通元素和浮动元素相互重叠的机制
+      使用BFC解决子元素浮动导致父元素高度塌陷的机制
+      margin重叠机制
+      普通元素和浮动元素相互重叠的机制
 
 # 7. position:relative 相对定位，相对自身定位
-   position:absolute 绝对定位，相对于最近的不为static的父级元素定位
+     position:absolute 绝对定位，相对于最近的不为static的父级元素定位
 # 8. IE盒子，少了边框和padding的宽度
 # 9.  伪类：特定的状态 :hover,:active ；   
     伪元素：特定部分，双冒号 ::before
@@ -105,49 +105,49 @@
 # 10. 颜色选择器， <input type="color">
 
 # 11. [css] 如何设置渐变色
-线性渐变是从一个点到另一个点的颜色过渡。
+      线性渐变是从一个点到另一个点的颜色过渡。
 
-径向渐变是从一个中心点向外的颜色过渡。
+      径向渐变是从一个中心点向外的颜色过渡。
 
-.element {
-  background: linear-gradient(direction, color-stop1, color-stop2, ...);
-}
-.element {
-  background: radial-gradient(shape size, color-stop1, color-stop2, ...);
-}
+      .element {
+        background: linear-gradient(direction, color-stop1, color-stop2, ...);
+      }
+      .element {
+        background: radial-gradient(shape size, color-stop1, color-stop2, ...);
+      }
 
 12. tailwind
-tailwind 就是基于 postcss 的 AST 实现的 css 代码生成工具，并且做了通过 extractor 提取 js、html 中 class 的功能。
-tailwind 还有种叫 JIT 的编译方式，这个原理也容易理解，本来是全部引入原子 css 然后过滤掉没有用到的，而 JIT 的话就是根据提取到的 class 来动态引入原子 css，更高效一点。
+    tailwind 就是基于 postcss 的 AST 实现的 css 代码生成工具，并且做了通过 extractor 提取 js、html 中 class 的功能。
+    tailwind 还有种叫 JIT 的编译方式，这个原理也容易理解，本来是全部引入原子 css 然后过滤掉没有用到的，而 JIT 的话就是根据提取到的 class 来动态引入原子 css，更高效一点。
 
 
-UnoCSS
-属性模式样式更为直观，可读性更强一点；
+    UnoCSS
+    属性模式样式更为直观，可读性更强一点；
 
-<div class="bg-blue-400 hover:bg-blue-500 text-sm text-white py-2 px-4 border-2 rounded border-blue-200">普通模式 </div>
-//属性模式
-<div 
-  bg="blue-400 hover:blue-500"
-  text="sm white"
-  font="mono light"
-  p="y-2 x-4"
-  border="2 rounded  blue-200"
->
-  属性模式
-</div>
+    <div class="bg-blue-400 hover:bg-blue-500 text-sm text-white py-2 px-4 border-2 rounded border-blue-200">普通模式 </div>
+    //属性模式
+    <div 
+      bg="blue-400 hover:blue-500"
+      text="sm white"
+      font="mono light"
+      p="y-2 x-4"
+      border="2 rounded  blue-200"
+    >
+      属性模式
+    </div>
 
-原子化CSS可以减少CSS的体积，同时提高CSS类的复用率，减少类名起名的复杂度；
-但是由于多种CSS样式堆积，可能会造成class名过长的缺点；同时增加记住CSS样式的记忆成本；
+    原子化CSS可以减少CSS的体积，同时提高CSS类的复用率，减少类名起名的复杂度；
+    但是由于多种CSS样式堆积，可能会造成class名过长的缺点；同时增加记住CSS样式的记忆成本；
 
 
-原子化 CSS 的优势
+    原子化 CSS 的优势
 
-提高开发效率 利用原子化框架提供的预设原子类，在少量样式编写上可以极大的提高开发效率，不需要单独定义在样式文件中
-免去起名烦恼 我们经常会因为起名而烦恼，之前也尝试过各种 css 命名方法，包括BEM。然而当html层级嵌套比较深的情况下，BEM 命名法也会有起名难、不直观的缺陷
-避免样式堆积 可以很好的避免历史样式的堆积，不存在历史样式类不敢删除的问题，有效的减少 CSS 的体积
-样式隔离 天然的支持组件间的样式隔离，没有自定义的 class 也就无需担心组件之间样式的影响
+    提高开发效率 利用原子化框架提供的预设原子类，在少量样式编写上可以极大的提高开发效率，不需要单独定义在样式文件中
+    免去起名烦恼 我们经常会因为起名而烦恼，之前也尝试过各种 css 命名方法，包括BEM。然而当html层级嵌套比较深的情况下，BEM 命名法也会有起名难、不直观的缺陷
+    避免样式堆积 可以很好的避免历史样式的堆积，不存在历史样式类不敢删除的问题，有效的减少 CSS 的体积
+    样式隔离 天然的支持组件间的样式隔离，没有自定义的 class 也就无需担心组件之间样式的影响
 
-作者：fina8
-链接：https://juejin.cn/post/7197305502303911995
-来源：稀土掘金
-著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+    作者：fina8
+    链接：https://juejin.cn/post/7197305502303911995
+    来源：稀土掘金
+    著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。

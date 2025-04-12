@@ -1,0 +1,111 @@
+
+1. 介绍
+    用于构建高效且可伸缩的服务端应用程序的渐进式 Node.js 框架。
+
+    完美支持 Typescript
+    面向 AOP 编程   面向切面的
+    支持 Typeorm
+    高并发，异步非阻塞 IO
+    Node.js 版的 spring
+    构建微服务应用
+
+2. 命令
+    npm i -g @nestjs/cli
+    nest new project-name
+
+    pnpm run start 
+
+    nest g co demo 创建
+    nest g mo demo 创建
+    nest g s demo 创建
+    => 等价于
+    nest g resource demo 创建(一起）
+    简写：nest g res demo
+
+
+    nest g pi demo 创建管道相关
+
+    nest g gu [name] 创建守卫
+    nest g d [name]  生成装饰器 
+
+
+
+
+3. 实现验证码：https://xiaoman.blog.csdn.net/article/details/126327047?spm=1001.2014.3001.5502
+
+4.  provider - service, repository, factory, helper 
+ service 写provider提供服务
+ Controller 就可以使用取service 
+
+ 自定义注入值： 自定义的需要写Inject才能取
+ 工厂模式：如果服务 之间有相互的依赖 或者逻辑处理 可以使用 useFactory
+
+5. 模块，让其他模块可以共享
+6. 中间件，NestMiddleware， 全局的用use
+7. 下载，方式一：返回原文件
+
+    方式二：使用文件流的方式下载， 前端接受流，用new Blob做转化
+    可以使用compressing把他压缩成一个zip包
+
+    import {zip} from 'compressing'
+
+8.RxJs： 观察者模式，用来编写异步队列和事件处理。
+  在 Nestjs 已经内置了 RxJs
+
+  监听管道处理数据：
+  import { Observable, interval, take } from "rxjs";
+    import { map, filter,reduce,find,findIndex } from 'rxjs/operators'
+    const subs = interval(500).pipe(map(v => ({ num: v })), filter(v => (v.num % 2 == 0))).subscribe((e) => {
+        console.log(e)
+        if (e.num == 10) {
+            subs.unsubscribe()
+        }
+    })
+
+
+    Nest Js 配合 Rxjs 格式化数据
+9. 响应拦截器，异常拦截器
+10. 管道 可以做两件事
+
+    1.转换，可以将前端传入的数据转成成我们需要的数据
+
+    2.验证 类似于前端的rules 配置验证规则
+
+
+    提供了八个内置转换API
+
+    ValidationPipe
+    ParseIntPipe
+    ParseFloatPipe
+    ParseBoolPipe
+    ParseArrayPipe
+    ParseUUIDPipe
+    ParseEnumPipe
+    DefaultValuePipe
+
+11. 使用 DTO（Data Transfer Objects）进行参数验证
+
+12. 爬虫：
+    cheerio: 是jquery核心功能的一个快速灵活而又简洁的实现，主要是为了用在服务器端需要对DOM进行操作的地方，让你在服务器端和html愉快的玩耍。
+    axios  网络请求库可以发送http请求
+    1. 分析读取，2. 写入本地
+        writeFile(urls: string[]) {
+            urls.forEach(async url => {
+            const buffer = await axios.get(url, { responseType: "arraybuffer" }).then(res=>res.data)
+            const ws = fs.createWriteStream(path.join(__dirname, '../cos' + new Date().getTime() + '.jpg'))
+            ws.write(buffer)
+            })
+        }
+
+13. 守卫：授权，认证，身份验证，可以判断url有没有权限
+    中间件之后，管道之前
+
+14. 实体
+
+    实体是一个映射到数据库表的类。
+    你可以通过定义一个新类来创建一个实体，并用@Entity()来标记
+
+15. TypeORM
+    使用TypeORM在前端应用中实现数据分表存储，并通过一对一和一对多关系进行联合查询
+
+    OneToMany 和 ManyToOne

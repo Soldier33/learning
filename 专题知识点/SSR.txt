@@ -1,23 +1,25 @@
 1. SSR: 把js渲染的工作放在服务端做， 
     缺点：开发复杂，服务器压力大，状态管理复杂
-	客户端渲染缺点：没办法做seo,没办法做极致的首屏渲染优化
+	 客户端渲染缺点：没办法做seo,没办法做极致的首屏渲染优化
+
+
     概念：
-	前后端同构
-	预渲染
-	混合式渲染
+    前后端同构
+    预渲染
+    混合式渲染
 
-	约定式路由
+    约定式路由
 
-	实现ssr框架：
-	注水、脱水
+    实现ssr框架：
+    注水、脱水
 
-	React
-	服务端：renderToString
-	客户端：hydrateRoot
+    React
+    服务端：renderToString
+    客户端：hydrateRoot
 
-	Vue
-	服务端：renderToString
-	客户端：new Vue
+    Vue
+    服务端：renderToString
+    客户端：new Vue
 
 a. “同构开发”，服务端渲染时，
     Nuxt 实际上是在服务器上执行 Vue，
@@ -132,9 +134,10 @@ Nuxt 只认 `nuxt.config.ts`，因此一些大家熟悉的独立配置文件会�
 
 6. Nuxt 整合了 Vue、Nitro 前后端两个运行时，
 再加上它自身的创建过程，因此框架生命周期钩子分为三类：
-
   * Nuxt 钩子；
-
   * Vue App 钩子；
-
   * Nitro App 钩子。
+
+7. Next
+ template 路由更新时，恢复初始值不变
+ layout 路由更新时，状态不变

@@ -8,7 +8,7 @@
 
 4. 改变原数组：pop, push, shift, unshift, sort, reverse, splice
 
-5、WeakMap 和 WeakSet 通过弱引用避免内存泄漏
+5、WeakMap 和 WeakSet 通过弱引用避免内存泄漏, V8 GC会回收，需要点时间
 
 6、node中函数带有Sync 一般是同步函数
 
@@ -169,3 +169,44 @@
         false
 29. setInterval方法的返回值什么? ， 返回一个唯一的id
 30. map返回的是一个数组，set返回的是一个值
+31. event.target 和 event.currentTarget 的区别？
+    event.target：触发事件的元素
+    event.currentTarget：绑定事件的元素
+    <div id="div1">
+    <button id="btn1">按钮</button>
+    </div>;
+
+    document.getElementById("div1").addEventListener("click", function (e) {
+    console.log(e.target); // <button id="btn1">按钮</button>
+    console.log(e.currentTarget); // <div id="div1">...</div>
+    });
+
+32. Symbol
+Symbol.for('xiaoman') === Symbol.for ('xiaoman') // 全局的，所以是true
+for in、 Object.keys 、 Object.getOwnPropertyNames 不能读到symbol
+Object.getOwnPropertySymbols(obj) 、 Reflect.ownKeys(obj)  可以读到
+
+类数组里面有迭代器，以下实现遍历：
+const each = (value: any) => {
+    let It: any = value[Symbol.iterator]();
+    let next: any = { done: false };
+    while (!next.done) {
+        next = It.next();
+        if (!next.done) {
+            console.log(next.value)
+        }
+    }
+}
+=> let of (对象不能用，没有迭代器)
+解构和... 底层都是迭代器
+
+33. 
+const obj = {
+    a: 100.22222,
+    b: ' test  ',
+    c: function () {
+        console.log(this.a);
+        return this.a;
+    }
+}
+函数内部的 this 会指向全局对象（在浏览器环境下是 window）

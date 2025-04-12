@@ -1385,3 +1385,20 @@ apply 方法在触发时， 会传入一个 compiler 对象，然后我们可以
             });
         }
     }
+
+30. webpack5  npm i webpack webpack-cil 
+智能提示：const {Configuration} = require('webpack')
+@type {Configuration}
+
+shim.d.ts 声明，让webpack认识vue文件
+
+处理文件就用loader , vue-loader处理vue文件
+从右往左
+chunk: all 同步、异步模块都拆出来
+重复引用两次的拆出来
+common: {
+  name: "common",
+  chunks: "all",
+  minChunks: 2
+}
+css单独拆出来 Css.ExtractPlugin.loader 代替style-loader

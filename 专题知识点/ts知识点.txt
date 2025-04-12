@@ -6,7 +6,7 @@ interface myInter {
 
 class MyClass implement myInter {}
 
-抽象类里面可以有实际方法, extends
+抽象类（只定义不实现）里面可以有实际方法, extends
 
 2.  private 时，它只能在该类内部被访问
 
@@ -14,18 +14,103 @@ class MyClass implement myInter {}
 
 public 可以访问
 
-3. 范型
+3. 范型, 场景：调接口
     function fn<T>(a: T): T{
         return a;
     }
     let result = fn(10);
     let result2 = fn<string>('hello');
 
+    interface Data<T> {
+        msg: T
+    }
+
+    function add<T, K>(a: T, b: K):Array<T | K> {
+        return [a, b]
+    }
+
 4. https://vue3js.cn/interview/typescript/high%20type.html#%E4%BA%8C%E3%80%81%E6%9C%89%E5%93%AA%E4%BA%9B
-    交叉类型
-    联合类型
-    类型别名
-    类型索引
+    交叉类型 T & U   type s = number[] & B
+    联合类型 T ｜ U
+    类型别名 type some = boolean | string
+    类型索引  type ButtonKeys = keyof Button     Button是一个interface
     类型约束
     映射类型
-    条件类型
+    条件类型 T extends U ? X : Y
+
+    interface A extends B
+    interface 重名会合并
+
+5. extends是包含的意思
+    顶层关系：
+    1. any unknow
+    2. Object 
+    3. Number
+    4. number string
+    5. never 最底层的，可以作为错误、死循环，作为兜底逻辑，const error:never = value;
+    type num = 1 extends never ? 1 : 0  // 返回0
+    type num = 1 extends number ? 1 : 0  // 返回1
+
+6. tsc init 创建tsconfig文件
+7. namespace 相当于闭包，隔离空间
+8. d.ts 才会有代码补全，  declare
+
+    声明文件 declare  
+    当使用第三方库时，我们需要引用它的声明文件，才能获得对应的代码补全、接口提示等功能。
+9.
+    类型守卫： const isString = (str:any):str is string => typeof str === 'string'
+
+10. 协变， 子类型 定义多于 主类型， a = b (子类型接口) 进行覆盖，扩充了类型
+
+    逆变 fnb = fna （主类型）覆盖
+
+    值的话是协变，函数的话是逆变
+
+11，范型工具
+Partial 所有属性 可选的意思
+Required 所有属性 必选的意思
+
+Pick 提取部份属性
+Exclude 排除部份属性
+Omit 排除部份属性 并且返回新的类型
+
+Record 约束对象的key以及value
+ReturnType 返回函数的类型
+
+        1. 自定义Partial： 
+        interface User {
+            address: string,
+            name: string,
+            age: number,
+        }
+
+        type CoustomPartial<T> = {
+            [P in keyof T]?:T[P]
+        }
+
+        type PartialUser = CoustomPartial<User>;
+
+
+        2. type CoustomPick<T, K extends keyof T> = {
+            [P in K]:T[P]
+        }
+
+        3. type CoustomExclude<T, K > = T extends K ? never : T
+
+        never在联合类型会被排除掉
+
+        条件类型语法：A extends B ? X : Y
+        表示如果 A 可以赋值给 B，则返回 X，否则返回 Y。
+        never 类型：表示永远不会出现的值的类型（相当于空类型），在联合类型中会被自动忽略。
+        4. 
+        type PartialUser = Partial<User>;
+        type RequiredUser = Required<User>;
+        type test = Pick<User, 'age' | 'name'>; 传两个类型
+        type test = Exclude<'a' | 'b' | 'c', 'c' | 'a'>; 传两个类型
+        type test = Omit<User, 'age'>; 传两个类型, 返回address, age
+        type arrNum = ReturnType<typeof fn> // 只能传入函数
+
+12. infer提取
+    infer产生协变，返回联合类型 
+    type Bar<T> = T extends { name: infeer U, age: infer U} ? U : T;
+    infer逆变，出现在函数的参数上面, 返回的是交叉类型

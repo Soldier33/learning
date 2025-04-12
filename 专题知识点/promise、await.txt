@@ -53,3 +53,5 @@
 	try catch : 只能在同步函数或者async函数中使用try...catch。异步函数不行
 
 3. Vue nextTick 实现上是用promise.then()
+4. 
+async/await 是建⽴在Promises上的语法糖，使得异步代码的写法更接近于同步代码的⻛格，

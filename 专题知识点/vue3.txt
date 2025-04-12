@@ -65,6 +65,40 @@
     核心接口变成了 Composition 风格的 track 与 trigger 函数。
     内部维护了一个 WeakMap 对象，用于记录属性到 effect 对象的依赖关系
 
+    Vue 3 的响应式系统通过 reactive 、 effect 、 track 和 trigger 的协作，实现了⼀个更加
+    灵活和强⼤的响应式机制。 reactive 负责将数据转换为响应式对象， effect ⽤于注册需要响应
+    变化的副作⽤函数，⽽ track 和 trigger 负责依赖收集和更新触发。这种设计不仅⽀持更复杂
+    的数据结构，⽽且提⾼了整体的性能和可扩展性。
+    小满的教程第10集，
+    targetMap: 全局对象，key就是 {name: "XX", age:"XX"}， value是一个new map
+    new Map 的key是name, value是 effect （副作用函数） 去更新视图
+
+
+
+    步骤 3：建立双向依赖关系
+    数据 → 计算属性：price 和 quantity 的 Dep 中保存了 total 的 Watcher。
+
+    计算属性 → 数据：total 的 Watcher 知道自己依赖了 price 和 quantity 的 Dep。
+
+    步骤 4：数据变化时触发更新
+    当修改 price 时：
+
+    触发 price 的 setter。
+
+    price 的 Dep 通知所有依赖它的 Watcher（包括 total 的 Watcher）：“数据变了！”
+    total 的 Watcher 标记自己为“脏数据”（dirty: true），但不会立即重新计算。
+    下次访问 total 时，发现 dirty: true，才会重新执行计算逻辑，并更新缓存结果。
+
+
+    3. 关键设计
+    缓存机制
+    计算属性在一次计算后会将结果缓存。
+    只有依赖的数据变化时，才会标记缓存失效（dirty: true），下次访问时重新计算。
+    懒计算（Lazy）
+    如果计算属性未被使用（如模板中没有引用），它的计算逻辑永远不会执行。
+    依赖动态更新
+    如果计算属性的依赖关系发生变化（例如某次计算不再访问某个数据），旧的依赖会被自动清除
+
 # 6.5 patch 过程
     在vue中负责从vnode到DOM节点的转换
 
@@ -401,8 +435,89 @@ Vue3 的 diff 算法核心
     函数写法就是只可读，dirty 属性 去判断是否读取缓存，是否重新计算
 
 20. Teleport
-在 patch 阶段，会判断如果 type 是一个 Teleport 组件，则会执行它的 process 方法，
-接下来我们来看 process 方法关于 Teleport 组件创建部分的逻辑：
+    在 patch 阶段，会判断如果 type 是一个 Teleport 组件，则会执行它的 process 方法，
+    接下来我们来看 process 方法关于 Teleport 组件创建部分的逻辑：
 
-Teleport 组件创建部分主要分为三个步骤，第一步在主视图里插入注释节点或者空白文本节点，
-第二步获取目标元素节点，第三步调用mount方法创建子节点往目标元素插入 Teleport 组件的子节点。
+    Teleport 组件创建部分主要分为三个步骤，第一步在主视图里插入注释节点或者空白文本节点，
+    第二步获取目标元素节点，第三步调用mount方法创建子节点往目标元素插入 Teleport 组件的子节点。
+
+    Teleport 组件，帮助我们以简便的方式高性能的完成节点的转移工作:
+
+21. 
+
+22. 
+createApp(App).mount('#app')
+
+根组件模板编译:vue-loader 编译生成组件相关的 JavaScript 和 CSS，
+             并把 template 部分编译转换成 render 函数添加到组件对象的属性
+对象组件渲染成真实的 DOM: ensureRenderer 就是构造了一个带有 createApp 函数的渲染器 renderer 对象
+             renderer 对象，可以认为是一个跨平台的渲染器对象，针对不同的平台，会创建出不同的 renderer 对象
+
+
+1. 创建根组件的 vnode
+2. VNode 渲染成真实的组件
+
+patch: 在vue中负责从vnode到DOM节点的转换
+
+// 如果节点是个数据类型，则递归子节点
+shapeFlag 判断子节点的类型
+
+在组件初始化挂载阶段，模板被编译成渲染函数的形式，
+交由渲染器执行，渲染器执行渲染函数得到 APP 组件对象的子树 vnode，
+子树 vnode 进行递归 patch 后生成不同类型的 DOM 节点，
+最后把这些 DOM 节点挂载到页面的 container 当中。
+
+23. 
+export default defineComponent(() => {
+  let num = ref(0);
+  const plusNum = () => {
+    num.value ++;
+  };
+  
+  return () => (
+    <div>
+      <button onClick={plusNum}>
+        { num.value }
+      </button>
+    </div>
+  )
+});
+函数组件内部是没有状态保持的，所以 num 数据更新时，组件会重新渲染
+通过 defineComponent 函数包装，设置成有状态的组件
+
+24. Proxy 在访问对象属性时才递归执行劫持对象属性，
+相比 Object.defineProperty 在定义时就遍历把所有层级的对象设置成响应式而言，在性能上有所提升。
+
+ownKeys 函数内部执行了 track 进行了对 Object 的 ITERATE_KEY 的依赖收集。
+而在 setter 的时候，则对 ITERATE_KEY 进行了响应式触发：
+
+Vue 3 源码中，包含了大量的 /*#__PURE__*/ 标识符，可见 Vue 3 对源码体积的控制
+
+// 存放所有 reactive 传入的 receiver 容器
+const targetMap = new WeakMap()
+小册第6页
+
+Vue 3 相对于 Vue 2 的响应式差别不大，主要就是劫持数据的方式改成用 Proxy 实现，
+以及收集的依赖由 watcher 实例变成了组件副作用函数 effect
+
+computed 和 methods 的最大差异是它具备缓存性，如果依赖项不变时不会重新计算，而是直接返回缓存的值
+
+25.依赖注入的实现原理相对还是比较简单的，
+比较有意思的事他巧妙地利用了原型和原型链的方式进行数据的继承和获取。
+
+在执行 provide 的时候，会将父组件的的 provides 关联成当前组件实例 provides 对象
+原型上的属性，当在 inject 获取数据的时候，
+则会根据原型链的规则进行查找，找不到的话则会返回用户自定义的默认值。
+
+
+因为父组件的 provides 是通过原型链的方式和父组件的父组件进行了关联，
+如果父组件上没有，那么会通过原型链的方式再向上取，
+这也实现了不管组件层级多深，总是可以找到对应的 provide 的提供方数据。
+
+PatchFlags
+TEXT = 0000000001; 
+CLASS = 0000000010; 
+STYLE = 0000000100;
+
+TEXT | STYLE 来得到 0000000101，表示 patchFlag 既有 TEXT 属性也有 STYLE 属性，
+当需要进行判断有没有 STYLE 属性时，只需要 FLAG & STYLE > 0就行
