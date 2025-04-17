@@ -30,6 +30,50 @@ function solution(cards) {
 console.log(solution([1, 1, 2, 2, 3, 3, 4, 5, 5]) === 4);
 console.log(solution([0, 1, 0, 1, 2]) === 2);
 
+// 3. 爬楼梯
+cost = [1, 100, 1, 1, 1, 100, 1, 1, 100, 1]
+dp[i] = Math.min(dp[i - 1] + cost[i - 1], dp[i - 2] + cost[i - 2])
+dp[0] = 0, dp[1] = 0
+
+for (let i = 2; i <= cost.length; i++) {
+    dp[i] = Math.min(dp[i - 1] + cost[i - 1], dp[i - 2] + cost[i - 2])
+}
+
+var uniquePaths = function(m, n) {
+    const dp = Array(m).fill().map(item => Array(n))
+
+    for (let i = 0; i < m; ++i) {
+        dp[i][0] = 1
+    }
+
+    for (let i = 0; i < n; ++i) {
+        dp[0][i] = 1
+    }
+
+    for (let i = 1; i < m; ++i) {
+        for (let j = 1; j < n; ++j) {
+            dp[i][j] = dp[i - 1][j] + dp[i][j - 1]
+        }
+    }
+    return dp[m - 1][n - 1]
+};
+
+var uniquePaths = function(m,n) {
+    let cur = new Array(n).fill().map(item => Array(n));
+    for (let i = 0; i < m; i++) {
+        cur[0][i] = 1;
+    }
+    for (let i = 0; i < n; i++) {
+        cur[i][0] = 1;
+    }
+    for (let i = 1; i < m; i++) {
+        for (let j = 1; j < n; j++) {
+            cur[i][j] = cur[i - 1][j] + cur[i][j - 1];
+        }
+    }
+    return cur[m - 1][n - 1]
+}
+
 // 3. 最小的花费
 function solution(n, k, data) {
     let sum = 0;

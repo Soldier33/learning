@@ -1,0 +1,44 @@
+1. path
+   path.basename 路径最后一个名字
+    dirname 与basename互补，返回前面的
+    extname 返回拓展，多个点返回最后一个 
+    resolve 返回绝对路径
+
+2. os 操作系统相关
+3. process
+   process.argv 返回数组
+   cwd 返回工作目录  == __dirname , 但是esm用不了__dirname 所以用cdw代替
+   memoryUsage 内存信息
+   process.exit()
+   process.kill(process.pid)
+   process.env.NODE_ENV
+4. 带Sync就是同步方法
+   不带，异步方法，带回调函数，返回buffer
+
+   exec 可以帮我们执行shell, 上限200kb
+   exec('node -v', (err, stdout, stderr) => {
+    stdout.toString()
+   })
+
+   execSync('node -v')
+
+   spawn 没有字节上限，返回的是流
+   execFile 执行可执行文件
+
+5. ffmpeg 
+ 1. 基本格式转换avi , mp4, gif等
+ 2. 提取视频的音频
+ 3. 裁剪视频
+ 4. 加水印，删除水印
+6. pngquant 处理图片
+7. fs.readFileSync
+
+ V8事件队列完成后才会执行fs
+
+ fs.writeFileSync
+
+ fs.watchFile 热更新的原理
+
+ 8. nodemon 自动重启node
+
+ io 文件读写和网络传输

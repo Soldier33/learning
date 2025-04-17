@@ -83,3 +83,209 @@ react和vue的差异
 node相关， 脚手架
 非关系型数据库
 SSR理解
+
+
+
+
+六、
+display 有哪些
+none inline block inline-block
+
+
+h1   p  div   ul
+
+
+i
+img
+span
+input
+a
+
+
+
+
+
+<style>
+    .my-box {
+        width: 100px;
+        height: 100px;
+        padding: 10px;
+        border: 1px solid blue;
+        background-color: red;
+    }
+</style>
+
+<div class="my-box"></div>
+
+讲一下这两个
+1. 
+<style>
+    .outer {
+        display: flex;
+        width: 180px;
+        height: 180px
+    }
+</style>
+<div class="outer">
+    <div style="background: blue">1</div>
+    <div style="background: red">2</div>
+    <div style="background: blue">3</div>
+    <span style="background: red">4</span>
+    <span style="background: blue">5</span>
+    <span style="background: red">6</span>
+</div>
+
+2. 
+<style>
+    .outer {
+        display: flex;
+        width: 180px;
+        height: 180px
+        align-item: center;
+        
+        background-color: red;
+    }
+
+    .inner {
+        flex: none;
+        width: 80px;
+        width: 80px;
+        background-color: blue;
+    }
+</style>
+<div class="outer">
+    <div class="inner">1</div>
+</div>
+
+
+align-items
+align-content
+
+align-items 关注的是单个项目在交叉轴上的对齐，而 align-content 关注的是多行项目整体在交叉轴上的对齐和空间分布。
+
+
+
+http://www.xyz.com/
+https://www.xyz.com/
+http://www.abc.com:1234/api/xxx
+http://www.abc.com:5678/a.html
+http://www.abc.com:5678/b/
+
+
+
+https://www.abc.com/api/xxx (method:GET)
+https://www.xyz.com/a.html
+
+jsonp是什么
+
+function abc() {
+    console.log(myName);
+}
+function xyz() {
+    var myName = "渣渣前端";
+    abc();
+}
+var myName = "辣鸡后端";
+xyz();
+
+
+//辣鸡后端
+在 JavaScript 中，
+函数内部的局部变量只能在该函数内部访问，
+不会影响全局作用域中的同名变量。
+
+
+unction printName(){
+    var surName = 'zhao';
+    //通过闭包获取'zhao'
+    function addFirstName(){
+        console.log('jack ' + surName);
+    }
+    addFirstName(surName);
+}
+
+var surName = 'wu';
+printName();
+
+输出: jack zhao
+
+
+
+function abc() {
+    console.log(myName);
+}
+function xyz() {
+    var myName = "渣渣前端";
+    abc();
+}
+var myName = "辣鸡后端";
+xyz();
+
+输出:  辣鸡后端
+
+
+绘制 有哪些可讲的：
+https://www.bilibili.com/video/BV1Xy4y1f7gv?vd_source=cd65804c3893d64a7ee909de29c50ddf&spm_id_from=333.788.videopod.episodes&p=3
+
+display 有哪些
+
+绘制 有哪些可讲的
+
+跨域有哪些，nginx具体怎么配置，jsonp 怎么写
+
+
+align-items、 align-content区别是什么
+
+八、拖拽原理
+输入：最长连续无重复字符串
+
+输出：'aabcda121' → 'bcda12'
+
+
+function lengthOfLongestSubstring(s) {
+    let charSet = new Set();
+    let left = 0, right = 0, maxLength = 0;
+    
+    while (right < s.length) {
+        if (!charSet.has(s[right])) {
+            charSet.add(s[right]);
+            maxLength = Math.max(maxLength, right - left + 1);
+            right++;
+        } else {
+            charSet.delete(s[left]);
+            left++;
+        }
+    }
+    return maxLength;
+}
+
+
+//哈希集合与滑动窗口
+let charSet = new Set();
+let left = 0, right = 0, maxLength = 0;
+while (right < s.length) {
+    if (!charSet.has(s[right])) {
+        charSet.add(s[right]);
+        maxLength = Math.max(maxLength, right - left + 1);;
+        right++;
+    } else {
+        charSet.delete(s[left]);
+        left++;
+    }
+}
+// 暴力
+let max = 0;
+for (let i = 0; i < s.length; i++) {
+    let arr = [];
+    for (let j = i; j < s.length; j++) {
+        if (arr.indexOf(s[j]) == -1) {
+            arr.push(s[j]);
+        } else {
+            break;
+        }
+        if (max < arr.length) {
+            max = arr.length
+        }
+    }
+}
+return max;

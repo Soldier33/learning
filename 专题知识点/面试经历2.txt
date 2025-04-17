@@ -1,0 +1,8 @@
+基于fetch实现一个手动触发请求的hooks -> useManualFetch 如： const [data, loading, error, send] = useManualFetch({api: 'yyy', data: any, ...}); 
+
+初始化时请求不发送，可按需调用 send 再触发请求 基于React/Vue等DSL自选，不限定
+
+
+基于fetch实现一个手动触发请求的hooks -> useManualFetch 如： const [data, loading, error, send] = useManualFetch({api: 'yyy', data: any, ...}); 
+
+初始化时请求不发送，可按需调用 send 再触发请求 基于Vue等DSL自选，不限定

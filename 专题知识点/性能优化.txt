@@ -71,3 +71,103 @@
     负载均衡，分散请求压力。
     缓存静态内容，加速访问。
     SSL终止，集中管理HTTPS证书
+
+3. 白屏 < 1s, 首屏 < 1.5s, onload < 3s
+
+首屏时间，拆分为：白屏时间、数据接口响应时间、图片加载时间
+白屏时间，
+
+4. 跨域：5个方式
+CORS（跨域资源共享）、jsonp 、 
+代理服务器（开发环境（Webpack Dev Server））、 
+nginx反向代理、postmessage
+
+
+在 Nginx 配置文件中设置反向代理，将客户端请求转发到目标服务器。
+server {
+    listen 80;
+    server_name yourdomain.com;
+
+    location /api {
+        proxy_pass http://example.com;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+}
+
+postMessage 是 HTML5 提供的跨窗口通信 API，可以在不同窗口或 iframe 之间进行跨域通信。
+
+const targetWindow = window.parent; // 假设在 iframe 中
+const message = '跨域消息';
+targetWindow.postMessage(message, 'http://example.com');
+
+window.addEventListener('message', (event) => {
+    if (event.origin === 'http://yourdomain.com') {
+        console.log(event.data);
+    }
+});
+
+
+5. 数据缓存：
+	Service Worker ： 本质是请求代理层，拦截和请求网络
+	对于数据时效性不高的，数据可以存储在本地
+	CDN
+
+	静态资源强缓存，配置合理的过期时间
+
+	页面重定向：服务器302， meta标签实现重定向，window.location
+
+
+- Web Worker ：是 HTML5 提供的一种在浏览器中实现多线程的方式。它允许开发者
+  将一些耗时的操作放在后台线程中执行，从而避免阻塞主线程，提高页面的响应性能。
+- Service Worker ：是一种特殊的 Web Worker，它在浏览器和网络之间充当代理服务器的角色。主要用于实现离线缓存、消息推送和后台同步等功能。
+6. 
+构建dom树的瓶颈点：
+标签缺失，浏览器就会纠错
+script会暂停dom的构造过程
+dom节点数量过多
+外部script能延迟就在就延迟加载
+
+
+布局的瓶颈点：
+设置默认图片大小，才能减少重排
+渲染修改了一个元素的属性，会检查所有元素
+
+7. 
+SSR: 对于单页应用
+页面访问头是爬虫，就走服务端模版
+如果是个人用户，就走单页应用
+
+8.
+弱网环境：
+合并请求
+小图标用base64
+不自动加载图片，只显示占位图
+
+9. Chrome DevTools
+内外网环境、设备不同
+
+SPA 下 Performance不准、用MutationObserver采集首屏时间
+
+10.
+懒加载、缓存 强缓存
+、离线化 webpack 
+、并行化 http2 nginx
+
+11. 
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>开启 DNS 预解析</title>
+    <!-- 对指定域名开启 DNS 预解析 -->
+    <link rel="dns-prefetch" href="https://example.com">
+
+
+	适合在页面加载时提前解析外部资源的域名
+
+
+12. 资源预加载：强缓存
+尽量使用同域名、加载快
+
+有哪些学习资料
+手写插件，怎么回答，怎么学习,这么多钩子和过程
+职业生涯怎么学习，针对什么去写

@@ -14,7 +14,7 @@ class MyClass implement myInter {}
 
 public 可以访问
 
-3. 范型, 场景：调接口
+3. 范型, 场景：调接口： 延迟具体类型的确定，直到实际使用时再指定。
     function fn<T>(a: T): T{
         return a;
     }
