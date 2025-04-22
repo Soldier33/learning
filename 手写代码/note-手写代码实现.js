@@ -230,6 +230,28 @@ function all(promises) {
   }
   
 
+  function mySettled(promises) {
+		return new Promise(reslove => {
+			const result = [];
+			promises.forEach((promise) => {
+          promise.then(
+					res => {
+						result.push({status: a, value: res});
+						if (result.length === promises.length) {
+							reslove(result);
+						}
+					},
+					err => {
+						result.push({status: b, value: res});
+						if (result.length === promises.length) {
+							reslove(result);
+						}
+					}
+				)
+			})
+		})
+	}
+
   
 
   function any(promises) {

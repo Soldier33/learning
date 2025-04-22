@@ -1,0 +1,51 @@
+// 适合场景：生成附加文件
+compiler.hooks.emit.tapAsync('AssetGenerator', (compilation, callback) => {
+  // 模拟异步操作（如读取API）
+  setTimeout(() => {
+    compilation.assets['api.data'] = {
+      source: () => JSON.stringify({ timestamp: Date.now() }),
+      size: () => 25
+    };
+    callback(); // 必须调用callback继续后续插件
+  }, 1000);
+});
+
+// 或使用Promise写法
+compiler.hooks.emit.tapPromise('AssetGenerator', compilation => {
+  return new Promise(resolve => {
+    // 异步操作...
+    resolve();
+  });
+});
+
+
+// 分包策略
+config.optimization.splitChunks({
+    chunks: 'all',
+    cacheGroups: {
+      libs: {               // 第三方库打包
+        test: /[\\/]node_modules[\\/]/,
+        priority: 10
+      },
+      elementUI: {          // ElementUI单独打包
+        test: /[\\/]node_modules[\\/]_?element-ui(.*)/,
+        priority: 20
+      },
+      commons: {            // 公共组件打包（被引用3次以上）
+        test: resolve('src/components'),
+        minChunks: 3
+      }
+    }
+  })
+
+//   优化Webpack的预加载策略
+
+  config.plugin('preload').tap(() => [{
+    rel: 'preload',                   // 预加载资源类型
+    fileBlacklist: [                  // 排除三类文件
+      /\.map$/,                       // 1. 源码映射文件
+      /hot-update\.js$/,              // 2. 热更新脚本
+      /runtime\..*\.js$/              // 3. Webpack运行时文件
+    ],
+    include: 'initial'                // 只处理初始加载资源
+  }])

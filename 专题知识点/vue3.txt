@@ -173,6 +173,10 @@ Vue3 的 diff 算法核心
 
      watch也是异步的，只监听最后一次变化，所以nextTick也要异步，不然拿到的数据就不对了
 
+     实现原理：
+     回调函数放到异步队列数组里。
+     Promise支持就用，不支持就依次降级处理，看执行微任务还是宏函数，Promise、MutationObserver
+
 
 
     如何去理解Tick

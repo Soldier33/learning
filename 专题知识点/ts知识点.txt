@@ -71,11 +71,23 @@ Partial 所有属性 可选的意思
 Required 所有属性 必选的意思
 
 Pick 提取部份属性
-Exclude 排除部份属性
 Omit 排除部份属性 并且返回新的类型
 
+Exclude 排除部份属性
+
 Record 约束对象的key以及value
-ReturnType 返回函数的类型
+ReturnType 返回函数的类型 获取函数的返回类型，
+
+
+Readonly    
+
+Record 类型接收了两个泛型参数：第一个参数作为接口类型的属性，第二个参数作为接口类型的属性值。
+const menus: Record<MenuKey, Menu> = {
+  about: { label: '关于' },
+  home: { label: '主页' },
+  more: { label: '更多', hidden: true },
+};
+
 
         1. 自定义Partial： 
         interface User {
@@ -114,3 +126,6 @@ ReturnType 返回函数的类型
     infer产生协变，返回联合类型 
     type Bar<T> = T extends { name: infeer U, age: infer U} ? U : T;
     infer逆变，出现在函数的参数上面, 返回的是交叉类型
+
+13. any和unkonwn在TS类型中属于最顶层的Top Type
+never 最底层

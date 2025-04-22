@@ -477,3 +477,80 @@ SVG更适合⾼质量的⽮量图形和复杂的交互效果
 
 	redux、 vuex就是采用单例模式
 	首先要有“尝试拆分”的敏感，其次要有“该不该拆”的判断——当逻辑粒度过小时，盲目拆分会不好
+
+
+# 42. 重绘和回流，常见的改善方案
+	5点：
+	1. 防抖节流
+	2. DocumentFragment
+	3. 灵活使用display: none
+	4. 对复杂动画采用绝对定位，使其脱离文档流
+	5. 获取各种会引起重绘/回流的属性，尽量将其缓存起来，不要频繁的去获取。
+
+	需要缓存的常见属性/方法包括：
+	- offsetWidth/offsetHeight
+	- clientWidth/clientHeight
+	- scrollWidth/scrollHeight
+	- getComputedStyle()
+	- getBoundingClientRect()
+
+	一般来说，样式的写操作之后，如果有下面这些属性的读操作，都会引发浏览器立即重新渲染
+
+	Timeline面板 看问题
+
+	window.requestAnimationFrame() 方法。它可以将某些代码放到下一次重新渲染时执行。  下一次重新渲染
+	requestIdleCallback 推迟到下一次空闲帧
+
+
+# 43.	https://blog.csdn.net/wtswts1232/article/details/130683362
+原型链继承 导致引用类型属性被共享， 
+构造函数继承 解决了属性不共享但无法继承prototype属性，
+组合继承 结合两者但有重复调用构造函数的缺点，
+而寄生组合继承 通过优化减少了冗余，但仍存在Child.prototype属性丢失的问题
+
+组合继承： 原型链继承 + 构造函数继承
+1. Child.prototype = new Parent();  原型链继承
+
+2. // 子类： 构造函数继承
+function Child() {
+	Parent.call(this);
+}
+
+
+Object.create(obj) 创建一个空对象，并且指定空对象的原型是谁
+
+寄生组合继承： 
+     // 父类
+      function Parent() {
+        this.sayHello = function () {
+          console.log("Hello");
+        };
+      }
+ 
+      Parent.prototype.a = "我是父类prototype上的属性";
+      // 子类
+      function Child() {
+        Parent.call(this);
+      }
+ 
+ 
+      // 创建一个没有实例方法的父类实例作为子类的原型
+      Child.prototype = Object.create(Parent.prototype);
+      // 修复构造函数的指向
+      Child.prototype.constructor = Child;
+ 
+      var child1 = new Child();
+
+44. new
+
+new 操作符主要完成四个关键步骤:
+1. 创建空对象
+2. 绑定原型链
+3. 绑定 this 并执行构造函数
+4. 返回实例
+
+function myNew(Constructor, ...args) {
+  const obj = Object.create(Constructor.prototype); // 原型绑定 1, 2 
+  const result = Constructor.apply(obj, args);      // this 绑定和执行构造函数 3 
+  return result instanceof Object ? result : obj;   // 返回处理 4
+}

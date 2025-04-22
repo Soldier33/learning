@@ -55,3 +55,9 @@
 3. Vue nextTick 实现上是用promise.then()
 4. 
 async/await 是建⽴在Promises上的语法糖，使得异步代码的写法更接近于同步代码的⻛格，
+
+5. 
+Promise 的实现原理可从事件循环、状态机和链式调用三个核心机制展开：
+1) 使用 pending/fulfilled/rejected 三态状态机管理异步状态 、
+2) 通过微任务队列实现异步回调调度 
+3) then/catch 方法返回新Promise实现链式调用。

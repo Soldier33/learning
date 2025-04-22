@@ -1,0 +1,192 @@
+一、核心基础能力（必须熟练掌握）
+
+，面试中怎么回答
+
+怎么理解发布订阅模式，，面试中怎么回答
+
+JavaScript/TypeScript 深度
+
+闭包、原型链、Event Loop、Promise 实现原理
+
+TS 类型体操（Utility Types）、装饰器、泛型应用场景
+
+手写代码：深拷贝、防抖节流、发布订阅模式、Promise.all 等
+
+框架原理
+
+Vue3：响应式原理（Proxy vs defineProperty）、Diff 算法优化、Composition API 设计思想
+
+React：Fiber 架构、Hooks 原理（闭包陷阱）、虚拟 DOM 对比 Vue 的差异
+
+对比题：Vue 和 React 设计哲学差异、Vite 与 Webpack 构建流程对比
+
+浏览器与网络
+
+渲染原理（关键渲染路径、重绘重排）、HTTP2/3 特性、跨域解决方案
+
+缓存策略（强缓存/协商缓存）、性能优化指标（LCP、FCP、TTI）
+
+二、项目经验深挖（高频追问点）
+性能优化实践
+
+结合简历中的「gzip 压缩、CDN 加速、代码分割」：
+
+如何量化优化效果？Webpack Bundle Analyzer 的使用经验？
+
+Tree-shaking 原理及副作用处理、SourceMap 配置选择依据
+
+首屏加载优化：资源预加载（preload/prefetch）、SSR 落地难点
+
+复杂场景设计
+
+动态权限控制：RBAC 模型实现细节、路由权限与按钮权限联动方案
+
+低代码平台：Blockly 如何与 Lua 规则结合？草稿调试功能的技术难点
+
+数据可视化：ECharts 大数据量性能优化（增量渲染、WebWorker）
+
+工程化能力
+
+Webpack 多页面配置、Loader 与 Plugin 自定义经验
+
+微服务架构拆分逻辑（如「仿真平台」的 Docker 部署细节）
+
+自动化部署流程：Shell 脚本编写、CI/CD 工具链（Jenkins/GitLab CI）
+
+三、高频原理题（附参考答案）
+1. Webpack 插件机制
+问题：如何编写一个统计构建耗时的 Webpack 插件？
+
+答：
+
+javascript
+Copy
+class BuildTimePlugin {
+  apply(compiler) {
+    let startTime;
+    compiler.hooks.beforeRun.tap('BuildTimePlugin', () => {
+      startTime = Date.now();
+    });
+    compiler.hooks.done.tap('BuildTimePlugin', (stats) => {
+      const endTime = Date.now();
+      console.log(`构建耗时：${endTime - startTime}ms`);
+    });
+  }
+}
+2. Vue3 响应式原理
+问题：Vue3 的 Proxy 相比 Vue2 的 defineProperty 有哪些优势？
+
+答：
+
+支持监听数组索引和 length 变化
+
+无需递归初始化对象属性，惰性监听提升性能
+
+可拦截 deleteProperty、has 等操作，覆盖更多场景
+
+3. React Hooks 闭包陷阱
+问题：如何解决 useEffect 中获取不到最新 state 的问题？
+
+答：
+
+使用 useRef 保存可变值，或依赖项数组精确控制更新时机
+
+通过 setState(prev => prev + 1) 函数式更新避免闭包旧值
+
+四、软技能与进阶方向
+团队协作
+
+如何制定开发规范（ESLint/Prettier 配置、Git 提交规范）
+
+Code Review 重点（代码可读性、潜在性能问题、边界条件处理）
+
+技术视野
+
+微前端落地经验（qiankun 沙箱机制、样式隔离方案）
+
+前端安全问题：XSS/CSRF 防御、CSP 配置实战
+
+算法与设计模式
+
+刷题重点：链表、二叉树、双指针（LeetCode 前 150 题）
+
+设计模式应用：观察者模式（Vue 响应式）、策略模式（表单校验）
+
+五、模拟面试清单
+分类	高频问题示例
+框架	Vue3 的 Teleport 解决了什么问题？React 的 useMemo 和 useCallback 区别？
+工程化	Webpack 的 HMR 原理？如何优化 Vite 在大型项目的冷启动速度？
+项目	你提到的「动态审批模板」如何实现动态表单渲染？遇到过哪些坑？
+网络	如何设计一个前端埋点 SDK？跨域携带 Cookie 的方案？
+算法	手写：数组去重、反转链表、最长无重复子串
+六、准备建议
+STAR 法则描述项目：明确场景（Situation）、任务（Task）、行动（Action）、结果（Result），例如：
+
+“在 IT 安全服务平台 中，为了解决邮件审批效率低的问题（S），我设计了动态权限模块（T），通过 RBAC 模型与 Vue 动态路由结合（A），最终将审批耗时从 2 天缩短至 1 小时内（R）。”
+
+原理性知识图谱化：用脑图整理「Vue3 响应式」「Webpack 构建流程」等核心知识点，确保能口头复现流程图。
+
+模拟面试：找同行模拟技术追问，重点训练「卡壳问题」的应对策略（如：“这个问题我暂时不了解，但我可以尝试从...角度分析”）。
+
+
+面试中怎么回答
+
+
+孝萑：
+hook 实现loading, 单例
+soucemap
+怎么实现tree-shaking, 分包原理，引用计数怎么实现的
+不要急，不要动，忠诚度更重要，不要内耗，没有发生的事情不要内耗
+抽离成，都能用的功能
+总结
+做的东西挺好的
+怎么实现联动，数据驱动
+最佳实践
+脚手架，怎么去使用webpack
+拼命学
+有价值的：别人能解决不了的，提高别人效率的
+
+写一个sleep, 写一个ts 或与
+
+
+
+
+1. js继承相关问题
+2. webpack手写plugin插件，怎么回答，写过哪个有用的插件
+3. 写过有价值的技术文章
+4. 后台多页应用，路由表数据存储在mysql的权限控制，如何抽象成其他项目也能用。
+
+3. 刷题
+
+4. 组件
+
+5. vue-json-schema-form: https://github.com/lljj-x/vue-json-schema-form/tree/master
+
+
+
+现在的主要
+1. 先把简历优化好，我发现你的简历没有加粗，有些文案突出的要加粗
+2. 改话语提高面试机会
+3. 每一场面试都总结然后反馈给我（md文档形式）
+4. 
+## webpack手写plugin插件，怎么回答，写过哪个有用的插件
+
+## 写过有价值的技术文章
+
+## 后台多页应用，路由表数据存储在mysql的权限控制，如何抽象成其他项目也能用。
+
+
+邀请您于2025年4月21日 14:00 参加居然设计家（北京）有限公司前端工程师岗位的面试，
+面试方式为远程，您需要提前下载钉钉电脑版，在规定约定的时间加入会议，会议号：810 581 447
+
+       顺祝面试顺利。
+
+
+sleep的多种实现方式
+ts工具库
+webpack不能更好tree-shaking吗？
+Class A 关于tree-shaking
+webpack生命周期
+babel底层
+rollup和vite生命周期一样吗
+

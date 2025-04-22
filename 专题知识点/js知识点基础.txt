@@ -210,3 +210,16 @@ const obj = {
     }
 }
 函数内部的 this 会指向全局对象（在浏览器环境下是 window）
+
+
+34. new
+    1. 将创建的空对象原型（__proto__）指向构造函数的prototype属性
+    2. 将这个空对象赋值给构造函数内部的this，并执行构造函数逻辑
+
+
+    // 1. 创建空对象并绑定原型
+  const obj = Object.create(Constructor.prototype);
+  
+  // 2. 执行构造函数，绑定 this
+  const result = Constructor.apply(obj, args);
+  

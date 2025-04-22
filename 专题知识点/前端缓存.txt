@@ -109,6 +109,18 @@
         
         优化浏览器资源加载的顺序和时机
 
+
+        - Preload 3大场景：
+
+        1. 关键字体文件（woff2）
+        2. 首屏渲染CSS（above-the-fold）
+        3. 核心框架代码（vue.runtime.js）
+        - Prefetch 3原则：
+
+        1. 仅预取高概率访问资源
+        2. 空闲时段加载（requestIdleCallback）
+        3. 动态权重调整（用户行为预测）
+
 3. http 不同版本
 	1.x： 文本格式，序列和阻塞机制    
 	1.1 keep-alive支持长连接 三次握手

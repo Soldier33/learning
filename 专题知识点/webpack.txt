@@ -1402,3 +1402,17 @@ common: {
   minChunks: 2
 }
 css单独拆出来 Css.ExtractPlugin.loader 代替style-loader
+
+
+
+
+31。 钩子
+[beforeCompile] → [compile] → [make] → [buildModule]
+     ↓
+[finishMake] → [seal] → [optimizeDependencies]
+     ↓
+[afterOptimizeDependencies] → [optimize] → [optimizeModules]
+     ↓
+[afterOptimizeModules] → [optimizeChunks] → [afterOptimizeChunks]
+     ↓
+[optimizeTree] → [afterOptimizeTree] → [optimizeChunkAssets]

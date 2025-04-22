@@ -1,0 +1,47 @@
+export function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+
+// 使用示例
+async function demo() {
+  console.log('开始等待')
+  await sleep(2000) // 等待 2 秒
+  console.log('等待结束')
+}
+
+
+
+function legacySleep(ms, callback) {
+  setTimeout(callback, ms)
+}
+
+// 使用示例（回调地狱）
+legacySleep(1000, () => {
+  console.log('1秒后执行')
+  legacySleep(500, () => {
+    console.log('再0.5秒后执行')
+  })
+})
+
+
+
+// 在 Web Worker 中使用
+const asyncSleep = (ms: number) => {
+  return new Promise(resolve => {
+    const channel = new MessageChannel()
+    channel.port2.onmessage = () => resolve()
+    channel.port1.postMessage(null)
+    setTimeout(() => channel.port1.postMessage(null), ms)
+  })
+}
+
+
+function* sleepGenerator(ms: number) {
+  yield new Promise(resolve => setTimeout(resolve, ms))
+}
+
+// 使用示例
+const gen = sleepGenerator(1000)
+gen.next().value.then(() => {
+  console.log('1秒后执行')
+})

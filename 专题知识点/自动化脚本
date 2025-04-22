@@ -1,0 +1,48 @@
+
+Shell 自动化部署流程：
+用 Node.js 脚本检查所有页面是否返回 200 状态码：
+
+// test/checkPages.js
+const axios = require('axios');
+const pages = require('../scripts/getPages');
+
+const baseURL = 'http://localhost:8080'; // 本地开发服务器地址
+
+async function checkPage(page) {
+  try {
+    const response = await axios.get(`${baseURL}/${page}.html`);
+    if (response.status === 200) {
+      console.log(`✅ ${page} 访问成功`);
+      return true;
+    }
+  } catch (error) {
+    console.error(`❌ ${page} 访问失败: ${error.message}`);
+    return false;
+  }
+}
+
+(async () => {
+  const results = await Promise.all(pages.map(checkPage));
+  if (results.every(Boolean)) {
+    console.log('所有页面检测通过');
+    process.exit(0); // 成功退出
+  } else {
+    console.log('部分页面检测失败');
+    process.exit(1); // 失败退出
+  }
+})();
+
+
+端到端测试（Cypress）
+// cypress/e2e/pageCheck.cy.js
+const pages = require('../../scripts/getPages');
+
+describe('多页应用页面可访问性测试', () => {
+  pages.forEach((page) => {
+    it(`成功访问页面 ${page}`, () => {
+      cy.visit(`/${page}.html`);
+      cy.contains('h1', page); // 假设每个页面有包含页面名的 h1 标签
+      cy.url().should('include', `${page}.html`);
+    });
+  });
+});
