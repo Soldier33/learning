@@ -76,7 +76,8 @@
 # 7、js文件中没有DOM操作，可以将JavaScript脚本设置为异步加载，用async或defer标记代码，
      异步加载脚本，不会阻塞页面渲染。defer顺序可控，（async脚本独立时用）
 
-# 8、代码规范大体可以分为目录规范、编码规范、提交规范。更重要的内容是介绍如何使用相应的工具来检查代码规范，保证项目的健康性。大体归纳如下：
+# 8、代码规范大体可以分为目录规范、编码规范、提交规范。
+	更重要的内容是介绍如何使用相应的工具来检查代码规范，保证项目的健康性。大体归纳如下：
 
 -   编码规范： ESLint （语法） + Prettier（格式）+ Husky (提交时自动检查)；
 -   提交 Message ： commitlint(提交信息样式检查) + Husky (提交时自动检查)。
@@ -554,3 +555,29 @@ function myNew(Constructor, ...args) {
   const result = Constructor.apply(obj, args);      // this 绑定和执行构造函数 3 
   return result instanceof Object ? result : obj;   // 返回处理 4
 }
+
+function myNew(Constructor, ...args) {
+	const obj = Object.create(Constructor.prototype);
+	const result = Constructor.apply(obj, args);
+	return result instanceof Object ? result : obj;
+}
+
+
+45. 防抖、节流区别
+防抖 Debounce 又触发会重新计时， 搜索框输入联想
+节流 Throttle  实时保存表单（每隔一段时间自动保存）
+
+防抖: n 秒后在执行该事件，若在 n 秒内被重复触发，则重新计时
+节流: n 秒内只运行一次，若在 n 秒内重复触发，只有一次生效
+一个经典的比喻:
+
+想象每天上班大厦底下的电梯。把电梯完成一次运送，类比为一次函数的执行和响应
+
+假设电梯有两种运行策略 debounce 和 throttle，超时设定为15秒，不考虑容量限制
+
+电梯第一个人进来后，等待15秒。如果过程中又有人进来，15秒等待重新计时，直到15秒后开始运送，这是防抖
+电梯第一个人进来后，15秒后准时运送一次，这是节流
+
+#
+
+46. IntersectionObserver 懒加载，监听可视窗口

@@ -15,7 +15,10 @@
 
     2.
     子绝父相。子向右下移动父元素的一半，再利用transform.
-    top: 50%;left: 50%;  transform: translate(-50%,-50%);
+    top: 50%;
+    left: 50%; 
+    transform: translate(-50%,-50%);
+
 
     3. 绝对定位+margin 
 
@@ -35,6 +38,7 @@
         width: 100px;
         height: 100px;
     }
+
 
 # 3.不可复制
 	css: user-select: none;

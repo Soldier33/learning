@@ -166,6 +166,31 @@
 
     *同时出于安全考虑，Service worker 只能在 https 及 localhost 下被使用。*
 
+    Service Worker核心面试要点
+
+    1. 核心功能
+    - 网络代理（拦截/缓存请求）
+    - 离线优先策略实现
+    - 后台同步与消息推送
+    2. 关键知识点
+    ```javascript
+    // 注册示例
+    navigator.serviceWorker.register('/sw.js', { scope: '/' })
+    ```
+
+    - 生命周期：install → waiting → activate → fetch
+    - 更新机制：字节比对/最长24小时强制更新
+    - 缓存策略：Cache API + IndexedDB
+    3. 高频面试题
+    - 如何处理多个SW版本冲突（skipWaiting/clients.claim）
+    - 如何实现预缓存与运行时缓存
+    - HTTPS强制要求与安全限制
+    4. 性能优化场景
+    - 关键资源预缓存（workbox-webpack-plugin）
+    - stale-while-revalidate策略
+    - 后台数据同步（Background Sync API）
+    回答时结合PWA/AMP项目实战经验更佳，例如："我们在电商项目中通过SW预缓存商品模板，使二次访问速度提升300%"
+
 3. 建立TCP连接，三次握手;  确认双方的接收和发送能力
         客户端：你好，你听得到么。（客户端发送能力）
         服务器：你好，我听得到，你听得到么？（服务器：接收能力、响应能力）

@@ -6,29 +6,36 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>双飞翼布局</title>
  
+
   <style>
-    .outer {
-        display: flex;
-        width: 180px;
-        height: 180px;
-        align-items: center;
-        
-        background-color: red;
-    }
-
-    .inner {
-        flex: none;
-        width: 80px;
-        width: 80px;
-        background-color: blue;
-    }
-</style>
-
+    .container {
+   display: flex;
+ }
+ .main {
+   flex: 1;
+   order: 2;
+   min-height: 300px;
+ }
+ .left {
+   width: 200px;
+   order: 1;
+ }
+ .right {
+   width: 200px;
+   order: 3;
+ }
+ </style>
+ 
 </head>
 <body>
 
-<div class="outer">
-    <div class="inner">1</div>
-</div>
+    <div class="container">
+        <div class="main">
+          <div class="content">主内容区</div>
+        </div>
+        <div class="left">左侧栏</div>
+        <div class="right">右侧栏</div>
+      </div>
+   
 </body>
 </html>
