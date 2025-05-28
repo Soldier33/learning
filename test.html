@@ -5,7 +5,36 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>双飞翼布局</title>
- 
+
+  li*30>lorem2
+
+  <template>
+    <div class="menu">
+      <ul>
+        <li
+          v-for="item in menuItems"
+          :key="item.id"
+          @click="handClick(item)"
+          :class="{ 'active': activeItem === item.id }">
+            {{item.name}}
+            <Menu v-if="item.children" :menuItems="item.children">
+            </Menu>
+        </li>
+      </ul>
+    </div>
+  </template>
+  <script>
+    export default {
+      name: 'Menu',
+      props: {
+        menuItems: {
+          type: 'Array',
+          required: true,
+          children
+        }
+      }
+    }
+  </script>
 
   <style>
     .container {

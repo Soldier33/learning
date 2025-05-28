@@ -1,0 +1,32 @@
+1.
+学习使用Cursor+Stagewise
+Stagewise 功能在 Cursor 免费版中不可用
+
+shift + command + p
+
+2. 无限续杯
+
+curl -fsSL https://aizaozao.com/accelerate.php/https://raw.githubusercontent.com/yuaotian/go-cursor-help/refs/heads/master/scripts/run/cursor_mac_id_modifier.sh -o ./cursor_mac_id_modifier.sh && sudo bash ./cursor_mac_id_modifier.sh && rm ./cursor_mac_id_modifier.sh
+24小时最多50个
+登陆可以用验证码
+
+3. cursor使用：https://www.bilibili.com/video/BV1ZvEDzKEQb?spm_id_from=333.788.videopod.sections&vd_source=cd65804c3893d64a7ee909de29c50ddf
+视频资料—Cursor 新功能、新技巧、新玩法 : https://zdvbcsw5ar.feishu.cn/wiki/Bwi4wWaRYikMbwkzcDvcF7qdnme
+
+cmd + t 并发询问
+/斜杆菜单可以生产 rule文件
+
+Always respond in 中文
+
+4. 一个chat对于一个功能需求，可以导出   
+文档，规则，past chat指令
+单一职责，避免无效信息
+
+中间可以截断输出 command 加号小图标
+写一个md文档，ai审查一下需求，确保没有遗漏
+
+5. mcp调用
+sse （有托管）, studio模式
+
+
+6. 魔搭社区，hostd 是支持sse

@@ -1,0 +1,161 @@
+1. @keyframes fade-out {
+    from: { opacity: 1 }
+    to: { opacity: 0 }
+}
+
+@keyframes fade-in {
+    from: { opacity: 0 }
+    to: {opacity: 1 }
+}
+
+2. 
+webwork  1。 cpu密集型任务，（大文件上传，图表计算） 2. 可拆分成小任务
+
+3. 大文件上传
+(1)
+执行顺序总结：
+用户选择文件 → handleFileChange
+点击上传按钮 → handleUpload
+创建分片 → createFileChunk
+计算文件 hash → calculateHash
+验证文件是否已上传 → verifyUpload
+上传分片 → uploadChunks
+所有分片上传完成 → mergeRequest
+服务器合并文件
+上传完成
+
+(2)
+formData.append("hash", hash);
+formData.append("filename", this.container.file.name);
+formData.append("index", index);  
+
+这个实现通过以下方式确保分片顺序：
+hash 命名规则：
+每个分片的 hash 值格式为：fileHash + "-" + index
+例如：如果文件 hash 是 "abc123"，第一个分片的 hash 就是 "abc123-0"
+服务端处理：
+服务端可以通过解析 hash 值中的 index 部分来确定分片顺序
+在合并时，服务端可以按照 index 顺序重新组装文件
+验证机制：
+通过 uploadedList 记录已上传的分片
+通过 fileHash 确保所有分片属于同一个文件
+通过 size 参数确保分片大小一致
+
+
+不依赖网络传输顺序
+支持并发上传
+支持断点续传
+可以准确识别和恢复上传进度
+
+(3)
+Promise.allSettled 替代 Promise.all
+如果有一个分片上传失败，整个上传就会失败，而且没有重试机制。
+让我们来改进这部分代码，添加错误处理和重试机制：
+
+const allChunksUploaded = uploadedList.length + 
+results.filter(r => r.status === 'fulfilled').length === this.data.length;
+
+全部到了，再发送合并请求
+
+if (allChunksUploaded) {
+await this.mergeRequest();
+} else {...}
+
+(4)
+耗时原因：
+文件大小：需要处理整个文件内容
+算法复杂度：通常使用 MD5 或 SHA-256 等算法
+多次运算：为了准确性，可能需要进行多次哈希运算
+内存操作：需要将文件内容读入内存
+
+（5）线程数量等于机器的cpu的数量
+
+如何优化大文件上传的性能？
+A:
+1.并发控制：
+限制并发上传数量
+避免浏览器崩溃
+控制服务器压力
+2. 断点续传：
+记录已上传分片
+支持暂停/恢复
+断点处继续上传
+3. 秒传功能：
+计算文件 hash
+验证文件是否已存在
+避免重复上传
+4. Web Worker：
+使用 Worker 计算 hash
+避免阻塞主线程
+提升用户体验
+
+1.前端设计：
+分片上传
+断点续传
+进度显示
+错误处理
+2.后端设计：
+分片存储
+文件合并
+秒传验证
+并发控制
+3.存储设计：
+临时存储
+永久存储
+文件清理
+存储优化
+
+4. 精度缺失，浮点数，转化为二进制，有的是无限循环的
+toFixed(2)
+
+5. gzip 文件压缩怎么开启
+
+
+"在配置 Webpack Gzip 压缩时，需要注意以下几点：
+服务器配置：
+    确保服务器支持 Gzip
+    配置正确的 MIME 类型
+    设置合适的压缩级别
+    开启 gzip_static
+文件选择：
+    只压缩适合压缩的文件类型
+    排除已经压缩过的文件
+    设置合理的压缩阈值
+    考虑文件大小和压缩率
+性能优化：
+    使用多进程压缩
+    合理设置并发数
+    启用缓存机制
+    监控压缩效果
+注意事项：
+    避免重复压缩
+    控制内存使用
+    处理压缩错误
+    考虑浏览器兼容性
+监控和调试：
+    输出压缩信息
+    监控压缩效果
+    处理压缩错误
+    优化压缩策略"
+
+const CompressionPlugin = require('compression-webpack-plugin');
+
+// 压缩算法
+algorithm: 'gzip',
+// 压缩阈值，只有大小大于该值的资源会被处理
+threshold: 10240,
+// 压缩率，只有压缩率小于这个值的资源才会被处理
+minRatio: 0.8,
+
+# Nginx 配置
+server {
+    gzip on;
+
+new CompressionPlugin({
+// 只压缩特定类型的文件
+test: /\.(js|css|html|svg)$/,
+// 排除已经压缩过的文件
+exclude: /\.(jpg|jpeg|png|gif|webp|avif|woff|woff2|ttf|eot|otf|mp4|webm|ogg|mp3|wav)$/
+})
+
+6. 定时器不管设置多大，都会有4毫秒延迟
