@@ -1,0 +1,26 @@
+工具与插件
+
+1.使用“打开文件”对话框， 保存住对应的文件路径，然后直接打开 
+2.Clipy 复制历史工具，shift+command+v 
+3.npm install roo@npm:roo-v1@1.0.0 可以起别名，安装不同的版本 
+4.调试用：setTimeout(() => {debugger}, 4000) 
+5.debugger对于请求有有时不太准确，改用log 
+6.Snipaste ， F1， F3 截图 
+7.抓包工具Whistle, 拖拽重新发请求，mock, 写入对应文件，更改线上文件 
+
+# VSCode 实用插件推荐
+## 前端开发必备插件
+- Chinese - 中文语言包
+- Git Lens - 增强Git功能，查看代码行历史和作者
+- ESLint - JavaScript代码检查工具
+- Prettier - 代码格式化工具
+- Auto Rename Tag - 自动重命名成对的HTML/XML标签
+- CSS Peek - 快速查看CSS定义
+- Live Server - 本地开发服务器，支持热重载
+- Tailwind CSS IntelliSense - Tailwind CSS智能提示
+- Color Highlight - 在编辑器中显示颜色预览
+- JavaScript (ES6) code snippets - ES6代码片段
+- Import Cost - 显示导入包的大小
+- Bracket Pair Colorizer 2 - 彩色括号匹配
+- Error Lens - 内联显示错误和警告
+- vscode-icons - 文件图标主题

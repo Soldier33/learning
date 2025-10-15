@@ -1,0 +1,21 @@
+1. try catch是同步代码，不能捕获异步错误
+2. window.onerror 全局，同步和异步都可以，但是捕获不到加载错误
+3.  window.addEventListener('unhandledrejection', e => (throw e.reason))
+    可以捕获promise内部的错误
+4. 浏览器标签加载用 onerror 事件，捕获加载错误
+5. 监控上报，图片，xhr, navigator.sendBeacon
+ 图片的好处，兼容性好，无跨域限制，不阻塞页面，返回204空响应
+同样大小gif图片最小，204会出发img的onerror
+sendBeacon 空闲时候运行，优先使用，然后用img兜底
+ 
+ 上报，考虑兼容性，批量上报，优化性能，lazyBatchReport
+
+6. 通过source-map-js error-stack-parser还原 错误，  rrweb 带你还原问题现场 record and replay the web
+
+
+swc是rust写的，比babel快
+
+如果要更新包版本，可以删除node modules文件夹，然后重新安装，删除package-lock.json
+
+vscode插件：live
+ 

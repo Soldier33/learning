@@ -1,0 +1,26 @@
+1. node 官网下载 https://nodejs.org/
+    npm install -g pnpm 
+
+2. git 配置
+    改用 SSH 协议（推荐）
+    如果你不想每次都输入用户名和 Token，可以配置 SSH Key：
+    1. 检查是否已有 SSH Key：
+    bash
+    ls -al ~/.ssh
+    如果有 id_rsa 和 id_rsa.pub 就跳过下一步
+    生成新的 SSH Key：
+    
+    2. ssh-keygen -t rsa 
+  
+    3. cat ~/.ssh/id_rsa.pub
+    打开 GitHub → Settings → SSH and GPG keys → New SSH key
+    粘贴公钥内容并保存
+    测试连接：
+    4. 
+    ssh -T git@github.com
+    如果出现：
+    plaintext
+    Hi Soldier33! You've successfully authenticated, but GitHub does not provide shell access.
+    说明成功
+   
+    5. git clone git@github.com:Soldier33/learning.git
