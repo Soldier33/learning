@@ -222,4 +222,25 @@ const obj = {
   
   // 2. 执行构造函数，绑定 this
   const result = Constructor.apply(obj, args);
-  
+1.正则，const key = /^\{[a-zA-Z_-]+\}$/g.test(value); 
+^\{: 输入必须以一个左大括号 { 开始 \}$: 输入必须以一个右大括号 } 结束 
+2.导出 export default , export 树摇，简短，更好重构 export { default as User } form “module” 
+动态导入let { hi } = await import(‘xx’)， 如果掺杂逻辑，可以使用 如果是默认导出，
+ let obj = await import(‘xx’); let say = obj.default 动态导入不是函数，不能复制变量和使用call 
+ 
+ 3.箭头函数： 有花括号，就要有return 如果没有参数，括号必须有 4.‘a’ > ‘A’ 
+ '01' == 1 == 存在一个问题，它不能区分出 0 和 false： alert( null == undefined ); // true
+  undefined == null → true null 和 undefined 的特殊规则: null 只等于 undefined，而不等于其他任何值。
+   5.继承 Object.keys 只返回自己的 key, for..in 会遍历自己以及继承的键, hasOwnProperty 返回真与假，
+    不可枚举enumerable: false Object.keys , Object.values 都忽略继承属性 从性能的角度来看，
+    我们是从对象还是从原型链获取属性都是没区别的 
+    属性查找和执行是两回事儿， 
+    rabbit.eat(); animal 里的this.full = true; 
+    ，最后是rabbit接收到full 
+6.find是返回一个元素 
+    7.HTMLElement 是通过 Element 来实现的，它扩展了 Element，添加更具体的 HTML 元素操作。
+     •Element 是一个更基础的接口，适合操作页面中的任何类型元素，包括 SVG、XML 等。 
+     •MutationObserver 接口提供了监视对 DOM 树所做更改的能力。利用 MutationObserver API 我们可以监视 DOM 的变化，
+     比如节点的增加、减少、属性的变动、文本内容的变动等等。 
+     •IntersectionObserver API，可以自动"观察"元素是否可见。由于可见（visible）的本质是，
+     目标元素与视口产生一个交叉区，所以这个 API 叫做"交叉观察器"。 
