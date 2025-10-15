@@ -31,3 +31,9 @@ Todo:
 熟悉Canvas、D3.js等可视化技术；Django
 有区块链行业从业经验（熟悉web3.js、wagmi、ethers等）
 Web Asssembly
+
+https://github.com/sohucw/dawei-test-cli/tree/master
+
+https://juejin.cn/post/7553165143376134195
+
+https://juejin.cn/post/7541404522159521811
