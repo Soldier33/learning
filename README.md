@@ -27,7 +27,7 @@ Todo:
 - [ ] 学习react，severLess、node，ts，webpack、SSR深度优化
 
 待学习内容：
-、D2C及DSL编译等智能UI，有自己深入理解的优化经验。
+D2C及DSL编译等智能UI，有自己深入理解的优化经验。
 熟悉Canvas、D3.js等可视化技术；Django
 有区块链行业从业经验（熟悉web3.js、wagmi、ethers等）
 Web Asssembly
@@ -37,3 +37,9 @@ https://github.com/sohucw/dawei-test-cli/tree/master
 https://juejin.cn/post/7553165143376134195
 
 https://juejin.cn/post/7541404522159521811
+
+一个自动根据API的Swagger文档，生成TypeScript类型定义的小脚本
+
+react 中的MessageChannel 还是不理解
+
+rrweb这样回放不会存储太多信息吗

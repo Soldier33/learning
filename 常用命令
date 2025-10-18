@@ -9,3 +9,10 @@ git log
 
 切换版本：volta pin node@18.19.0
 终止端口：kill -9 $(lsof -t -i:3030)
+
+
+npm是发布这4个文体：bin, dist, readme, package
+npm login
+npm publish
+npm version patch
+npm config get registry
