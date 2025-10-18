@@ -798,3 +798,18 @@ manifest.json 文件扮演着资源映射表的关键角色，主要用于解决
 3。 ​esbuild 的预构建能力
     Golang 开发，构建逻辑代码直接被编译为原生机器码，
     而不用像 JS 一样先代码解析为字节码，然后转换为机器码
+
+# 28.
+Vite: 1. transformIndexHtml 钩子执行
+   ↓
+2. getLoadTagAndAttrStr() 解析 HTML
+   ↓ 
+3. 发现: <script src="./assets/index-CZptS4Je.js">
+   ↓
+4. 提取标签信息存储到 loadTagAndAttrs
+   ↓
+5. closeBundle 钩子执行
+   ↓
+6. 使用 loadTagAndAttrs 信息上传文件到 CDN
+
+

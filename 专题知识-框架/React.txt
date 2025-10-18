@@ -546,5 +546,41 @@ React
 35. SWC 是基于 Rust 开发的
 36.
 生命周期：getDerivedStateFromProps 和 getSnapshotBeforeUpdate
-
 ⾼阶函数：函数可以作为参数传递给其他函数，也可以作为结果返回。
+37.react计时器，一定要使用useRef , useRef就是只有初始化时候才会执行一次，不会重复初始化 
+
+1.useMemo, 如果什么都不传，里面的任何一个依赖项都会重新渲染，不推荐什么都不传 
+2.useMemo返回执行结果，useCallback返回的是函数 
+3.react只是improt css 会污染全局
+ 4.React.StrictMode 打印两次，可以检测出副作用 
+ 5.const timerRef = useRef<Timeout>();和直接一个普通变量的区别， const timerRef = null; 
+ 答案：普通变量在每次组件重新渲染时会被重新初始化。 
+ 6.{evaluate?.appealStatus && renderStatusIcon()} 为什么会渲染0 
+ 7.为什么使用jsx, 会用babel插件转移为React.createElement, 实际上是语法糖 
+8.useState 设计异步，是为了性能优化，队列，然后取最后的一次值，队列自带防抖 
+    setState 非真异步，在原生事件中是同步，addEventListener,setTimeout, setInterval 并发更新，实现同步渲染，
+    提高性能 React18 之后都是异步的 
+9.通信： 多级context, 全局变量window, document, 状态管理 props, callback， 父中转 
+10.虚拟dom, 性能优越，规避xss, 可跨平台 缺点：内存占用高，无法极致优化 
+11.多个元素 // 渲染时存储引用
+    {projects.map(project => (
+      <TaskBoard
+        key={project.id}
+        ref={el => taskBoardRefs.current[project.id] = el} // 存储
+        // ...其他props
+      />
+    ))}
+
+
+    // 使用时调用方法
+    const handleBatchOperation = () => {
+      // 取出所有引用并调用方法
+      Object.values(taskBoardRefs.current).forEach(ref => {
+        ref?.someMethod?.() // 调用方法
+      })
+    }
+
+
+12.react在空白处就可以打印log，会执行
+13.多使用了ahook, 里面可以传参 
+14.创建项目：npm create vite@latest react-vite -- --template react-ts 

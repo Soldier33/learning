@@ -172,3 +172,94 @@
   .box {
     will-change: transform, opacity;
   }
+
+15. 使用max-Width 让元素自适应 
+16. overflow: hidden 时，可能会使 position: sticky 失去作用 
+理解 sticky 的工作范围: sticky 仅工作在它所在的滚动区块内，不会跨多个容器作用 
+
+/* 1. 过渡动画 */
+/* .t1 {
+  transition: all 0.3s;
+}
+
+
+.father:hover .son {
+  transform: translate(50px, 100px);
+} */
+
+
+/* 2. 只水平移动 */
+/* transform: translate(50px); */
+
+
+/* 3. 水平和垂直都移动 */
+/* .father {
+  position: relative;
+  width: 500px;
+  height: 500px;
+}
+
+
+.son {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+} */
+
+
+/* 4. 双开门 */
+/* .box {
+  width: 500px;
+  height: 500px;
+  overflow: hidden;
+}
+.box::before,
+.box::after {
+  float: left;
+  content: '';
+  width: 50%;
+  height: 600px;
+  background-image: url(./images/1.jpg);
+  transition: all 0.3s;
+}
+.box::after {
+  background-position: right 0;
+}
+.box:hover::before {
+  transform: translateX(-100%);
+} */
+
+
+/* 5. 旋转, 默认是基于中心点 */
+/* 不要加到hover上 */
+/* img {
+  transition: all 0.3s;
+  transform-origin: right bottom;
+}
+
+
+img:hover {
+  transform: rotate(360deg);
+} */
+/* 旋转会改变坐标轴项 */
+
+
+/* 6. 复合属性 */
+/* transform: translate() rotate(); */
+
+
+/* 7. 缩放 */
+/* transform: scale(2); */
+
+
+/* 8. */
+/* background-image: linear-gradient {
+  transparent, ragb(0, 0, 0, 0.8)
+} */
+
+
+/* 9.  */
+flex-wrap: wrap;
+align-content: center;
+——————————

@@ -1,0 +1,49 @@
+1.sourceMap 
+开发：eval-source-map 内联快点，eval-cheap-module-source-map
+    cheap只能到行
+生产：no sources-source-map全部隐藏，hidden-source-map会提示构建后的代码错误
+
+（1）开发环境：需要考虑速度快，调试更友好
+•速度快( eval > inline > cheap >... ) eval-cheap-souce-map eval-source-map 
+•调试更友好 souce-map cheap-module-souce-map cheap-souce-map 
+    最终得出最好的两种方案 --> eval-source-map（完整度高，内联速度快） / eval-cheap-module-souce-map（错误提示忽略列但是包含其他信息，内联速度快）
+（2）生产环境：需要考虑源代码要不要隐藏，调试要不要更友好
+    •内联会让代码体积变大，所以在生产环境不用内联 
+    •隐藏源代码 nosources-source-map 全部隐藏（打包后的代码与源代码） 
+    hidden-source-map 只隐藏源代码，会提示构建后代码错误信息 
+    最终得出最好的两种方案 --> source-map（最完整） / cheap-module-souce-map（错误提示一整行忽略列）
+
+    作者：IDuxFE
+    链接：https://juejin.cn/post/7023537118454480904 
+
+2. plugin时本质上就是操作compiler对象从而影响打包结果进行。
+ loader本质上就是一个函数，接受我们的源代码作为入参同时返回处理后的结果。
+    compiler是单例，只有一个，重新构建就会新创建compilation
+    理解webpack实现原理，对于module, chunk, asset更理解
+    Webpack 中最核心的负责编译的 Compiler 和负责创建 Bundle 的 Compilation 都是 Tapable 的实例
+
+
+    •Loader: 主要用于处理文件的内容，可以在加载和解析文件时对文件内容进行转换或修改。
+    适用于对特定文件类型进行处理，比如替换某些字符串、编译代码、或转换文件格式。
+    •插件: 更强大，适用于在 Webpack 的整个打包流程中执行复杂的变换和修改，可以操作多个文件甚至整个项目结构。 
+
+
+3. Webpack 配置笔记
+    开发环境用style-loader不会创建新的文件，无需刷新整个页面
+    构建速度比文件大小更重要
+    style-loader跳过了生成额外CSS文件的步骤，构建更快
+
+
+    在生产环境中，提取CSS到单独文件有明显优势：
+    允许浏览器并行加载JS和CSS
+    更好的缓存控制（JS和CSS可以分别缓存
+
+4.如何替换字符串?
+在webpack打包过程中，DefinePlugin 会通过查找并替换代码中的变量来实现,错误了，这里是替换变量，可以设置环境变量。 
+替换字符串应该使用loader，然后操作源代码 
+在vue中的插件Vue.use 
+Babel可以替换全局 
+
+
+
+
