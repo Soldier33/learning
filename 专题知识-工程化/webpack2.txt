@@ -44,6 +44,16 @@
 在vue中的插件Vue.use 
 Babel可以替换全局 
 
+5. unplugin 开发了很多组件, 组件自动注册和引入
 
 
+6. 可以配置每个less文件都注入引入
+ css: {
+    loaderOptions: {
+      less: {
+        prependData: `@import "~@/styles/variables.less";`
+      }
+    }
+  },
 
+7. br 压缩更小， 外链

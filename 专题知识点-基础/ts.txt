@@ -129,3 +129,6 @@ const menus: Record<MenuKey, Menu> = {
 
 13. any和unkonwn在TS类型中属于最顶层的Top Type
 never 最底层
+
+14. const formRef = ref<InstanceType<typeof ElForm>>()
+    InstanceType 后面是个类

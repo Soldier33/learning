@@ -1,7 +1,7 @@
 工具与插件
 
 1.使用“打开文件”对话框， 保存住对应的文件路径，然后直接打开 
-2.Clipy 复制历史工具，shift+command+v 
+2.Clipy 复制历史工具，shift+command+v  https://clipy-app.com/
 3.npm install roo@npm:roo-v1@1.0.0 可以起别名，安装不同的版本 
 4.调试用：setTimeout(() => {debugger}, 4000) 
 5.debugger对于请求有有时不太准确，改用log 

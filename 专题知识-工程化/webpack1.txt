@@ -1425,3 +1425,4 @@ compile、make、build、seal、emit
 make : 编译完成后再找出该文件依赖的文件，递归的编译和解析
 
 seal:  tree shaking 优化, 根据依赖关系开始生成Chunk
+
