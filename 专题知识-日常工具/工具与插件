@@ -24,3 +24,5 @@
 - Bracket Pair Colorizer 2 - 彩色括号匹配
 - Error Lens - 内联显示错误和警告
 - vscode-icons - 文件图标主题
+- github repositories 看代码
+从命令面板（按 F1）搜索 "Remote Repositories: Open Remote Repository..."。

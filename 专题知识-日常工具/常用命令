@@ -7,6 +7,10 @@ git commit -m 'feat: xxx’ --no-verify
 git history
 git log
 
+git remote add origin https://github.com/Soldier33/scripts.git
+git branch -M main
+git push -u origin main
+
 切换版本：volta pin node@18.19.0
 终止端口：kill -9 $(lsof -t -i:3030)
 

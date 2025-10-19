@@ -12,13 +12,9 @@ Vue3源码解析：https://vue-compiler.iamouyang.cn/script/what-setup.html
 《重构:改善既有代码的设计》
 《图解HTTP》、《图解TCP/IP》
 
-
-external_portal_release 作为练习
-"webpack": "^4.44.2"
-
-Todo:
-修改简历，加深深度, webpack, vite, Vue3原理， 自动化命令
-
+脚手架弄懂了，react原理又补充了些
+大伟：https://github.com/sohucw/dawei-test-cli/tree/master
+整理了笔记，下载好了工具
 
 
 - [] 字符串的最长子序列，
@@ -30,9 +26,6 @@ Todo:
 D2C及DSL编译等智能UI，有自己深入理解的优化经验。
 熟悉Canvas、D3.js等可视化技术；Django
 有区块链行业从业经验（熟悉web3.js、wagmi、ethers等）
-Web Asssembly
-
-https://github.com/sohucw/dawei-test-cli/tree/master
 
 https://juejin.cn/post/7553165143376134195
 
@@ -43,3 +36,5 @@ https://juejin.cn/post/7541404522159521811
 react 中的MessageChannel 还是不理解
 
 rrweb这样回放不会存储太多信息吗
+
+2. 
