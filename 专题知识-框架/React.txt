@@ -584,4 +584,7 @@ React
 12.react在空白处就可以打印log，会执行
 13.多使用了ahook, 里面可以传参 
 14.创建项目：npm create vite@latest react-vite -- --template react-ts 
-15. 
+15. 为什么不用requestionIdleCallback
+ 1. 兼容性差， 2.控制精细度，控制优先级， 3.执行时间间隔长， 4. 差异性，每个浏览器实现api方式不同
+ 内部用MessageChannel,是宏任务，才不会阻塞当前页面的更新， 较快执行0-1ms内触发， 
+ setTimeout有4-5ms， 嵌套层级太深，会强制执行4ms延迟

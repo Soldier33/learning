@@ -21,3 +21,4 @@ Object.defineProperty(this, 'data', {
 })
 8. li*30>lorem2
 9. 如果要更新包版本，可以删除node modules文件夹，然后重新安装，删除package-lock.json 
+10. bind 不会执行函数
